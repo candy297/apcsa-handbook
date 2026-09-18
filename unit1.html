@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docx-page-size" content="A4">
+  <title>APCSA 国际考备考手册 · 第一章 Using Objects and Methods</title>
+  <style>
+  /* ============================================
+   *  CSS @page 页面模型：封面无家具 / 正文页脚页码
+   * ============================================ */
+  @page {
+    @bottom-center { content: counter(page); }
+  }
+  @page cover {
+    @bottom-center { content: none; }
+  }
+  section[role="cover"] { page: cover; }
+
+  /* ============================================
+   *  :root 设计令牌映射
+   * ============================================ */
+  :root {
+    /* Typography - 来自 design_tokens */
+    --fs-title: var(--typography-fontSize-title, 18pt);
+    --fs-h1: var(--typography-fontSize-h1, 15pt);
+    --fs-h2: var(--typography-fontSize-h2, 14pt);
+    --fs-h3: var(--typography-fontSize-h3, 12pt);
+    --fs-body: var(--typography-fontSize-body, 12pt);
+    --fs-abstract: var(--typography-fontSize-abstract, 11pt);
+    --fs-small: var(--typography-fontSize-caption, 10.5pt);
+    --fs-foot: var(--typography-fontSize-footnote, 9pt);
+    --fs-code: var(--fs-small, 10.5pt);
+    --ff-heading: var(--typography-fontFamily-heading, "黑体", SimHei, sans-serif);
+    --ff-body: var(--typography-fontFamily-body, "宋体", SimSun, serif);
+    --ff-code: var(--typography-fontFamily-code, "Courier New", Consolas, monospace);
+    --lh-body: var(--typography-lineHeight-body, 1.5);
+    --lh-heading: var(--typography-lineHeight-heading, 1.5);
+    --fw-bold: var(--typography-fontWeight-heading, bold);
+    --fw-normal: var(--typography-fontWeight-body, normal);
+    /* Color - 来自 design_tokens + 扩展 */
+    --color-text: var(--color-text, #000000);
+    --color-heading: var(--color-heading, #000000);
+    --color-link: var(--color-link, #0000EE);
+    --color-bg: var(--color-background, #ffffff);
+    --color-tbl-head-bg: var(--color-tableHeaderBg, #f0f0f0);
+    --color-muted: #4b5563;
+    --color-border: #d0d0d0;
+    --color-rule: #cccccc;
+    --color-code-inline-bg: #f6f6f6;
+    --color-code-block-bg: #f8f8f8;
+    --color-code-fg: #1a1a1a;
+    --color-tbl-alt-bg: #fafafa;
+    --color-info: #01579b;
+    --color-info-bg: rgba(1, 87, 155, 0.05);
+    --color-warn: #e65100;
+    --color-warn-bg: rgba(230, 81, 0, 0.05);
+    --color-danger: #c62828;
+    --color-danger-bg: rgba(198, 40, 40, 0.05);
+    --color-success: #2e7d32;
+    --color-success-bg: rgba(46, 125, 50, 0.05);
+    --color-card-bg: #fdfdfd;
+    --color-analysis-bg: #f6f8fa;
+    --color-highlight-bg: #fff8e6;
+    /* Spacing - 来自 design_tokens + 扩展 */
+    --spacing-paragraph: var(--spacing-paragraph, 0.5em);
+    --spacing-section: var(--spacing-sectionGap, 1.5em);
+    --spacing-block: 0.8em;
+    --spacing-indent: var(--spacing-indent, 2em);
+    --spacing-tiny: 0.2em;
+    --spacing-xs: 0.3em;
+    --spacing-s: 0.4em;
+    --spacing-m: 0.5em;
+    --spacing-l: 0.6em;
+    --spacing-xl: 0.7em;
+    --spacing-2xl: 0.9em;
+    --spacing-3xl: 1.0em;
+    --spacing-4xl: 1.2em;
+    --spacing-5xl: 1.4em;
+    --spacing-6xl: 1.6em;
+    /* Layout */
+    --margin-page: 2.5cm;
+    --page-content-width: 16cm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--color-bg); }
+  body {
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    max-width: var(--page-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-m);
+  }
+
+  /* 标题：黑体加粗 */
+  h1, h2, h3, h4 {
+    font-family: var(--ff-heading);
+    color: var(--color-heading);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-heading);
+  }
+  h1 { font-size: var(--fs-title); text-align: center; margin: var(--spacing-4xl) 0 var(--spacing-s) 0; }
+  h2 {
+    font-size: var(--fs-h1);
+    margin-top: var(--spacing-5xl);
+    margin-bottom: var(--spacing-l);
+    padding-bottom: var(--spacing-tiny);
+    border-bottom: 1px solid var(--color-border);
+  }
+  h3 { font-size: var(--fs-h2); margin-top: var(--spacing-3xl); margin-bottom: var(--spacing-s); }
+  h4 { font-size: var(--fs-h3); margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xs); }
+
+  /* 段落：首行缩进 2em（学术论文规范） */
+  p { margin-bottom: var(--spacing-paragraph); text-indent: var(--spacing-indent); }
+  p.no-indent { text-indent: 0; }
+
+  /* 内联强调 */
+  strong { font-weight: var(--fw-bold); color: var(--color-text); }
+  em { font-style: italic; }
+  code {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    background: var(--color-code-inline-bg);
+    padding: 0 var(--spacing-tiny);
+    border-radius: 2px;
+  }
+
+  /* 列表 */
+  ul, ol { margin: var(--spacing-xs) 0 var(--spacing-l) 0; padding-left: var(--spacing-2xl); }
+  li { margin-bottom: var(--spacing-xs); }
+  li p { text-indent: 0; margin-bottom: var(--spacing-tiny); }
+
+  /* ============================================
+   *  封面
+   * ============================================ */
+  section[role="cover"] { padding: var(--spacing-3xl) 0 var(--spacing-3xl) 0; }
+  .cover-eyebrow { text-align: center; font-size: var(--fs-h3); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .cover-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-s) 0 var(--spacing-tiny) 0;
+    line-height: 1.4;
+  }
+  .cover-subtitle {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-tiny) 0 var(--spacing-4xl) 0;
+    letter-spacing: 0.05em;
+  }
+  .cover-meta { text-align: center; margin: var(--spacing-5xl) auto 0 auto; }
+  .cover-meta-info { border-collapse: collapse; margin: 0 auto; }
+  .cover-meta-info td {
+    padding: var(--spacing-xs) var(--spacing-2xl);
+    font-size: var(--fs-body);
+    border: none;
+    vertical-align: top;
+    text-align: left;
+  }
+  .cover-meta-info td:first-child { text-align: right; color: var(--color-muted); white-space: nowrap; }
+
+  /* ============================================
+   *  摘要（AP-01 必需）
+   * ============================================ */
+  .abstract {
+    margin-bottom: var(--spacing-section);
+    padding: var(--spacing-block);
+    border-left: 3px solid var(--color-info);
+  }
+  .abstract-heading { font-weight: var(--fw-bold); margin-bottom: var(--spacing-m); text-indent: 0; font-family: var(--ff-heading); }
+  .abstract-text { text-indent: var(--spacing-indent); margin-bottom: var(--spacing-m); }
+  .keywords { margin-top: var(--spacing-m); text-indent: 0; }
+
+  /* ============================================
+   *  目录
+   * ============================================ */
+  nav.doc-toc { margin: var(--spacing-4xl) 0 var(--spacing-6xl) 0; }
+  .toc-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-l);
+    text-indent: 0;
+  }
+  ol.toc-list { list-style: none; padding-left: 0; }
+  ol.toc-list li {
+    padding: 0.18em 0;
+    border-bottom: 1px dotted var(--color-border);
+  }
+  ol.toc-list li a { color: var(--color-text); text-decoration: none; display: block; }
+  ol.toc-list li a:hover { color: var(--color-link); }
+  ol.toc-list li .toc-sub { padding-left: var(--spacing-indent); font-size: var(--fs-small); }
+
+  /* ============================================
+   *  三线表
+   * ============================================ */
+  table.three-line-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: var(--spacing-m) 0 var(--spacing-xl) 0;
+  }
+  table.three-line-table caption {
+    font-size: var(--fs-small);
+    margin-bottom: var(--spacing-xs);
+    text-align: center;
+    font-family: var(--ff-heading);
+    color: var(--color-muted);
+    caption-side: top;
+  }
+  table.three-line-table thead tr:first-child { border-top: 1.5pt solid var(--color-text); }
+  table.three-line-table thead tr:last-child { border-bottom: 0.75pt solid var(--color-text); }
+  table.three-line-table tbody tr:last-child { border-bottom: 1.5pt solid var(--color-text); }
+  table.three-line-table td, table.three-line-table th {
+    border-left: none;
+    border-right: none;
+    padding: var(--spacing-xs) var(--spacing-l);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.three-line-table th {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    background: var(--color-tbl-head-bg);
+  }
+  table.three-line-table tbody tr:nth-child(even) { background: var(--color-tbl-alt-bg); }
+
+  /* ============================================
+   *  代码块
+   * ============================================ */
+  pre.code-block {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    line-height: 1.5;
+    background: var(--color-code-block-bg);
+    border-left: 3px solid var(--color-border);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-m) 0 var(--spacing-2xl) 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--color-code-fg);
+    border-radius: 2px;
+  }
+  pre.code-block code { background: transparent; padding: 0; font-size: var(--fs-code); border-radius: 0; }
+
+  /* ============================================
+   *  Callout
+   * ============================================ */
+  .callout {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-xl) 0;
+    border-left: 4px solid var(--color-info);
+    background: var(--color-info-bg);
+    border-radius: 2px;
+  }
+  .callout-warning { border-left-color: var(--color-warn); background: var(--color-warn-bg); }
+  .callout-danger  { border-left-color: var(--color-danger); background: var(--color-danger-bg); }
+  .callout-success { border-left-color: var(--color-success); background: var(--color-success-bg); }
+  .callout-title {
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-xs);
+    font-family: var(--ff-heading);
+    text-indent: 0;
+  }
+  .callout p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ============================================
+   *  MCQ / FRQ 题块
+   * ============================================ */
+  .q-block {
+    margin: var(--spacing-2xl) 0 var(--spacing-3xl) 0;
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+  }
+  .q-block .q-tag {
+    display: inline-block;
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h3);
+    color: var(--color-info);
+    margin-right: var(--spacing-m);
+  }
+  .q-block .q-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-s); }
+  .q-block .q-stem { margin: var(--spacing-s) 0 var(--spacing-m) 0; }
+  .q-block .q-stem p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-options { margin: var(--spacing-xs) 0 var(--spacing-m) 0; }
+  .q-block .q-options li { list-style: none; }
+  .q-block .q-analysis {
+    margin-top: var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-xl);
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    font-size: var(--fs-body);
+    border-radius: 2px;
+  }
+  .q-block .q-analysis p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-answer { font-weight: var(--fw-bold); color: var(--color-danger); }
+
+  .frq-block {
+    margin: var(--spacing-3xl) 0 var(--spacing-4xl) 0;
+    padding: var(--spacing-2xl) var(--spacing-3xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+    page-break-inside: avoid;
+  }
+  .frq-block .frq-header {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h2);
+    color: var(--color-info);
+    margin-bottom: var(--spacing-xs);
+  }
+  .frq-block .frq-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .frq-block .frq-section-title {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-xl) 0 var(--spacing-xs) 0;
+  }
+  .frq-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .frq-block .frq-stem p { text-indent: var(--spacing-indent); margin-bottom: var(--spacing-xs); }
+  .frq-block .solution-block {
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block {
+    background: var(--color-highlight-bg);
+    border-left: 3px solid var(--color-warn);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+
+  /* 知识点标签 */
+  .key-point { font-family: var(--ff-heading); font-weight: var(--fw-bold); color: var(--color-text); }
+
+  /* ============================================
+   *  参考文献（AP-02 必需）
+   * ============================================ */
+  .references {
+    margin-top: var(--spacing-5xl);
+    padding-top: var(--spacing-l);
+    border-top: 1px solid var(--color-border);
+  }
+  .references ol { padding-left: var(--spacing-indent); }
+  .references li { margin-bottom: var(--spacing-s); font-size: var(--fs-small); }
+  .ref-type { color: var(--color-muted); }
+
+  /* 打印 / 分页优化 */
+  @media print {
+    body { padding: 0; }
+    h2 { page-break-after: avoid; }
+    h3, h4 { page-break-after: avoid; }
+    .q-block, .frq-block { page-break-inside: avoid; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ============================================
+     封面页
+     ============================================ -->
+<section role="cover">
+  <p class="cover-eyebrow" style="text-align: center;">AP Computer Science A · 国际考备考手册</p>
+  <h1 class="cover-title" style="text-align: center;">APCSA 国际考备考手册</h1>
+  <p class="cover-subtitle" style="text-align: center;">第一章　Using Objects and Methods</p>
+
+  <div class="cover-meta" style="text-align: center;">
+    <table class="cover-meta-info">
+      <thead>
+        <tr><th>项</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>适用考试</td><td>AP Computer Science A 国际考（2025 秋新纲 · 2026 及以后）</td></tr>
+        <tr><td>课程章节</td><td>第一章 Using Objects and Methods（对应官方大纲 Unit 1）</td></tr>
+        <tr><td>考纲来源</td><td>College Board《AP Computer Science A Course and Exam Description, Effective Fall 2025》</td></tr>
+        <tr><td>真题来源</td><td>2021–2025 年近五年 APCSA 国际考 FRQ 真题、2025 新版 CED 官方样题、AP Classroom 官方 Progress Check 试题</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================
+     正文页
+     ============================================ -->
+<section role="body" data-page-restart="1">
+
+  <!-- 摘要（AP-01） -->
+  <section class="abstract" aria-label="摘要">
+    <p class="abstract-heading">摘　要</p>
+    <p class="abstract-text">本手册为 AP Computer Science A（APCSA）国际考备考系列的第一章，主题为 Using Objects and Methods，对应 College Board 2025 秋新版考纲 Unit 1（适用于 2026 年及以后考试）。手册按"考情速览—知识点梳理—易错点精讲—真题与解析—备考策略"五个部分组织：第一章系统梳理 15 个 Topic（Topic 1.1–1.15），覆盖 Java 程序基础、表达式与运算、方法、Math 类、对象与 String 五大板块，按 Learning Objective（LO）编号对照官方大纲；按失分频率排序 12 个高频易错点，给出正误对照与判断步骤；精选 15 道 MCQ（含 2025 新版 CED 官方样题与 AP Classroom 官方 Progress Check 试题）与 5 道 2021–2025 年国际考 FRQ 完整真题（每题含完整题面、官方参考解答与评分要点），覆盖考试结构 42 题 MCQ / 55% 与 4 题 FRQ / 45% 的最新分布。手册可作为学案随堂使用、考前冲刺复习与 AP Classroom 单元终结性测评的错题回炉对照资料。</p>
+    <p class="keywords"><strong>关键词：</strong>AP Computer Science A；2025 新版考纲；Java 基础；String 方法；Math.random；FRQ 真题解析；国际考备考</p>
+  </section>
+
+  <!-- 目录 -->
+  <nav class="doc-toc" aria-label="目录">
+    <p class="toc-title" style="text-align: center;">目　录</p>
+    <ol class="toc-list">
+      <li><a href="#section-1">一、本章定位与考情速览</a></li>
+      <li class="toc-sub"><a href="#section-1-1">1.1 新大纲四大单元与考试权重</a></li>
+      <li class="toc-sub"><a href="#section-1-2">1.2 考试结构</a></li>
+      <li class="toc-sub"><a href="#section-1-3">1.3 本章与 FRQ 的关联（备考重点提示）</a></li>
+      <li><a href="#section-2">二、知识点与考点梳理（Topic 1.1–1.15）</a></li>
+      <li class="toc-sub"><a href="#section-2-a">板块 A：Java 程序基础（Topic 1.1–1.2）</a></li>
+      <li class="toc-sub"><a href="#section-2-b">板块 B：表达式与运算（Topic 1.3–1.6）</a></li>
+      <li class="toc-sub"><a href="#section-2-c">板块 C：方法（Topic 1.7–1.10）</a></li>
+      <li class="toc-sub"><a href="#section-2-d">板块 D：Math 类（Topic 1.11）</a></li>
+      <li class="toc-sub"><a href="#section-2-e">板块 E：对象与 String（Topic 1.12–1.15）</a></li>
+      <li><a href="#section-3">三、重难点与易错点精讲</a></li>
+      <li><a href="#section-4">四、考纲对应的国际考真题与解析</a></li>
+      <li class="toc-sub"><a href="#section-4-1">4.1 MCQ 真题精选与解析</a></li>
+      <li class="toc-sub"><a href="#section-4-2">4.2 FRQ 真题精选与解析</a></li>
+      <li><a href="#section-5">五、备考策略与复习清单</a></li>
+      <li class="toc-sub"><a href="#section-5-1">5.1 复习优先级（按投入产出比排序）</a></li>
+      <li class="toc-sub"><a href="#section-5-2">5.2 考前自查清单</a></li>
+      <li class="toc-sub"><a href="#section-5-3">5.3 教师使用建议</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================
+       一、本章定位与考情速览
+       ============================================ -->
+  <h2 id="section-1">一、本章定位与考情速览</h2>
+  <p>本章是 APCSA 课程的开篇章节，对应官方大纲 Unit 1：Using Objects and Methods。内容覆盖 Java 程序的基本语法元素、表达式求值、方法的定义与调用、Math 类常用方法以及 String 类的核心 API。本章虽不涉及复杂的控制流与数据集合，但所学的"对象-方法-调用"思维模型贯穿全场考试，是后续 Unit 2（Selection and Iteration）、Unit 3（Class Creation）与 Unit 4（Data Collections）的基础。</p>
+
+  <h3 id="section-1-1">1.1 新大纲四大单元与考试权重</h3>
+  <p>2025 年秋起，APCSA 课程框架由旧的 10 个单元重组为 4 个单元，与本课程四个章节一一对应。选择题（MCQ）部分各单元权重如下：</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>单元（本课程章节）</th><th>MCQ 权重</th><th>建议课时</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unit 1：Using Objects and Methods（第一章）</td><td>15–25%</td><td>约 32–34 课时</td></tr>
+      <tr><td>Unit 2：Selection and Iteration（第二章）</td><td>25–35%</td><td>约 29–31 课时</td></tr>
+      <tr><td>Unit 3：Class Creation（第三章）</td><td>10–18%</td><td>约 20–22 课时</td></tr>
+      <tr><td>Unit 4：Data Collections（第四章）</td><td>30–40%</td><td>约 50–52 课时</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="section-1-2">1.2 考试结构</h3>
+  <p>考试整体由 Section I（MCQ）与 Section II（FRQ）两部分组成，时长各 90 分钟，分值占比与题量如下表所示。</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>部分</th><th>题量与时长</th><th>占比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Section I：选择题（MCQ，含独立题与成组题）</td><td>42 题 / 90 分钟</td><td>55%</td></tr>
+      <tr><td>Section II：自由作答题（FRQ）</td><td>4 题 / 90 分钟</td><td>45%</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="section-1-3">1.3 本章与 FRQ 的关联（备考重点提示）</h3>
+  <p>根据新版考纲，FRQ 第 1 题（Methods and Control Structures）分为两部分：</p>
+  <ul>
+    <li>Part A（4 分）：要求编写含条件或循环的方法，并调用题目所给类的方法；</li>
+    <li><strong>Part B（3 分）：明确要求调用 String 类的方法</strong>。</li>
+  </ul>
+  <p>也就是说，第一章的 String 方法（<code>length</code>、<code>substring</code>、<code>indexOf</code> 等）是 FRQ 的<strong>高频考点</strong>，必须达到"闭卷熟练"的程度。2021 年国际考 FRQ1（WordMatch）的 <code>scoreGuess</code> / <code>findBetterGuess</code> 就是综合运用 String 方法的典型（见本手册第四节 FRQ-5）。</p>
+
+  <div class="callout callout-warning">
+    <p class="callout-title">格式说明</p>
+    <p>2021–2025 年国际考采用旧版 9 分制 FRQ1（part (a) + part (b) 合计 9 分）；2026 年起改为新版 7 分制（Part A 4 分 + Part B 3 分）。以下真题按年份倒序排列，每题均给出完整题面、官方参考解答与评分要点。</p>
+  </div>
+
+  <p>此外，MCQ 中所有单元的题目都会大量阅读代码，第一章培养的<strong>代码追踪（tracing）能力</strong>是全场考试的基础。</p>
+
+  <!-- ============================================
+       二、知识点与考点梳理
+       ============================================ -->
+  <h2 id="section-2">二、知识点与考点梳理（Topic 1.1–1.15）</h2>
+  <p>本章共 15 个 Topic，按知识结构分为五大板块。每个知识点均标注考纲 Learning Objective（LO）编号，便于对照官方大纲复习。LO 编号格式为"单元号.Topic号.知识点小标号"，例如 LO 1.1.A 表示 Unit 1、Topic 1.1 的第 A 小点。</p>
+
+  <!-- 板块 A -->
+  <h3 id="section-2-a">板块 A：Java 程序基础（Topic 1.1–1.2）</h3>
+  <p>本板块聚焦程序设计的最基础概念：算法的描述方式、编译与执行流程、三类常见错误的区分，以及变量与三种基本数据类型的声明与使用。Topic 1.1–1.2 是整门课程的认知起点，MCQ 每年固定考查 1–2 道"哪种错误类型""哪种类型声明"的概念辨析题。</p>
+
+  <h4>A1. 算法、编程与编译器（Topic 1.1，LO 1.1.A–1.1.C）</h4>
+  <p class="key-point">核心概念：</p>
+  <ul>
+    <li><strong>算法（algorithm）</strong>：完成任务或解决问题的逐步过程，可以用自然语言或图示表示（LO 1.1.A）。</li>
+    <li><strong>顺序执行（sequencing）</strong>：过程中的步骤按顺序、一次一步地完成。</li>
+    <li><strong>编译与执行</strong>：代码可在任何文本编辑器中编写；IDE 集成了编写、编译、运行工具。编译器会检查<strong>部分</strong>错误，编译器能发现的错误必须修复后程序才能运行（LO 1.1.B）。</li>
+    <li><strong>三类错误 + 异常</strong>（LO 1.1.C，概念题高频考点）：</li>
+  </ul>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>错误类型</th><th>英文</th><th>发现时机</th><th>特征</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>语法错误</td><td>syntax error</td><td>编译期</td><td>违反语言规则，编译器报错</td></tr>
+      <tr><td>逻辑错误</td><td>logic error</td><td>测试期</td><td>程序能运行但结果不符合预期</td></tr>
+      <tr><td>运行时错误</td><td>run-time error</td><td>运行期</td><td>通常导致程序异常终止</td></tr>
+      <tr><td>异常</td><td>exception</td><td>运行期</td><td>一类运行时错误，中断程序正常执行流程</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>记忆口诀</strong>：编译器抓语法，测试抓逻辑，运行抓异常。判断"哪种错误"是 MCQ 常见的概念题。</p>
+
+  <h4>A2. 变量与数据类型（Topic 1.2，LO 1.2.A–1.2.B）</h4>
+  <p class="key-point">核心概念：</p>
+  <ul>
+    <li><strong>数据类型（data type）</strong> = 一组值 + 这组值上的操作。类型分为<strong>基本类型（primitive）</strong>和<strong>引用类型（reference）</strong>两大类（LO 1.2.A）。</li>
+    <li>本课程只考三种基本类型（LO 1.2.B.1）：<code>int</code>（整数）、<code>double</code>（实数）、<code>boolean</code>（true/false）。</li>
+    <li><strong>考纲排除项</strong>：<code>long</code>、<code>short</code>、<code>byte</code>、<code>float</code>、<code>char</code> 不在考试范围内。</li>
+    <li>变量是存储位置，有名字和类型；基本类型变量直接存值。</li>
+  </ul>
+
+<pre class="code-block"><code>int age = 16;          // 整数
+double gpa = 3.85;     // 实数
+boolean isPass = true; // 布尔值</code></pre>
+
+  <p><strong>选择题考法</strong>：给一个场景（如"存储精确到 0.1 度的体温"），选出正确的类型声明——精确到小数必须用 <code>double</code>，用 <code>int</code> 会丢失精度。</p>
+
+  <!-- 板块 B -->
+  <h3 id="section-2-b">板块 B：表达式与运算（Topic 1.3–1.6）</h3>
+  <p>本板块是 MCQ 中输出值类题目的"重灾区"，每年固定考查 3–4 道。重点是理解 Java 的混合运算规则（两个 int 运算仍为 int）、整数除法的截断、复合赋值运算符与自增运算符的语义，以及强制类型转换的"截断而非四舍五入"特性。整除、cast 位置、运算优先级三者的组合是常见陷阱。</p>
+
+  <h4>B1. 输出与字符串字面量（Topic 1.3，LO 1.3.A–1.3.B）</h4>
+  <ul>
+    <li><code>System.out.print</code> 输出后不换行；<code>System.out.println</code> 输出后换行（LO 1.3.A.1）。</li>
+    <li><strong>字面量（literal）</strong>：代码中固定值的表示。字符串字面量必须用双引号括起；未加引号的 <code>hello</code> 是变量名而非字符串，会引发编译错误。</li>
+    <li><strong>转义序列</strong>：<code>\"</code>（双引号）、<code>\\</code>（反斜杠）、<code>\n</code>（换行）——考试要求掌握这三种（LO 1.3.B.3）。</li>
+  </ul>
+
+<pre class="code-block"><code>System.out.print("cat ");
+System.out.println("dog ");
+System.out.println("horse ");
+System.out.print("cow ");
+// 输出：
+// cat dog
+// horse
+// cow</code></pre>
+
+  <h4>B2. 算术表达式（Topic 1.3，LO 1.3.C）</h4>
+  <ul>
+    <li>运算符：<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>、<code>%</code>（LO 1.3.C.2）。</li>
+    <li><strong>混合运算规则（本章第一高频考点）</strong>：
+      <ul>
+        <li>两个 <code>int</code> 运算 → 结果仍是 <code>int</code>；</li>
+        <li>至少一个 <code>double</code> 参与运算 → 结果为 <code>double</code>。</li>
+      </ul>
+    </li>
+    <li><strong>整数除法</strong>：两个 int 相除只保留商的整数部分，如 <code>5 / 2</code> 得 <code>2</code>，不是 <code>2.5</code>（LO 1.3.C.3）。</li>
+    <li><strong>取余 <code>%</code></strong>：<code>a % b</code> 是 a 除以 b 的余数。考纲只需掌握 a ≥ 0、b &gt; 0 的情况（LO 1.3.C.4）。</li>
+    <li><strong>运算优先级</strong>（LO 1.3.C.5）：<code>*</code>、<code>/</code>、<code>%</code> 高于 <code>+</code>、<code>-</code>；同级从左到右；括号可改变优先级。</li>
+    <li><strong>整数除以 0</strong> → <code>ArithmeticException</code>（LO 1.3.C.6）。double 参与的除零不在考试范围内。</li>
+  </ul>
+
+<pre class="code-block"><code>System.out.println(7 / 2);        // 3   （int / int = int，截断）
+System.out.println(7.0 / 2);      // 3.5 （有 double 参与）
+System.out.println(7 % 3);        // 1
+System.out.println(1 + 2 * 3 % 4); // 3  （先 2*3=6，再 6%4=2，再 1+2）</code></pre>
+
+  <h4>B3. 赋值语句与输入（Topic 1.4，LO 1.4.A–1.4.B）</h4>
+  <p>本节重点是赋值与输入的边界：变量必须先声明再赋值；引用类型可赋值为 <code>null</code>；<code>Scanner</code> 是获取输入的一种方式，但"具体怎么读"不考。</p>
+  <ul>
+    <li>变量必须<strong>先赋值才能使用</strong>；引用类型可赋值为对象或 <code>null</code>（LO 1.4.A.1）。</li>
+    <li><code>=</code> 是赋值：把右边表达式的值存入左边变量；右边先求值（LO 1.4.A.2）。</li>
+    <li>表达式求值产生<strong>单一值</strong>，且该值有类型（LO 1.4.A.3）。</li>
+    <li><code>Scanner</code> 类是获取键盘文本输入的一种方式；<strong>具体的输入方式不在考试范围内</strong>（LO 1.4.B）。</li>
+    <li><strong>考纲排除项</strong>：<code>a = b = 4;</code> 这类"表达式内赋值"不考。</li>
+  </ul>
+
+  <h4>B4. 强制类型转换与数值范围（Topic 1.5，LO 1.5.A–1.5.C）</h4>
+  <p>本节是 MCQ 中输出值类题目的另一高频来源。核心是 cast 的"截断"语义以及"四舍五入"必须靠手动加 0.5 实现的考点。</p>
+  <ul>
+    <li><code>(int)</code> 和 <code>(double)</code> 转换符可实现类型转换（LO 1.5.A.1）。</li>
+    <li><strong><code>double</code> 强转 <code>int</code> 是截断（truncate），不是四舍五入</strong>：直接丢掉小数点右侧数字（LO 1.5.A.2）。</li>
+    <li><code>int</code> 会<strong>自动拓宽（widening）</strong>为 <code>double</code>（LO 1.5.A.3），如 <code>double x = 3;</code> 合法。</li>
+    <li><strong>四舍五入技巧（考纲明确要求）</strong>（LO 1.5.A.4）：
+      <ul>
+        <li>非负数：<code>(int)(x + 0.5)</code></li>
+        <li>负数：<code>(int)(x - 0.5)</code></li>
+      </ul>
+    </li>
+    <li><code>int</code> 用 4 字节存储，范围是 <code>Integer.MIN_VALUE</code>（约 -21.47 亿）到 <code>Integer.MAX_VALUE</code>（约 21.47 亿）；超出范围发生<strong>整数溢出（overflow）</strong>，结果仍在 int 范围内但不是期望值（LO 1.5.B）。</li>
+    <li><code>double</code> 精度有限，超出会<strong>舍入误差（round-off error）</strong>，例如 <code>0.1 + 0.2</code> 不精确等于 <code>0.3</code>；避免误差的方法是使用 <code>int</code>（LO 1.5.C）。</li>
+  </ul>
+
+<pre class="code-block"><code>System.out.println((int) 3.99);   // 3   （截断，不是 4）
+System.out.println((int) -3.99);  // -3  （向零截断）
+System.out.println((int) (3.99 + 0.5)); // 4 （四舍五入技巧）
+
+int big = Integer.MAX_VALUE;
+System.out.println(big + 1);      // -2147483648 （溢出环绕）</code></pre>
+
+  <h4>B5. 复合赋值运算符（Topic 1.6，LO 1.6.A）</h4>
+  <ul>
+    <li><code>+=</code>、<code>-=</code>、<code>*=</code>、<code>/=</code>、<code>%=</code>：左值与右值做相应运算后赋回左值。</li>
+    <li><code>x++</code>、<code>x--</code>（<strong>后缀形式</strong>）：加 1 或减 1 后赋回。</li>
+    <li><strong>考纲排除项</strong>：前缀 <code>++x</code> 不考；<code>arr[x++]</code> 这类"在表达式内使用自增"不考。</li>
+  </ul>
+
+<pre class="code-block"><code>int num = 5;
+num *= 2;   // num = 10
+num %= 6;   // num = 4
+num++;      // num = 5</code></pre>
+
+  <!-- 板块 C -->
+  <h3 id="section-2-c">板块 C：方法（Topic 1.7–1.10）</h3>
+  <p>本板块是后续 FRQ 的"骨架"：写方法 = 读懂方法签名、确定参数列表、决定返回类型与 void 选择。MCQ 每年固定考查 1–2 道关于"哪个调用合法""void 与非 void 方法使用区别"的概念辨析题。</p>
+
+  <h4>C1. API 与库（Topic 1.7，LO 1.7.A）</h4>
+  <p>本节是概念性的：理解 API 文档的作用、库（library）按包（package）组织，以及"属性 = 变量、行为 = 方法"在 FRQ 注释中反复出现的考点。</p>
+  <ul>
+    <li>库（library）是类的集合；API 文档告诉程序员如何使用这些类。类库按<strong>包（package）</strong>组织。</li>
+    <li><strong>属性（attributes）</strong>用变量存储数据；<strong>行为（behaviors）</strong>由方法定义（LO 1.7.A.2）——"属性 = 变量、行为 = 方法"是概念题考点。</li>
+  </ul>
+
+  <h4>C2. 注释与文档（Topic 1.8，LO 1.8.A）</h4>
+  <p>本节聚焦 Javadoc 中的前置/后置条件（precondition / postcondition）。FRQ 题干几乎必含 precondition 行，必须能正确读懂。</p>
+  <ul>
+    <li>三种注释：<code>//</code> 单行、<code>/* */</code> 多行块、<code>/** */</code> Javadoc（生成 API 文档）。注释被编译器忽略。</li>
+    <li><strong>前置条件（precondition）</strong>：方法执行前必须为真的条件，方法<strong>不负责检查</strong>前置条件是否满足。</li>
+    <li><strong>后置条件（postcondition）</strong>：方法执行后必然为真的条件（返回值/对象状态）。</li>
+    <li>前置/后置条件的识别在 FRQ 题干中反复出现，务必能读懂注释。</li>
+  </ul>
+
+  <h4>C3. 方法签名（Topic 1.9，LO 1.9.A–1.9.B）</h4>
+  <p>本节是 FRQ 写代码的入门：方法签名 = 方法名 + 有序参数类型列表；理解 void 与非 void 方法的使用差异；掌握方法重载。</p>
+  <ul>
+    <li><strong>方法签名 = 方法名 + 有序参数类型列表</strong>，如 <code>sqrt(double)</code>。无参方法签名含空参数列表。</li>
+    <li><strong>参数（parameter）</strong>是方法头中声明的变量；<strong>实参（argument）</strong>是调用时传入的值，个数与类型必须与签名兼容，按<strong>值传递（call by value）</strong>传入副本。</li>
+    <li><strong>void 方法</strong>没有返回值，<strong>不能出现在表达式里</strong>，只能单独调用；<strong>非 void 方法</strong>返回一个值，必须存入变量或用于表达式中（LO 1.9.B.1–1.9.B.2）。</li>
+    <li><strong>重载（overloading）</strong>：同名但签名不同的多个方法（LO 1.9.B.4）。</li>
+    <li>方法调用会中断顺序执行流程：先执行完方法体（或遇到 <code>return</code>），再回到调用点的下一条语句（LO 1.9.B.5）。</li>
+    <li><strong>过程抽象（procedural abstraction）</strong>：知道方法做什么即可使用，无需知道如何实现（LO 1.9.A.1）。</li>
+  </ul>
+
+  <h4>C4. 调用类方法（Topic 1.10，LO 1.10.A）</h4>
+  <p>本节是 Math 类与 String 类的"调用语法"基础：static 方法用类名调用，与对象无关。</p>
+  <ul>
+    <li><strong>类方法（static 方法）</strong>属于类本身而非对象，方法头含 <code>static</code> 关键字。</li>
+    <li>调用格式：<code>类名.方法名(实参)</code>，如 <code>Math.sqrt(2.0)</code>。在定义类内部调用时类名可省略。</li>
+  </ul>
+
+  <!-- 板块 D -->
+  <h3 id="section-2-d">板块 D：Math 类（Topic 1.11）</h3>
+  <p>本板块是 MCQ 与 FRQ 双线考查的核心。其中 <code>Math.random()</code> 区间公式是本章第二高频考点，2024 年 FRQ1（Feeder）即直接考查 [10, 50] 区间的随机数生成。</p>
+
+  <h4>D1. Math 类方法（LO 1.11.A）</h4>
+  <p><code>Math</code> 类位于 <code>java.lang</code> 包，默认可用，只含类方法（static）。以下五个方法在考试时提供 Java Quick Reference，但必须会用：</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>方法</th><th>功能</th><th>示例</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>static int abs(int x)</code></td><td>int 绝对值</td><td><code>Math.abs(-5)</code> → <code>5</code></td></tr>
+      <tr><td><code>static double abs(double x)</code></td><td>double 绝对值</td><td><code>Math.abs(-2.5)</code> → <code>2.5</code></td></tr>
+      <tr><td><code>static double pow(double b, double e)</code></td><td>b 的 e 次方</td><td><code>Math.pow(2, 10)</code> → <code>1024.0</code></td></tr>
+      <tr><td><code>static double sqrt(double x)</code></td><td>非负平方根</td><td><code>Math.sqrt(9.0)</code> → <code>3.0</code></td></tr>
+      <tr><td><code>static double random()</code></td><td>返回 <code>[0.0, 1.0)</code> 随机数</td><td>见下方公式</td></tr>
+    </tbody>
+  </table>
+
+  <h4>D2. 随机数区间公式（本章第二高频考点，LO 1.11.A.3）</h4>
+  <p><code>Math.random()</code> 返回大于等于 0.0 且小于 1.0 的 <code>double</code>。通过算术运算与强制转换可生成指定区间的随机整数：</p>
+  <p><strong><code>[min, max]</code>（双闭区间）</strong>：</p>
+<pre class="code-block"><code>(int)(Math.random() * (max - min + 1)) + min</code></pre>
+
+  <p><strong><code>[min, max)</code>（左闭右开）</strong>：</p>
+<pre class="code-block"><code>(int)(Math.random() * (max - min)) + min</code></pre>
+
+  <p><strong>示例</strong>：生成 10 到 50（含）之间的随机整数：</p>
+<pre class="code-block"><code>(int)(Math.random() * 41) + 10   // 41 = 50 - 10 + 1</code></pre>
+
+  <p><strong>记忆要点</strong>：区间内整数的<strong>个数</strong>就是乘的系数；<code>+ min</code> 平移起点。MCQ 常给四个表达式让你判断"哪个能产生指定区间"。</p>
+
+  <!-- 板块 E -->
+  <h3 id="section-2-e">板块 E：对象与 String（Topic 1.12–1.15）</h3>
+  <p>本板块是 FRQ 重点考查的内容。对象（实例）的创建与方法是 MCQ 高频概念题；String 类的六个核心方法（<code>length</code>、<code>substring</code>、<code>indexOf</code>、<code>equals</code>、<code>compareTo</code>、<code>+</code>）是本章第三高频考点，也是 FRQ1 Part B 的必考内容。</p>
+
+  <h4>E1. 对象与类的关系（Topic 1.12，LO 1.12.A–1.12.B）</h4>
+  <ul>
+    <li><strong>类是蓝图（blueprint），对象是类的实例（instance）</strong>，有具体的属性值（LO 1.12.A.1）。</li>
+    <li>所有类都是 <code>Object</code> 类的子类（LO 1.12.A.3）。继承关系的设计与实现不在考试范围，但要理解"子类可以复用超类属性和行为"。</li>
+    <li>引用类型变量存的是<strong>对象引用（reference）</strong>，可理解为对象的内存地址（LO 1.12.B.1）。</li>
+    <li>概念题考法："story 是 Book 类的一个对象"的正确表述是——<strong>story 是 Book 类的实例，isHardcover 是 story 对象的属性</strong>。</li>
+  </ul>
+
+  <h4>E2. 对象创建与存储（Topic 1.13，LO 1.13.A–1.13.C）</h4>
+  <p>本节是 MCQ 概念题的高频区。理解 <code>new</code> + 构造器调用的语法，以及"只声明不创建"时引用变量为 <code>null</code> 的关键事实。</p>
+  <ul>
+    <li><strong>构造器（constructor）</strong>：与类同名、用于创建对象；构造器签名 = 类名 + 有序参数类型列表；构造器同样可以<strong>重载</strong>。</li>
+    <li>创建对象的语法：<code>new</code> + 构造器调用（LO 1.13.C.1）：</li>
+  </ul>
+
+<pre class="code-block"><code>Date birthday = new Date("September", 5);
+//      ^类型          ^new     ^构造器("September", 5)为实参</code></pre>
+
+  <ul>
+    <li>只声明不创建时，引用变量为 <code>null</code>：<code>Date d;</code> 或 <code>Date d = null;</code>。</li>
+    <li>构造器实参必须与参数列表<strong>类型兼容、顺序一致、个数相同</strong>（LO 1.13.C.3）。</li>
+    <li>构造器参数用来初始化对象的属性（LO 1.13.C.2）。</li>
+  </ul>
+
+  <h4>E3. 调用实例方法（Topic 1.14，LO 1.14.A）</h4>
+  <ul>
+    <li><strong>实例方法必须通过对象调用</strong>：<code>对象名.方法名(实参)</code>（点运算符）。</li>
+    <li><strong>在 <code>null</code> 引用上调用方法 → <code>NullPointerException</code></strong>（LO 1.14.A.2，异常类高频考点）。</li>
+    <li>区分记忆：static 方法用<strong>类名</strong>调用，实例方法用<strong>对象名</strong>调用。用类名调实例方法、或用对象名调 static 方法以外的错误形式都会导致编译错误。</li>
+  </ul>
+
+  <h4>E4. String 类（Topic 1.15，LO 1.15.A–1.15.B）——本章第三高频考点</h4>
+  <p>本节是 FRQ1 Part B 的必考内容，MCQ 每年固定考查 3–5 题。核心是 String 的<strong>不可变性</strong>（所有方法返回新串，不修改原串）以及六个必会方法的签名与陷阱。</p>
+  <p class="key-point">创建与拼接（LO 1.15.A）：</p>
+  <ul>
+    <li>String 可用字面量或构造器创建；位于 <code>java.lang</code> 包。</li>
+    <li><strong>String 是不可变的（immutable）</strong>：所有 String 方法都<strong>返回新对象</strong>，绝不修改原串（LO 1.15.A.3，最易错点）。</li>
+    <li><code>+</code> / <code>+=</code> 拼接产生新 String；任何类型与 String 用 <code>+</code> 连接会被隐式转为 String；对象连接时会隐式调用其 <code>toString</code> 方法（LO 1.15.A.4–1.15.A.5）。</li>
+  </ul>
+
+  <p class="key-point">六个必会方法（LO 1.15.B.2，均在 Java Quick Reference 中）：</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>方法</th><th>功能</th><th>易错点</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>int length()</code></td><td>字符个数</td><td>空串长度为 0</td></tr>
+      <tr><td><code>String substring(int from, int to)</code></td><td>返回 <code>[from, to-1]</code> 的子串</td><td><strong>含头不含尾</strong>，to 本身不含</td></tr>
+      <tr><td><code>String substring(int from)</code></td><td>返回 <code>substring(from, length())</code></td><td>等价于取到末尾</td></tr>
+      <tr><td><code>int indexOf(String str)</code></td><td>第一次出现 str 的下标，找不到返回 <strong>-1</strong></td><td>返回 -1 不是异常</td></tr>
+      <tr><td><code>boolean equals(Object other)</code></td><td>内容相同返回 true</td><td><strong>不能用 == 比较内容</strong></td></tr>
+      <tr><td><code>int compareTo(String other)</code></td><td>按字典序：小于返回负数，相等返回 0，大于返回正数</td><td><strong>只看符号，不看具体数值</strong></td></tr>
+    </tbody>
+  </table>
+
+  <ul>
+    <li>下标范围：<code>0</code> 到 <code>length()-1</code>；越界访问 → <code>IndexOutOfBoundsException</code>（LO 1.15.B.1）。</li>
+    <li>取下标 index 处的单个字符：<code>substring(index, index + 1)</code>（LO 1.15.B.3）。</li>
+  </ul>
+
+<pre class="code-block"><code>String str1 = "LMNOP";
+System.out.println(str1.length());          // 5
+System.out.println(str1.substring(3));       // "OP"    （下标3到末尾）
+System.out.println(str1.substring(2, 3));   // "N"     （只含下标2）
+System.out.println(str1.indexOf("NO"));     // 2
+System.out.println(str1.indexOf("X"));      // -1
+System.out.println("apple".compareTo("banana")); // 负数
+// 不可变性演示
+String s = "abc";
+s.substring(1);          // 返回 "bc"，但 s 仍是 "abc"！
+s = s.substring(1);       // 必须接住返回值，s 才变成 "bc"</code></pre>
+
+  <!-- ============================================
+       三、重难点与易错点精讲
+       ============================================ -->
+  <h2 id="section-3">三、重难点与易错点精讲</h2>
+  <p>以下 12 个易错点按"历年学生失分频率"排序，每条给出正误对照。<strong>建议考前逐条自查。</strong>易错点 1、2、5 是 MCQ 每年必考的"输出值类"题目；易错点 6、7、8 是"代码行为判断"类题目的常考点；易错点 9、10、11 则是 FRQ 中"接住返回值"和"子串边界"扣分的元凶。</p>
+
+  <h3>易错点 1：整数除法悄悄丢小数（失分率最高）</h3>
+<pre class="code-block"><code>double ans = 5 / 10;          // ❌ 结果是 0.0 ！（5/10 先按 int 算出 0）
+double ans = (double) 5 / 10; // ✔ 0.5（先把 5 转成 double）</code></pre>
+  <p><strong>规则</strong>：除法两侧都是 int → 结果一定是 int。变量已经声明为 double 也<strong>救不了</strong>右侧的表达式。修法：cast <strong>任意一个操作数</strong>即可（两个都 cast 也可以，但 cast 整个商太晚）。</p>
+
+  <h3>易错点 2：cast 的位置——太早、太晚都会错</h3>
+<pre class="code-block"><code>int b = (int)(a / 2);   // a=7.0 → (int)3.5 = 3   先除后截断
+int b = (int) a / 2;    // a=7.0 → 7 / 2 = 3      先截断再除（此处结果相同纯属巧合）
+double avg = (double)(sum / 2); // ❌ 太晚！sum/2 已按 int 截断，cast 只是换壳
+double avg = (double) sum / 2;   // ✔ 先转 double 再除</code></pre>
+  <p><strong>判断步骤</strong>：先按运算优先级确定每一步的类型，再看 cast 作用在哪一步。</p>
+
+  <h3>易错点 3：截断 ≠ 四舍五入，负数向零截断</h3>
+<pre class="code-block"><code>(int) 3.99  → 3
+(int) -3.99 → -3   // 向零截断，不是 -4</code></pre>
+  <p>四舍五入必须手动加 0.5：非负数 <code>(int)(x + 0.5)</code>，负数 <code>(int)(x - 0.5)</code>。注意 <code>(int)(-0.2 - 0.5)</code> = <code>(int)(-0.7)</code> = <code>0</code>，不要想当然写 -1。</p>
+
+  <h3>易错点 4：运算优先级——<code>%</code> 与 <code>*</code> <code>/</code> 同级</h3>
+  <p><code>1 + 2 * 3 % 4</code> 的计算顺序：<code>2*3=6</code> → <code>6%4=2</code> → <code>1+2=3</code>。<code>%</code> 的优先级与 <code>*</code>、<code>/</code> 相同，从左到右。写成"先加后模"必错。</p>
+
+  <h3>易错点 5：Math.random 区间公式记错端点</h3>
+  <ul>
+    <li><code>[0.0, 1.0)</code>：<code>Math.random()</code></li>
+    <li><code>[10, 50]</code>：<code>(int)(Math.random() * 41) + 10</code>（乘"个数"41，加"起点"10）</li>
+    <li><code>[10, 50)</code>：<code>(int)(Math.random() * 40) + 10</code></li>
+  </ul>
+  <p>MCQ 惯用陷阱：给的选项里有一个端点多乘了 1 或少乘了 1，用"区间内整数个数"验证。</p>
+
+  <h3>易错点 6：void 方法混入表达式</h3>
+<pre class="code-block"><code>public void totalAmount() { System.out.print(purchase + tax); }
+System.out.print(p.totalAmount()); // ❌ 编译错误：void 不能用于表达式
+p.totalAmount();                    // ✔ void 方法单独调用</code></pre>
+  <p>反向陷阱：非 void 方法只调用不接收，返回值被丢弃——编译能过，但输出往往是空（题目问"打印什么"时容易漏看）。</p>
+
+  <h3>易错点 7：static 与实例方法调错对象</h3>
+<pre class="code-block"><code>MagicNumber n1 = new MagicNumber();
+MagicNumber.add_2();   // ❌ 实例方法用类名调用 → 编译错误
+n1.add_2();           // ✔</code></pre>
+  <p>判断标准：方法头有没有 <code>static</code>。有 → 类名调用（如 <code>Math.abs</code>）；没有 → 必须先 <code>new</code> 对象再用对象名调用。</p>
+
+  <h3>易错点 8：null 引用调用方法</h3>
+<pre class="code-block"><code>Thing t = null;
+t.setColor("Green");   // 运行时 NullPointerException</code></pre>
+  <p><code>NullPointerException</code> 是运行时异常，不是编译错误——"这段代码会怎样"的选项里两者要分清。</p>
+
+  <h3>易错点 9：String 不可变，忘记接住返回值</h3>
+  <p>所有 String 方法都返回<strong>新</strong>串。<code>s.substring(1);</code> 单独一行对 s 毫无影响；必须 <code>s = s.substring(1);</code>。FRQ 中忘记赋回是常见扣分点。</p>
+
+  <h3>易错点 10：substring 含头不含尾 + 越界</h3>
+  <ul>
+    <li><code>substring(2, 5)</code> 取下标 2、3、4，共 3 个字符。</li>
+    <li>下标有效范围 <code>0</code> ~ <code>length()-1</code>；<code>substring</code> 的第二个参数最大到 <code>length()</code>（取到末尾），再大就越界。</li>
+    <li>越界 → <code>IndexOutOfBoundsException</code>（运行时异常）。</li>
+  </ul>
+
+  <h3>易错点 11：equals / compareTo 的返回值</h3>
+  <ul>
+    <li>比较内容必须 <code>s1.equals(s2)</code>；<code>==</code> 比较的是引用，内容相同也可能为 false（考试默认用 equals）。</li>
+    <li><code>compareTo</code> 返回值只看<strong>符号</strong>：负数、0、正数分别对应小于、等于、大于；不要假设返回 -1/1。</li>
+  </ul>
+
+  <h3>易错点 12：构造器重载的匹配</h3>
+  <p>构造器按"参数类型序列"匹配，允许 int 自动拓宽为 double（<code>new Purchase(1.5, 2)</code> 中 2 → 2.0 合法），但 double 不能自动变 int。判断"哪个新构造器头合法"时，先写下已有构造器的签名，<strong>签名完全相同</strong>的才是非法重载。</p>
+
+  <!-- ============================================
+       四、考纲对应的国际考真题与解析
+       ============================================ -->
+  <h2 id="section-4">四、考纲对应的国际考真题与解析</h2>
+  <p>以下 MCQ 精选 15 题：第 1–4 题为 2025 新版 CED 官方样题（答案经官方 Answer Key 核对）；第 5–15 题为 College Board 官方 Progress Check 试题。FRQ 精选 5 题：2021–2025 年 APCSA 国际考 Question 1 完整真题，按年份倒序排列（FRQ-1 = 2025，FRQ-5 = 2021）。每题标注考点（对应第二节知识点编号），解析给出完整推理过程。</p>
+
+  <!-- 4.1 MCQ -->
+  <h3 id="section-4-1">4.1 MCQ 真题精选与解析</h3>
+  <p>本节 15 道 MCQ 覆盖 A、B、C、D、E 五大板块的高频考点：整除与 cast、随机数区间、构造器调用、String 方法、static/实例方法、void 与非 void 方法签名、equals/compareTo 等。建议限时训练（15 题控制在 20 分钟内）。</p>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-1</span>CED 官方样题 · 考点：B4 强制转换</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>double q = 15.0;
+int r = 2;
+
+double x = (int) (q / r);
+double y = q / r;
+System.out.println(x + " " + y);</code></pre>
+    <p class="q-stem">执行该代码段后打印的结果是什么？</p>
+    <ul class="q-options">
+      <li>(A) 7.0 7.0</li>
+      <li>(B) 7.0 7.5</li>
+      <li>(C) 7.5 7.0</li>
+      <li>(D) 7.5 7.5</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>q / r</code>：double 与 int 相除 → 15.0 / 2 = 7.5。<code>x</code>：<code>(int)(7.5)</code> 截断为 7，再存入 double 得 7.0。<code>y</code>：无 cast，直接 7.5。输出 <code>7.0 7.5</code>。答案：<span class="q-answer">B</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-2</span>CED 官方样题 · 考点：D2 随机数区间</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>int x = ((int) (Math.random() * 10)) + 5;
+int y = ((int) (Math.random() * 5)) + 10;
+System.out.println(x + " " + y);</code></pre>
+    <p class="q-stem">执行该代码段后，以下哪项<strong>可能</strong>被打印？</p>
+    <ul class="q-options">
+      <li>(A) 8 15</li>
+      <li>(B) 9 12</li>
+      <li>(C) 10 7</li>
+      <li>(D) 15 11</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>x</code> 的取值范围：<code>(int)([0,10)) + 5</code> = [5, 14]；<code>y</code> 的范围：<code>(int)([0,5)) + 10</code> = [10, 14]。逐项检查：(A) y=15 越界；(C) y=7 越界；(D) x=15 越界；(B) x=9、y=12 都在范围内。答案：<span class="q-answer">B</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-3</span>CED 官方样题 · 考点：E2 构造器调用</p>
+    <p class="q-stem"><strong>考虑以下 Date 类。</strong></p>
+<pre class="code-block"><code>public class Date
+{
+    private String month;
+    private int day;
+
+    public Date(String m, int d)
+    { /* implementation not shown */ }
+
+    /*  Class contains no other constructors.
+        Other methods are not shown. */
+}</code></pre>
+    <p class="q-stem">在 Date 以外的类中，以下哪段代码能正确创建一个 Date 对象的实例？</p>
+    <ul class="q-options">
+      <li>(A) <code>Date birthday = new Date("September", "5th");</code></li>
+      <li>(B) <code>Date birthday = new Date("September", 5);</code></li>
+      <li>(C) <code>Date birthday = new Date("September 5");</code></li>
+      <li>(D) <code>Date birthday = new Date();</code><br>
+          <code>birthday.month = "September";</code><br>
+          <code>birthday.day = 5;</code></li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：类中唯一的构造器签名是 <code>Date(String, int)</code>，实参必须"个数 2、类型依次 String、int"。(A) 第二个实参是 String；(C) 只有一个 String 参数；(D) 无参构造器不存在，且从类外直接访问 private 属性非法。答案：<span class="q-answer">B</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-4</span>CED 官方样题 · 考点：E4 String 方法</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>String str1 = "LMNOP";
+String str2 = str1.substring(3);
+str2 += str1.substring(2, 3);</code></pre>
+    <p class="q-stem">执行该代码段后 str2 的值是什么？</p>
+    <ul class="q-options">
+      <li>(A) "OPN"</li>
+      <li>(B) "OPNO"</li>
+      <li>(C) "NOPM"</li>
+      <li>(D) "NOPMN"</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>str1.substring(3)</code> 从下标 3 取到末尾 → "OP"。<code>str1.substring(2, 3)</code> 含头不含尾，只有下标 2 一个字符 → "N"。拼接：<code>"OP" + "N"</code> = "OPN"。答案：<span class="q-answer">A</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-5</span>Progress Check 官方题 · 考点：B2 运算优先级</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>int a = 1;
+int b = 2;
+int c = 3;
+int d = 4;
+double x = a + b * c % d;</code></pre>
+    <p class="q-stem">代码段执行后 x 的值是多少？</p>
+    <ul class="q-options">
+      <li>(A) 1.0　(B) 2.5　(C) 3.0　(D) 7.0　(E) 9.0</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>*</code> 与 <code>%</code> 同级，从左到右：<code>b*c=6</code> → <code>6%d=2</code> → <code>a+2=3</code>。int 结果 3 自动拓宽存入 double，x = 3.0。答案：<span class="q-answer">C</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-6</span>Progress Check 官方题 · 考点：B2 整数除法</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>int x = 10;
+int y = 20;
+System.out.print(y + x / y);</code></pre>
+    <p class="q-stem">打印结果是什么？</p>
+    <ul class="q-options">
+      <li>(A) 1　(B) 1.5　(C) 3　(D) 20　(E) 20.5</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：先算 <code>x / y</code>：int 除 int → <code>10 / 20 = 0</code>（截断）。再算 <code>y + 0 = 20</code>。注意不是从左到右先算 <code>y + x</code>。答案：<span class="q-answer">D</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-7</span>Progress Check 官方题 · 考点：B2 整数除法与取余</p>
+    <p class="q-stem"><strong>以下哪些算术表达式的值为 1？</strong></p>
+<pre class="code-block"><code>I.   2 / 5 % 3
+II.  2 / (5 % 3)
+III. 2 / 5 + 1</code></pre>
+    <ul class="q-options">
+      <li>(A) 只有 I　(B) 只有 II　(C) I 和 II　(D) II 和 III　(E) I、II 和 III</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：I：<code>2/5=0</code>，<code>0%3=0</code>，不是 1。II：<code>5%3=2</code>，<code>2/2=1</code> ✔。III：<code>2/5=0</code>，<code>0+1=1</code> ✔。答案：<span class="q-answer">D</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-8</span>Progress Check 官方题 · 考点：B4/B5 复合赋值</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>double avg = 15 + 20;
+avg /= 2;</code></pre>
+    <p class="q-stem">以下哪项最好地描述了代码段的行为？</p>
+    <ul class="q-options">
+      <li>(A) 将 17 存入 avg，因为 17 是 35 除以 2 整数除法的结果</li>
+      <li>(B) 将 18 存入 avg，因为 18 是 35 除以 2 整数除法的结果</li>
+      <li>(C) 将 17.5 存入 avg，因为 17.5 是 35.0 除以 2 浮点除法的结果</li>
+      <li>(D) 代码不编译，因为 int 值不能加到 double 变量</li>
+      <li>(E) 代码不编译，因为 double 不能除以 int</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>15 + 20</code> 赋给 <code>double avg</code> 时自动拓宽为 35.0；<code>avg /= 2</code> 即 <code>35.0 / 2</code>，浮点除法得 17.5。答案：<span class="q-answer">C</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-9</span>Progress Check 官方题 · 考点：B4 截断与四舍五入技巧</p>
+    <p class="q-stem"><strong>考虑以下代码段。</strong></p>
+<pre class="code-block"><code>double p = 10.6;
+double n = -0.2;
+System.out.println((int) (p + 0.5));
+System.out.print((int) (n - 0.5));</code></pre>
+    <p class="q-stem">打印结果是什么？</p>
+    <ul class="q-options">
+      <li>(A) 10 换行 -1　(B) 10 换行 0　(C) 11 换行 -1　(D) 11 换行 0　(E) 11 换行 1</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：第一行：<code>p+0.5 = 11.1</code>，<code>(int)11.1</code> 截断 → 11。第二行：<code>n-0.5 = -0.7</code>，<strong>向零截断</strong> → 0，不是 -1。答案：<span class="q-answer">D</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-10</span>Progress Check 官方题 · 考点：B4 整数除法排错</p>
+    <p class="q-stem"><strong>以下代码段想显示 0.5。</strong></p>
+<pre class="code-block"><code>int num1 = 5;
+int num2 = 10;
+double ans = num1 / num2;
+System.out.print(ans);</code></pre>
+    <p class="q-stem">以下哪项最好地描述了代码段中的错误（如果有）？</p>
+    <ul class="q-options">
+      <li>(A) 没有错误，代码按预期工作</li>
+      <li>(B) 应该把表达式 num1 / num2 整体 cast 为 double</li>
+      <li>(C) 应该把 num1 或 num2 其中一个 cast 为 double</li>
+      <li>(D) 应该把 ans 声明为 int</li>
+      <li>(E) 应该把 num1 和 num2 初始化为 5.0 和 10.0</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>num1 / num2</code> 两侧都是 int，先算出 0，再存入 double 得 0.0。(B) <code>(double)(num1/num2)</code> cast 太晚，无用。(C) cast 任一操作数即可让除法按 double 进行。答案：<span class="q-answer">C</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-11</span>Progress Check 官方题 · 考点：E1 对象与引用</p>
+    <p class="q-stem"><strong>考虑以下类声明。</strong></p>
+<pre class="code-block"><code>public class Thing
+{
+    private String color;
+    public Thing()
+    { color = "Blue"; }
+    public Thing(String setColor)
+    { color = setColor; }
+}</code></pre>
+    <p class="q-stem">在 Thing 以外的类中，以下哪段代码会创建一个值为 <strong>null</strong> 的 Thing 类型引用？</p>
+    <ul class="q-options">
+      <li>(A) <code>Thing someThing = new Thing("Green");</code></li>
+      <li>(B) <code>Thing someThing = new Thing("");</code></li>
+      <li>(C) <code>Thing someThing = new Thing();</code></li>
+      <li>(D) <code>Thing someThing;</code></li>
+      <li>(E) <code>Thing("Green");</code></li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：只声明不初始化的引用变量默认为 null。(A)(C) 用构造器创建了对象；(B) 空串不是 null；(E) 缺少变量声明和 <code>new</code>，语法错误。答案：<span class="q-answer">D</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-12</span>Progress Check 官方题 · 考点：E3 实例方法调用</p>
+    <p class="q-stem"><strong>考虑以下类。</strong></p>
+<pre class="code-block"><code>public class MagicNumber
+{
+    private int num;
+    public MagicNumber()
+    { num = 10; }
+    public void displayNumber()
+    { System.out.println(num); }
+    public void add_2()
+    { num = num + 2; }
+}</code></pre>
+    <p class="q-stem">在其他类的方法中，以下哪段代码能<strong>编译通过</strong>？</p>
+<pre class="code-block"><code>I.   MagicNumber.add_2();
+     MagicNumber.displayNumber();
+II.  MagicNumber n1 = new MagicNumber();
+     n1.add_2();
+     n1.displayNumber();
+III. n2.add_2();
+     n2.displayNumber();</code></pre>
+    <ul class="q-options">
+      <li>(A) 只有 I　(B) 只有 II　(C) 只有 III　(D) II 和 III　(E) 都不能编译</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：<code>add_2</code> 和 <code>displayNumber</code> 是<strong>实例方法</strong>（无 static），必须用对象名调用。I 用类名调实例方法，编译错误；II 先 new 对象再调用，正确；III 中 n2 从未声明，编译错误。答案：<span class="q-answer">B</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-13</span>Progress Check 官方题 · 考点：C3 方法签名与类型兼容</p>
+    <p class="q-stem"><strong>考虑以下方法。</strong></p>
+<pre class="code-block"><code>public double secret(int x, double y)
+{ return x / 2.0; }</code></pre>
+    <p class="q-stem">在与 secret 同一个类的方法中，以下哪行代码能<strong>编译通过</strong>？</p>
+    <ul class="q-options">
+      <li>(A) <code>int result = secret(4, 4);</code></li>
+      <li>(B) <code>int result = secret(4, 4.0);</code></li>
+      <li>(C) <code>double result = secret(4, 4.0);</code></li>
+      <li>(D) <code>double result = secret(4.0, 4);</code></li>
+      <li>(E) <code>double result = secret(4.0, 4.0);</code></li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：形参 <code>(int, double)</code>：第一个实参必须是 int 兼容，第二个是 double（int 可自动拓宽）。调用侧没有问题的是 (A)(B)(C)，但返回类型是 double——(A)(B) 把 double 赋给 int 变量，编译错误。(D)(E) 第一个实参 4.0 是 double，不能自动变 int。答案：<span class="q-answer">C</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-14</span>Progress Check 官方题 · 考点：C3 void 方法与实参传递</p>
+    <p class="q-stem"><strong>考虑以下方法。</strong></p>
+<pre class="code-block"><code>public void printSomething(int num, boolean val)
+{
+    num--;
+    System.out.print(val);
+    System.out.print(num);
+}</code></pre>
+    <p class="q-stem">在与 printSomething 同一个类的方法中执行以下代码段，打印结果是什么？</p>
+<pre class="code-block"><code>printSomething(1, true);
+printSomething(2, true);</code></pre>
+    <ul class="q-options">
+      <li>(A) 0true1true　(B) 1true2true　(C) true0true1　(D) true1true0　(E) true1true2</li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：每次调用 <code>num</code> 是实参的<strong>副本</strong>（call by value）。第一次：num=1 减 1 得 0，先打印 val 再打印 num → "true0"；第二次同理 → "true1"。拼接为 "true0true1"。答案：<span class="q-answer">C</span></p>
+    </div>
+  </div>
+
+  <div class="q-block">
+    <p class="q-meta"><span class="q-tag">MCQ-15</span>Progress Check 官方题 · 考点：C3 非 void 方法返回值的使用</p>
+    <p class="q-stem"><strong>考虑以下方法，它把华氏温度转换为摄氏温度。</strong></p>
+<pre class="code-block"><code>public double fahrenheitToCelsius(double f)
+{
+    double c = (f - 32) * 5 / 9;
+    return c;
+}</code></pre>
+    <p class="q-stem">在与 fahrenheitToCelsius 同一个类的方法中，以下哪段代码能打印 32 华氏度对应的摄氏温度？</p>
+    <ul class="q-options">
+      <li>(A) <code>double f = 32.0;</code> <code>fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
+      <li>(B) <code>double f = 32.0;</code> <code>f = fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
+      <li>(C) <code>double f = 32.0;</code> <code>fahrenheitToCelsius(f);</code> <code>System.out.println(f);</code></li>
+      <li>(D) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius();</code> <code>System.out.println(c);</code></li>
+      <li>(E) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius(f);</code> <code>System.out.println(c);</code></li>
+    </ul>
+    <div class="q-analysis">
+      <p><strong>解析</strong>：方法需要<strong>一个 double 实参</strong>且返回值要<strong>接住</strong>。(A)(D) 无实参调用，编译错误；(B) 无实参；(C) 调用正确但返回值被丢弃，打印的仍是 32.0（华氏）。(E) 实参正确、返回值存入 c 再打印。答案：<span class="q-answer">E</span></p>
+    </div>
+  </div>
+
+  <!-- 4.2 FRQ -->
+  <h3 id="section-4-2">4.2 FRQ 真题精选与解析</h3>
+  <p>本节 5 道 FRQ 覆盖 2021–2025 年近五年国际考 Question 1 的完整真题，题面、官方参考解答、评分要点齐全。建议手写后对照评分要点互评，模拟真实阅卷视角。</p>
+
+  <!-- FRQ-1 2025 DogWalker -->
+  <div class="frq-block">
+    <p class="frq-header">FRQ-1【2025 年国际考真题 · Question 1】DogWalker</p>
+    <p class="frq-meta">考点：E2 对象创建与交互、E3 调用实例方法、C3 方法调用流程、第二章条件与循环</p>
+    <p class="frq-section-title">完整题面：</p>
+    <p>本题涉及通过遛狗公司付费遛狗服务。一家遛狗公司在一天中的每个小时都有不同数量的狗需要遛。<code>DogWalkCompany</code> 类定义如下。</p>
+<pre class="code-block"><code>public class DogWalkCompany
+{
+    /**
+     * Returns the number of dogs, always greater than 0, that are available
+     * for a walk during the time specified by hour
+     * Precondition: 0 &lt;= hour &lt;= 23
+     */
+    public int numAvailableDogs(int hour)
+    { /* implementation not shown */ }
+
+    /**
+     * Decreases, by numberDogsWalked, the number of dogs available for a walk
+     * during the time specified by hour
+     * Preconditions: 0 &lt;= hour &lt;= 23
+     *                numberDogsWalked &gt; 0
+     */
+    public void updateDogs(int hour, int numberDogsWalked)
+    { /* implementation not shown */ }
+
+    /* There may be instance variables, constructors,
+       and methods that are not shown. */
+}</code></pre>
+    <p>一名遛狗员隶属于一家遛狗公司，用 <code>DogWalker</code> 类表示。你需要完成该类中的两个方法。</p>
+<pre class="code-block"><code>public class DogWalker
+{
+    /** The maximum number of dogs this walker can walk simultaneously per hour */
+    private int maxDogs;
+    /** The dog-walking company this dog walker is associated with */
+    private DogWalkCompany company;
+
+    /**
+     * Assigns max to maxDogs and comp to company
+     * Precondition: max &gt; 0
+     */
+    public DogWalker(int max, DogWalkCompany comp)
+    { /* implementation not shown */ }
+
+    /**
+     * Takes at least one dog for a walk during the time specified by hour,
+     * as described in part (a)
+     * Preconditions: 0 &lt;= hour &lt;= 23
+     *                maxDogs &gt; 0
+     */
+    public int walkDogs(int hour)
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Performs an entire dog-walking shift and returns the amount earned,
+     * in dollars, as described in part (b)
+     * Preconditions: 0 &lt;= startHour &lt;= endHour &lt;= 23
+     *                maxDogs &gt; 0
+     */
+    public int dogWalkShift(int startHour, int endHour)
+    { /* to be implemented in part (b) */ }
+
+    /* There may be instance variables, constructors,
+       and methods that are not shown. */
+}</code></pre>
+    <p class="frq-section-title">Part A · Official English Wording (from College Board 2025 FRQ #1)</p>
+    <p><strong>A.</strong> Write the <code>walkDogs</code> method, which updates and returns the number of dogs this dog walker walks during the time specified by <code>hour</code>. Values of <code>hour</code> range from 0 to 23, inclusive.</p>
+    <p>A helper method, <code>numAvailableDogs</code>, has been provided in the <code>DogWalkCompany</code> class. The method returns the number of dogs available to be taken for a walk at a given <code>hour</code>. The dog walker will always walk as many dogs as the dog-walking company has available to walk, as long as the available number of dogs is not greater than the maximum number of dogs that the dog walker can handle, represented by the value of <code>maxDogs</code>.</p>
+    <p>Another helper method, <code>updateDogs</code>, has also been provided in the <code>DogWalkCompany</code> class. So that multiple dog walkers do not sign up to walk the same dogs, the <code>walkDogs</code> method should use <code>updateDogs</code> to update the dog-walking company with the number of dogs this dog walker will walk during the given <code>hour</code>. The parameters of the <code>updateDogs</code> method indicate how many dogs this dog walker will walk during the time specified by <code>hour</code>.</p>
+    <p>For example, if the dog-walking company has 10 dogs that need to be walked at the given <code>hour</code> but the dog walker&rsquo;s maximum is 4, the <code>updateDogs</code> method should be used to indicate that this dog walker will walk 4 of the 10 dogs during the given <code>hour</code>. As another example, if the dog-walking company has 3 dogs that need to be walked at the given <code>hour</code> and the dog walker&rsquo;s maximum is 4, the <code>updateDogs</code> method should be used to indicate that this dog walker will walk all 3 of the available dogs during the given <code>hour</code>.</p>
+    <p>The <code>walkDogs</code> method should return the number of dogs to be walked by this dog walker during the time specified by <code>hour</code>.</p>
+    <p>Complete method <code>walkDogs</code>. You must use <code>numAvailableDogs</code> and <code>updateDogs</code> appropriately to receive full credit.</p>
+    <p class="frq-section-title">(a)</p>
+    <p>编写 <code>walkDogs</code> 方法：更新并返回该遛狗员在 <code>hour</code> 时段遛的狗的数量。<code>hour</code> 取值范围是 0 到 23（含）。</p>
+    <p><code>DogWalkCompany</code> 类已提供辅助方法 <code>numAvailableDogs</code>，返回指定小时可遛的狗数。遛狗员总是尽可能多遛——只要公司可用狗数不超过 <code>maxDogs</code>，就全遛；超过则只遛 <code>maxDogs</code> 只。<code>DogWalkCompany</code> 类还提供 <code>updateDogs</code> 方法，用于将指定小时的可遛数量减少相应值，以避免多名遛狗员重复认领同一批狗。</p>
+    <p>例如，若某小时公司有 10 只狗需遛，而 <code>maxDogs</code> 为 4，则应调用 <code>updateDogs</code> 表明该遛狗员遛 4 只；若公司有 3 只而 <code>maxDogs</code> 为 4，则表明遛 3 只。方法返回该遛狗员本次遛的狗数。</p>
+    <p class="frq-section-title">Part B · Official English Wording (from College Board 2025 FRQ #1)</p>
+    <p><strong>B.</strong> Write the <code>dogWalkShift</code> method, which performs a dog-walking shift of the hours in the range <code>startHour</code> to <code>endHour</code>, inclusive, and returns the total amount earned. For example, a dog-walking shift from 14 to 16 is composed of three one-hour dog walks starting at hours 14, 15, and 16.</p>
+    <p>For each <code>hour</code>, the base pay is $5 per dog walked plus a bonus of $3 if at least one of the following is true.</p>
+    <ul>
+      <li><code>maxDogs</code> dogs are walked</li>
+      <li>the walk occurs between the peak hours of 9 and 17, inclusive</li>
+    </ul>
+    <p>The following table shows an example of the calculated amount earned by walking dogs from hour 7 through hour 10, inclusive.</p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Hour</th><th>Maximum Number of Dogs</th><th>Number of Dogs Walked</th><th>Amount Earned, in Dollars</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>7</td><td>3</td><td>3</td><td>3 &times; 5 + 3 = 18</td></tr>
+        <tr><td>8</td><td>3</td><td>2</td><td>2 &times; 5 = 10</td></tr>
+        <tr><td>9</td><td>3</td><td>2</td><td>2 &times; 5 + 3 = 13</td></tr>
+        <tr><td>10</td><td>3</td><td>3</td><td>3 &times; 5 + 3 = 18</td></tr>
+        <tr><td></td><td></td><td><strong>Total</strong></td><td><strong>59</strong></td></tr>
+      </tbody>
+    </table>
+    <p>Complete method <code>dogWalkShift</code>. Assume that <code>walkDogs</code> works as specified, regardless of what you wrote in part (a). You must use <code>walkDogs</code> appropriately to earn full credit.</p>
+    <p class="frq-section-title">(b)</p>
+    <p>编写 <code>dogWalkShift</code> 方法：完成从 <code>startHour</code> 到 <code>endHour</code>（含）的一整个遛狗班次，并返回总收入（美元）。例如，从 14 时到 16 时的班次包含 14、15、16 三个小时的遛狗。</p>
+    <p>每小时的底薪是 5 美元/只，外加 3 美元奖金，当且仅当满足以下至少一个条件：</p>
+    <ul>
+      <li>该小时遛了 <code>maxDogs</code> 只狗；</li>
+      <li>该小时在 peak hours 9–17（含）之间。</li>
+    </ul>
+    <p>下表展示了从 7 时到 10 时（含）的一个示例。</p>
+
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Hour</th><th>Maximum Number of Dogs</th><th>Number of Dogs Walked</th><th>Amount Earned, in Dollars</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>7</td><td>3</td><td>3</td><td>3 × 5 + 3 = 18</td></tr>
+        <tr><td>8</td><td>3</td><td>2</td><td>2 × 5 = 10</td></tr>
+        <tr><td>9</td><td>3</td><td>2</td><td>2 × 5 + 3 = 13</td></tr>
+        <tr><td>10</td><td>3</td><td>3</td><td>3 × 5 + 3 = 18</td></tr>
+        <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>59</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p class="frq-section-title">官方参考解答：</p>
+    <div class="solution-block">
+<pre class="code-block"><code>// (a)
+public int walkDogs(int hour)
+{
+    int dogsToWalk = company.numAvailableDogs(hour);
+    if (dogsToWalk &gt; maxDogs)
+    {
+        dogsToWalk = maxDogs;
+    }
+    company.updateDogs(hour, dogsToWalk);
+    return dogsToWalk;
+}
+
+// (b)
+public int dogWalkShift(int startHour, int endHour)
+{
+    int totalPay = 0;
+    for (int hour = startHour; hour &lt;= endHour; hour++)
+    {
+        int dogs = walkDogs(hour);
+        int hourPay = 5 * dogs;
+        if (dogs == maxDogs || (hour &gt;= 9 &amp;&amp; hour &lt;= 17))
+        {
+            hourPay += 3;
+        }
+        totalPay += hourPay;
+    }
+    return totalPay;
+}</code></pre>
+    </div>
+
+    <p class="frq-section-title">解析与评分要点：</p>
+    <div class="analysis-block">
+      <ul>
+        <li>Part (a) 共 4 分：调用 <code>company</code> 的辅助方法；比较可用狗数与 <code>maxDogs</code>；以正确参数调用 <code>updateDogs</code>；返回计算值。</li>
+        <li>Part (b) 共 5 分：正确遍历 <code>startHour</code> 到 <code>endHour</code>；在循环中调用 <code>walkDogs</code> 并使用返回值；计算每小时底薪；正确判断奖金条件（注意两个条件只要满足其一即可，不能要求同时满足）；累加并返回总收入。</li>
+        <li>关键易错点：<code>updateDogs</code> 是 void 方法，不能赋值；<code>walkDogs</code> 返回的 dogs 必须用于计算薪酬，不要重复调用导致公司数据被重复扣减。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FRQ-2 2024 Feeder -->
+  <div class="frq-block">
+    <p class="frq-header">FRQ-2【2024 年国际考真题 · Question 1】Feeder</p>
+    <p class="frq-meta">考点：D2 Math.random 区间公式、B4 强制转换、第二章 if / 循环</p>
+    <p class="frq-section-title">完整题面：</p>
+    <p>本题模拟鸟或熊在鸟食器取食的过程。<code>Feeder</code> 类声明如下。</p>
+<pre class="code-block"><code>public class Feeder
+{
+    /**
+     * The amount of food, in grams, currently in the bird feeder;
+     * initialized in the constructor and always greater than or equal to zero
+     */
+    private int currentFood;
+
+    /**
+     * Simulates one day with numBirds birds or possibly a bear at the bird feeder,
+     * as described in part (a)
+     * Precondition: numBirds &gt; 0
+     */
+    public void simulateOneDay(int numBirds)
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Returns the number of days birds or a bear found food to eat at the feeder
+     * in this simulation, as described in part (b)
+     * Preconditions: numBirds &gt; 0, numDays &gt; 0
+     */
+    public int simulateManyDays(int numBirds, int numDays)
+    { /* to be implemented in part (b) */ }
+
+    // There may be instance variables, constructors, or methods that are not shown.
+}</code></pre>
+    <p class="frq-section-title">Part A · Official English Wording (from College Board 2024 FRQ #1)</p>
+    <p><strong>(a)</strong> Write the <code>simulateOneDay</code> method, which simulates <code>numBirds</code> birds or possibly a bear at the feeder for one day. The method determines the amount of food taken from the feeder on this day and updates the <code>currentFood</code> instance variable. The simulation accounts for normal conditions, which occur 95% of the time, and abnormal conditions, which occur 5% of the time.</p>
+    <p>Under normal conditions, the simulation assumes that on any given day, only birds visit the feeder and that each bird at the feeder consumes the same amount of food. This standard amount consumed is between 10 and 50 grams of food, inclusive, in 1-gram increments. That is, on any given day, each bird might eat 10, 11, &hellip;, 49, or 50 grams of food. The amount of food eaten by each bird on a given day is randomly generated and each integer from 10 to 50, inclusive, has an equal chance of being chosen.</p>
+    <p>For example, a run of the simulation might predict that for a certain day under normal conditions, each bird coming to the feeder will eat 11 grams of food. If 10 birds come to the feeder on that day, then a total of 110 grams of food will be consumed.</p>
+    <p>If the simulated food consumed is greater than the amount of food in the feeder, the birds empty the feeder and the amount of food in the feeder at the end of the day is zero.</p>
+    <p>Under abnormal conditions, a bear empties the feeder and the amount of food in the feeder at the end of the day is zero.</p>
+    <p>The following examples show possible results of three calls to <code>simulateOneDay</code>.</p>
+    <ul>
+      <li><strong>Example 1:</strong> If the feeder initially contains 500 grams of food, the call <code>simulateOneDay(12)</code> could result in 12 birds eating 20 grams of food each, leaving 260 grams of food in the feeder.</li>
+      <li><strong>Example 2:</strong> If the feeder initially contains 1,000 grams of food, the call <code>simulateOneDay(22)</code> could result in a bear eating all the food, leaving 0 grams of food in the feeder.</li>
+      <li><strong>Example 3:</strong> If the feeder initially contains 100 grams of food, the call <code>simulateOneDay(5)</code> could result in 5 birds attempting to eat 30 grams of food each. Since the feeder initially contains less than 150 grams of food, the feeder is emptied, leaving 0 grams of food in the feeder.</li>
+    </ul>
+    <p>Complete the <code>simulateOneDay</code> method.</p>
+    <p class="frq-section-title">(a)</p>
+    <p>编写 <code>simulateOneDay</code> 方法：模拟 <code>numBirds</code> 只鸟或一只熊在一天内取食，并更新 <code>currentFood</code>。</p>
+    <p>正常情况占 95%：只有鸟来觅食，每只鸟当天吃同样数量的食物，该数量在 10 到 50 克之间（含端点，以 1 克为增量，等概率随机选取）。若当天总共要吃掉的食物超过 <code>currentFood</code>，则鸟食器被吃空，<code>currentFood</code> 置 0。</p>
+    <p>异常情况占 5%：一只熊清空食器，<code>currentFood</code> 置 0。</p>
+    <p class="frq-section-title">Part B · Official English Wording (from College Board 2024 FRQ #1)</p>
+    <p><strong>(b)</strong> Write the <code>simulateManyDays</code> method. The method uses <code>simulateOneDay</code> to simulate <code>numBirds</code> birds or a bear coming to the feeder on at most <code>numDays</code> consecutive days. The simulation returns the number of days that birds or a bear found food at the feeder.</p>
+    <p>Consider the following examples.</p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Value of <code>currentFood</code> and Method Call</th><th>Possible Outcomes and Resulting Return Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>currentFood: 2400</code>, <code>simulateManyDays(10, 4)</code></td><td>Day 1: <code>simulateOneDay</code> leaves 2100 g. Day 2: leaves 1650 g. Day 3: leaves 1500 g. Day 4: leaves 1260 g. The simulation returns <strong>4</strong> (food found on all four days). <code>currentFood</code> = 1260.</td></tr>
+        <tr><td><code>currentFood: 250</code>, <code>simulateManyDays(10, 5)</code></td><td>Day 1: leaves 150 g. Day 2: leaves 0 g. The simulation returns <strong>2</strong> (food found on two of the five days). <code>currentFood</code> = 0.</td></tr>
+        <tr><td><code>currentFood: 0</code>, <code>simulateManyDays(5, 10)</code></td><td>The simulation returns <strong>0</strong> (no food found on any day). <code>currentFood</code> = 0.</td></tr>
+      </tbody>
+    </table>
+    <p>Complete the <code>simulateManyDays</code> method. Assume that <code>simulateOneDay</code> works as intended, regardless of what you wrote in part (a). You must use <code>simulateOneDay</code> appropriately in order to receive full credit.</p>
+    <p class="frq-section-title">(b)</p>
+    <p>编写 <code>simulateManyDays</code> 方法：调用 <code>simulateOneDay</code> 模拟最多连续 <code>numDays</code> 天。每天只要鸟或熊能找到食物（即调用前 <code>currentFood &gt; 0</code>）就算"找到食物"一天。返回实际找到食物的天数。</p>
+    <p>示例：</p>
+    <ul>
+      <li><code>currentFood</code> 为 2400，调用 <code>simulateManyDays(10, 4)</code>，四天后都还有食物，返回 4。</li>
+      <li><code>currentFood</code> 为 250，调用 <code>simulateManyDays(10, 5)</code>，第二天结束后 <code>currentFood</code> 变为 0，返回 2。</li>
+      <li><code>currentFood</code> 为 0，调用 <code>simulateManyDays(5, 10)</code>，直接返回 0。</li>
+    </ul>
+
+    <p class="frq-section-title">官方参考解答：</p>
+    <div class="solution-block">
+<pre class="code-block"><code>// (a)
+public void simulateOneDay(int numBirds)
+{
+    double condition = Math.random();
+    if (condition &lt; 0.05)
+    {
+        currentFood = 0;
+    }
+    else
+    {
+        int eachBirdEats = (int) (Math.random() * 41) + 10;
+        int totalEaten = numBirds * eachBirdEats;
+        if (totalEaten &gt; currentFood)
+        {
+            currentFood = 0;
+        }
+        else
+        {
+            currentFood -= totalEaten;
+        }
+    }
+}
+
+// (b)
+public int simulateManyDays(int numBirds, int numDays)
+{
+    for (int daysSoFar = 0; daysSoFar &lt; numDays; daysSoFar++)
+    {
+        if (currentFood == 0)
+        {
+            return daysSoFar;
+        }
+        simulateOneDay(numBirds);
+    }
+    return numDays;
+}</code></pre>
+    </div>
+
+    <p class="frq-section-title">解析与评分要点：</p>
+    <div class="analysis-block">
+      <ul>
+        <li>Part (a) 共 4 分：调用 <code>Math.random</code> 生成随机值；用比较实现 5% / 95% 分支；生成 [10, 50] 均匀随机整数；按鸟数缩放并正确更新 <code>currentFood</code>（包括吃空归 0）。</li>
+        <li>Part (b) 共 5 分：在循环中调用 <code>simulateOneDay(numBirds)</code>；控制循环最多执行 <code>numDays</code> 次；统计找到食物的天数；在 <code>currentFood == 0</code> 时正确提前退出；返回天数。</li>
+        <li>关键易错点：随机区间 <code>(int)(Math.random() * 41) + 10</code> 中的 41 是 50 − 10 + 1；比较 <code>totalEaten &gt; currentFood</code> 与 <code>&gt;=</code> 在本题中均不影响归 0，但官方样例使用 <code>&gt;</code>。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FRQ-3 2023 AppointmentBook -->
+  <div class="frq-block">
+    <p class="frq-header">FRQ-3【2023 年国际考真题 · Question 1】AppointmentBook</p>
+    <p class="frq-meta">考点：C3 方法调用、第二章循环与条件、过程抽象</p>
+    <p class="frq-section-title">完整题面：</p>
+    <p>本题涉及 <code>AppointmentBook</code> 类，用于学生预约与老师见面。预约只能在第 1 到第 8 节课之间进行，每节课 60 分钟，分钟编号为 0 到 59。要成功预约，老师必须在指定节课中有至少连续 <code>duration</code> 分钟的空闲时间。预约必须开始并结束于同一节课内。</p>
+<pre class="code-block"><code>public class AppointmentBook
+{
+    /**
+     * Returns true if minute in period is available for an appointment and returns
+     * false otherwise
+     * Preconditions: 1 &lt;= period &lt;= 8; 0 &lt;= minute &lt;= 59
+     */
+    private boolean isMinuteFree(int period, int minute)
+    { /* implementation not shown */ }
+
+    /**
+     * Marks the block of minutes that starts at startMinute in period and
+     * is duration minutes long as reserved for an appointment
+     * Preconditions: 1 &lt;= period &lt;= 8; 0 &lt;= startMinute &lt;= 59;
+     *                1 &lt;= duration &lt;= 60
+     */
+    private void reserveBlock(int period, int startMinute, int duration)
+    { /* implementation not shown */ }
+
+    /**
+     * Searches for the first block of duration free minutes during period, as described in
+     * part (a). Returns the first minute in the block if such a block is found or returns -1 if no
+     * such block is found.
+     * Preconditions: 1 &lt;= period &lt;= 8; 1 &lt;= duration &lt;= 60
+     */
+    public int findFreeBlock(int period, int duration)
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Searches periods from startPeriod to endPeriod, inclusive, for a block
+     * of duration free minutes, as described in part (b). If such a block is found,
+     * calls reserveBlock to reserve the block of minutes and returns true; otherwise
+     * returns false.
+     * Preconditions: 1 &lt;= startPeriod &lt;= endPeriod &lt;= 8; 1 &lt;= duration &lt;= 60
+     */
+    public boolean makeAppointment(int startPeriod, int endPeriod,
+                                   int duration)
+    { /* to be implemented in part (b) */ }
+
+    // There may be instance variables, constructors, and methods that are not shown.
+}</code></pre>
+    <p class="frq-section-title">Part A · Official English Wording (from College Board 2023 FRQ #1)</p>
+    <p><strong>(a)</strong> Write the <code>findFreeBlock</code> method, which searches <code>period</code> for the first block of free minutes that is <code>duration</code> minutes long. If such a block is found, <code>findFreeBlock</code> returns the first minute in the block. Otherwise, <code>findFreeBlock</code> returns -1. The <code>findFreeBlock</code> method uses the helper method <code>isMinuteFree</code>, which returns <code>true</code> if a particular minute is available to be included in a new appointment and returns <code>false</code> if the minute is unavailable.</p>
+    <p>Consider the following list of unavailable and available minutes in period 2.</p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Minutes in Period 2</th><th>Available?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0&ndash;9 (10 minutes)</td><td>No</td></tr>
+        <tr><td>10&ndash;14 (5 minutes)</td><td>Yes</td></tr>
+        <tr><td>15&ndash;29 (15 minutes)</td><td>No</td></tr>
+        <tr><td>30&ndash;44 (15 minutes)</td><td>Yes</td></tr>
+        <tr><td>45&ndash;49 (5 minutes)</td><td>No</td></tr>
+        <tr><td>50&ndash;59 (10 minutes)</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+    <p>The method call <code>findFreeBlock(2, 15)</code> would return 30 to indicate that a 15-minute block starting with minute 30 is available. No steps should be taken as a result of the call to <code>findFreeBlock</code> to mark those 15 minutes as unavailable.</p>
+    <p>The method call <code>findFreeBlock(2, 9)</code> would also return 30. Whenever there are multiple blocks that satisfy the requirement, the earliest starting minute is returned.</p>
+    <p>The method call <code>findFreeBlock(2, 20)</code> would return -1, since no 20-minute block of available minutes exists in period 2.</p>
+    <p>Complete method <code>findFreeBlock</code>. You must use <code>isMinuteFree</code> appropriately in order to receive full credit.</p>
+    <p class="frq-section-title">(a)</p>
+    <p>编写 <code>findFreeBlock</code> 方法：在指定节课 <code>period</code> 中搜索第一个长度至少为 <code>duration</code> 的连续空闲分钟块。若找到，返回该块的起始分钟；否则返回 -1。必须使用 <code>isMinuteFree</code>。</p>
+    <p>示例（第 2 节课的空闲情况）：</p>
+
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Minutes in Period 2</th><th>Available?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0–9 (10 minutes)</td><td>No</td></tr>
+        <tr><td>10–14 (5 minutes)</td><td>Yes</td></tr>
+        <tr><td>15–29 (15 minutes)</td><td>No</td></tr>
+        <tr><td>30–44 (15 minutes)</td><td>Yes</td></tr>
+        <tr><td>45–49 (5 minutes)</td><td>No</td></tr>
+        <tr><td>50–59 (10 minutes)</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+
+    <ul>
+      <li><code>findFreeBlock(2, 15)</code> 返回 30。</li>
+      <li><code>findFreeBlock(2, 9)</code> 也返回 30（取最早起始）。</li>
+      <li><code>findFreeBlock(2, 20)</code> 返回 -1。</li>
+    </ul>
+
+    <p class="frq-section-title">Part B · Official English Wording (from College Board 2023 FRQ #1)</p>
+    <p><strong>(b)</strong> Write the <code>makeAppointment</code> method, which searches the periods from <code>startPeriod</code> to <code>endPeriod</code>, inclusive, for the earliest block of <code>duration</code> available minutes in the lowest-numbered period. If such a block is found, the <code>makeAppointment</code> method calls the helper method <code>reserveBlock</code> to mark the minutes in the block as unavailable and returns <code>true</code>. If no such block is found, the <code>makeAppointment</code> method returns <code>false</code>.</p>
+    <p>Consider the following list of unavailable and available minutes in periods 2, 3, and 4 and three successive calls to <code>makeAppointment</code>.</p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Period</th><th>Minutes</th><th>Available?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>2</td><td>0&ndash;24 (25 minutes)</td><td>No</td></tr>
+        <tr><td>2</td><td>25&ndash;29 (5 minutes)</td><td>Yes</td></tr>
+        <tr><td>2</td><td>30&ndash;59 (30 minutes)</td><td>No</td></tr>
+        <tr><td>3</td><td>0&ndash;14 (15 minutes)</td><td>Yes</td></tr>
+        <tr><td>3</td><td>15&ndash;40 (26 minutes)</td><td>No</td></tr>
+        <tr><td>3</td><td>41&ndash;59 (19 minutes)</td><td>Yes</td></tr>
+        <tr><td>4</td><td>0&ndash;4 (5 minutes)</td><td>No</td></tr>
+        <tr><td>4</td><td>5&ndash;29 (25 minutes)</td><td>Yes</td></tr>
+        <tr><td>4</td><td>30&ndash;43 (14 minutes)</td><td>No</td></tr>
+        <tr><td>4</td><td>44&ndash;59 (16 minutes)</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+    <p>The method call <code>makeAppointment(2, 4, 22)</code> returns <code>true</code> and results in the minutes 5 through 26, inclusive, in period 4 being marked as unavailable.</p>
+    <p>The method call <code>makeAppointment(3, 4, 3)</code> returns <code>true</code> and results in the minutes 0 through 2, inclusive, in period 3 being marked as unavailable.</p>
+    <p>The method call <code>makeAppointment(2, 4, 30)</code> returns <code>false</code>, since there is no block of 30 available minutes in periods 2, 3, or 4.</p>
+    <p>Complete method <code>makeAppointment</code>. Assume that <code>findFreeBlock</code> works as intended, regardless of what you wrote in part (a). You must use <code>findFreeBlock</code> and <code>reserveBlock</code> appropriately in order to receive full credit.</p>
+    <p class="frq-section-title">(b)</p>
+    <p>编写 <code>makeAppointment</code> 方法：从 <code>startPeriod</code> 到 <code>endPeriod</code>（含）依次查找最早的、长度为 <code>duration</code> 的空闲块。若找到，调用 <code>reserveBlock</code> 标记该块为已预约并返回 <code>true</code>；否则返回 <code>false</code>。</p>
+
+    <p class="frq-section-title">官方参考解答：</p>
+    <div class="solution-block">
+<pre class="code-block"><code>// (a)
+public int findFreeBlock(int period, int duration)
+{
+    int blockLength = 0;
+    for (int minute = 0; minute &lt; 60; minute++)
+    {
+        if (isMinuteFree(period, minute))
+        {
+            blockLength++;
+            if (blockLength == duration)
+            {
+                return minute - blockLength + 1;
+            }
+        }
+        else
+        {
+            blockLength = 0;
+        }
+    }
+    return -1;
+}
+
+// (b)
+public boolean makeAppointment(int startPeriod, int endPeriod,
+                               int duration)
+{
+    for (int period = startPeriod; period &lt;= endPeriod; period++)
+    {
+        int minute = findFreeBlock(period, duration);
+        if (minute != -1)
+        {
+            reserveBlock(period, minute, duration);
+            return true;
+        }
+    }
+    return false;
+}</code></pre>
+    </div>
+
+    <p class="frq-section-title">解析与评分要点：</p>
+    <div class="analysis-block">
+      <ul>
+        <li>Part (a) 共 5 分：遍历一节课的 60 分钟；正确调用 <code>isMinuteFree(period, minute)</code>；维护连续空闲分钟计数；判断是否达到 <code>duration</code>；正确返回起始分钟或 -1。</li>
+        <li>Part (b) 共 4 分：遍历从 <code>startPeriod</code> 到 <code>endPeriod</code>；调用 <code>findFreeBlock</code> 与 <code>reserveBlock</code>；用返回值 <code>-1</code> 作为是否预约的判断；正确返回布尔值。</li>
+        <li>关键易错点：<code>findFreeBlock</code> 返回的是起始分钟，不是结束分钟；<code>reserveBlock</code> 的参数顺序是 <code>(period, startMinute, duration)</code>，不要写反。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FRQ-4 2022 Game -->
+  <div class="frq-block">
+    <p class="frq-header">FRQ-4【2022 年国际考真题 · Question 1】Game</p>
+    <p class="frq-meta">考点：E3 调用实例方法、第二章嵌套 if / 循环</p>
+    <p class="frq-section-title">完整题面：</p>
+    <p>本题模拟一款单人视频游戏的游玩与计分。玩家需要完成三个关卡。关卡由 <code>Level</code> 类表示。</p>
+<pre class="code-block"><code>public class Level
+{
+    /** Returns true if the player reached the goal on this level and returns false otherwise */
+    public boolean goalReached()
+    { /* implementation not shown */ }
+
+    /** Returns the number of points (a positive integer) recorded for this level */
+    public int getPoints()
+    { /* implementation not shown */ }
+
+    // There may be instance variables, constructors, and methods that are not shown.
+}</code></pre>
+    <p>游戏过程由 <code>Game</code> 类表示。你需要完成其中两个方法。</p>
+<pre class="code-block"><code>public class Game
+{
+    private Level levelOne;
+    private Level levelTwo;
+    private Level levelThree;
+
+    /** Postcondition: All instance variables have been initialized. */
+    public Game()
+    { /* implementation not shown */ }
+
+    /** Returns true if this game is a bonus game and returns false otherwise */
+    public boolean isBonus()
+    { /* implementation not shown */ }
+
+    /** Simulates the play of this Game (consisting of three levels) and updates all relevant game data */
+    public void play()
+    { /* implementation not shown */ }
+
+    /** Returns the score earned in the most recently played game, as described in part (a) */
+    public int getScore()
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Simulates the play of num games and returns the highest score earned,
+     * as described in part (b)
+     * Precondition: num &gt; 0
+     */
+    public int playManyTimes(int num)
+    { /* to be implemented in part (b) */ }
+
+    // There may be instance variables, constructors, and methods that are not shown.
+}</code></pre>
+    <p class="frq-section-title">Part A · Official English Wording (from College Board 2022 FRQ #1)</p>
+    <p><strong>(a)</strong> Write the <code>getScore</code> method, which returns the score for the most recently played game. Each game consists of three levels. The score for the game is computed using the following helper methods.</p>
+    <ul>
+      <li>The <code>isBonus</code> method of the <code>Game</code> class returns <code>true</code> if this is a bonus game and returns <code>false</code> otherwise.</li>
+      <li>The <code>goalReached</code> method of the <code>Level</code> class returns <code>true</code> if the goal has been reached on a particular level and returns <code>false</code> otherwise.</li>
+      <li>The <code>getPoints</code> method of the <code>Level</code> class returns the number of points recorded on a particular level.</li>
+    </ul>
+    <p>Whether or not recorded points are earned (included in the game score) depends on the rules of the game, which follow.</p>
+    <p>The score for the game is computed according to the following rules.</p>
+    <ul>
+      <li>Level one points are earned only if the level one goal is reached.</li>
+      <li>Level two points are earned only if both the level one and level two goals are reached.</li>
+      <li>Level three points are earned only if the goals of all three levels are reached.</li>
+      <li>The score for the game is the sum of the points earned for levels one, two, and three.</li>
+      <li>If the game is a bonus game, the score for the game is tripled.</li>
+    </ul>
+    <p>The following table shows some examples of game score calculations. (原题为图示表格，此处保留规则说明；典型示例见下方&ldquo;中文讲解&rdquo;小节。)</p>
+    <p>Complete the <code>getScore</code> method.</p>
+    <p class="frq-section-title">(a)</p>
+    <p>编写 <code>getScore</code> 方法：返回最近一局游戏的得分。计分规则如下：</p>
+    <ul>
+      <li>只有第一关目标达成，才能获得第一关的分数；</li>
+      <li>只有第一关和第二关目标都达成，才能获得第二关的分数；</li>
+      <li>只有三关目标都达成，才能获得第三关的分数；</li>
+      <li>若该局是 bonus game，则总得分乘以 3。</li>
+    </ul>
+    <p>示例得分计算表：</p>
+
+    <table class="three-line-table">
+      <thead>
+        <tr><th>goalReached（三关结果）</th><th>isBonus</th><th>getPoints（三关分数假设为 200, 100, 500）</th><th>得分</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>true, true, true</td><td>true</td><td>200, 100, 500</td><td>(200 + 100 + 500) × 3 = 2,400</td></tr>
+        <tr><td>true, true, false</td><td>false</td><td>200, 100, 500</td><td>200 + 100 = 300</td></tr>
+        <tr><td>true, false, true</td><td>true</td><td>200, 100, 500</td><td>200 × 3 = 600</td></tr>
+        <tr><td>false, true, true</td><td>false</td><td>200, 100, 500</td><td>0</td></tr>
+      </tbody>
+    </table>
+
+    <p class="frq-section-title">Part B · Official English Wording (from College Board 2022 FRQ #1)</p>
+    <p><strong>(b)</strong> Write the <code>playManyTimes</code> method, which simulates the play of <code>num</code> games and returns the highest game score earned. For example, if the four plays of the game that are simulated as a result of the method call <code>playManyTimes(4)</code> earn scores of 75, 50, 90, and 20, then the method should return 90.</p>
+    <p>Play of the game is simulated by calling the helper method <code>play</code>. Note that if <code>play</code> is called only one time followed by multiple consecutive calls to <code>getScore</code>, each call to <code>getScore</code> will return the score earned in the single simulated play of the game.</p>
+    <p>Complete the <code>playManyTimes</code> method. Assume that <code>getScore</code> works as intended, regardless of what you wrote in part (a). You must call <code>play</code> and <code>getScore</code> appropriately in order to receive full credit.</p>
+    <p class="frq-section-title">(b)</p>
+    <p>编写 <code>playManyTimes</code> 方法：模拟 <code>num</code> 局游戏，返回最高得分。游戏通过调用 <code>play()</code> 模拟；每次调用 <code>play()</code> 后可通过 <code>getScore()</code> 获取该局得分。</p>
+
+    <p class="frq-section-title">官方参考解答：</p>
+    <div class="solution-block">
+<pre class="code-block"><code>// (a)
+public int getScore()
+{
+    int score = 0;
+    if (levelOne.goalReached())
+    {
+        score = levelOne.getPoints();
+        if (levelTwo.goalReached())
+        {
+            score += levelTwo.getPoints();
+            if (levelThree.goalReached())
+            {
+                score += levelThree.getPoints();
+            }
+        }
+    }
+    if (isBonus())
+    {
+        score *= 3;
+    }
+    return score;
+}
+
+// (b)
+public int playManyTimes(int num)
+{
+    int max = 0;
+    for (int i = 0; i &lt; num; i++)
+    {
+        play();
+        int score = getScore();
+        if (score &gt; max)
+        {
+            max = score;
+        }
+    }
+    return max;
+}</code></pre>
+    </div>
+
+    <p class="frq-section-title">解析与评分要点：</p>
+    <div class="analysis-block">
+      <ul>
+        <li>Part (a) 共 4 分：调用 <code>getPoints</code>、<code>goalReached</code>、<code>isBonus</code>；根据 <code>goalReached</code> 返回值判断哪些关卡分数应计入；根据 <code>isBonus</code> 将总分乘以 3；正确初始化并累加得分。</li>
+        <li>Part (b) 共 5 分：循环 <code>num</code> 次；每次调用 <code>play()</code> 和 <code>getScore()</code>；比较并记录最大值；返回最大值。</li>
+        <li>关键易错点：关卡的分数是"层层解锁"关系，必须用嵌套 <code>if</code>，不能简单把三个 <code>goalReached()</code> 并列；<code>isBonus()</code> 无参，不要写 <code>isBonus</code>（不加括号在 Java 中不合法，但在手写时常见漏写）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FRQ-5 2021 WordMatch -->
+  <div class="frq-block">
+    <p class="frq-header">FRQ-5【2021 年国际考真题 · Question 1】WordMatch</p>
+    <p class="frq-meta">考点：E4 String 方法（<code>length</code>、<code>substring</code>、<code>indexOf</code>、<code>compareTo</code>）、第二章循环</p>
+    <p class="frq-section-title">完整题面：</p>
+    <p>本题涉及 <code>WordMatch</code> 类，它存储一个 secret 字符串，并提供方法比较其他字符串与 secret 字符串的匹配程度。</p>
+<pre class="code-block"><code>public class WordMatch
+{
+    /** The secret string. */
+    private String secret;
+
+    /** Constructs a WordMatch object with the given secret string of lowercase letters. */
+    public WordMatch(String word)
+    { /* implementation not shown */ }
+
+    /**
+     * Returns a score for guess, as described in part (a).
+     * Precondition: 0 &lt; guess.length() &lt;= secret.length()
+     */
+    public int scoreGuess(String guess)
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Returns the better of two guesses, as determined by scoreGuess and the rules for a
+     * tie-breaker that are described in part (b).
+     * Precondition: guess1 and guess2 contain all lowercase letters.
+     *               guess1 is not the same as guess2.
+     */
+    public String findBetterGuess(String guess1, String guess2)
+    { /* to be implemented in part (b) */ }
+}</code></pre>
+    <p class="frq-section-title">Part A · Official English Wording (from College Board 2021 FRQ #1)</p>
+    <p><strong>(a)</strong> Write the <code>WordMatch</code> method <code>scoreGuess</code>. To determine the score to be returned, <code>scoreGuess</code> finds the number of times that <code>guess</code> occurs as a substring of <code>secret</code> and then multiplies that number by the square of the length of <code>guess</code>. Occurrences of <code>guess</code> may overlap within <code>secret</code>.</p>
+    <p>Assume that the length of <code>guess</code> is less than or equal to the length of <code>secret</code> and that <code>guess</code> is not an empty string.</p>
+    <p>The following examples show declarations of a <code>WordMatch</code> object. The tables show the outcomes of some possible calls to the <code>scoreGuess</code> method.</p>
+    <p><code>WordMatch game = new WordMatch("mississippi");</code></p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Value of <code>guess</code></th><th>Number of Substring Occurrences</th><th>Score Calculation: (Occurrences) &times; (Square of the Length of <code>guess</code>)</th><th>Return Value of <code>game.scoreGuess(guess)</code></th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>"i"</code></td><td>4</td><td>4 &times; 1 &times; 1 = 4</td><td>4</td></tr>
+        <tr><td><code>"iss"</code></td><td>2</td><td>2 &times; 3 &times; 3 = 18</td><td>18</td></tr>
+        <tr><td><code>"issipp"</code></td><td>1</td><td>1 &times; 6 &times; 6 = 36</td><td>36</td></tr>
+        <tr><td><code>"mississippi"</code></td><td>1</td><td>1 &times; 11 &times; 11 = 121</td><td>121</td></tr>
+      </tbody>
+    </table>
+    <p><code>WordMatch game = new WordMatch("aaaabb");</code></p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Value of <code>guess</code></th><th>Number of Substring Occurrences</th><th>Score Calculation: (Occurrences) &times; (Square of the Length of <code>guess</code>)</th><th>Return Value of <code>game.scoreGuess(guess)</code></th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>"a"</code></td><td>4</td><td>4 &times; 1 &times; 1 = 4</td><td>4</td></tr>
+        <tr><td><code>"aa"</code></td><td>3</td><td>3 &times; 2 &times; 2 = 12</td><td>12</td></tr>
+        <tr><td><code>"aaa"</code></td><td>2</td><td>2 &times; 3 &times; 3 = 18</td><td>18</td></tr>
+        <tr><td><code>"aabb"</code></td><td>1</td><td>1 &times; 4 &times; 4 = 16</td><td>16</td></tr>
+        <tr><td><code>"c"</code></td><td>0</td><td>0 &times; 1 &times; 1 = 0</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <p>Complete the <code>scoreGuess</code> method.</p>
+    <p class="frq-section-title">(a)</p>
+    <p>编写 <code>scoreGuess</code> 方法：返回 guess 的得分。先统计 <code>guess</code> 作为子串在 <code>secret</code> 中出现的次数（允许重叠），再将出现次数乘以 <code>guess.length()</code> 的平方。</p>
+    <p>示例 1：<code>secret = "mississippi"</code></p>
+
+    <table class="three-line-table">
+      <thead>
+        <tr><th>guess</th><th>出现次数</th><th>得分计算</th><th>返回值</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>"i"</td><td>4</td><td>4 × 1² = 4</td><td>4</td></tr>
+        <tr><td>"iss"</td><td>2</td><td>2 × 3² = 18</td><td>18</td></tr>
+        <tr><td>"issipp"</td><td>1</td><td>1 × 6² = 36</td><td>36</td></tr>
+        <tr><td>"mississippi"</td><td>1</td><td>1 × 11² = 121</td><td>121</td></tr>
+      </tbody>
+    </table>
+
+    <p>示例 2：<code>secret = "aaaabb"</code></p>
+
+    <table class="three-line-table">
+      <thead>
+        <tr><th>guess</th><th>出现次数</th><th>得分计算</th><th>返回值</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>"a"</td><td>4</td><td>4 × 1² = 4</td><td>4</td></tr>
+        <tr><td>"aa"</td><td>3</td><td>3 × 2² = 12</td><td>12</td></tr>
+        <tr><td>"aaa"</td><td>2</td><td>2 × 3² = 18</td><td>18</td></tr>
+        <tr><td>"aabb"</td><td>1</td><td>1 × 4² = 16</td><td>16</td></tr>
+        <tr><td>"c"</td><td>0</td><td>0 × 1² = 0</td><td>0</td></tr>
+      </tbody>
+    </table>
+
+    <p class="frq-section-title">Part B · Official English Wording (from College Board 2021 FRQ #1)</p>
+    <p><strong>(b)</strong> Write the <code>WordMatch</code> method <code>findBetterGuess</code>, which returns the better guess of its two <code>String</code> parameters, <code>guess1</code> and <code>guess2</code>. If the <code>scoreGuess</code> method returns different values for <code>guess1</code> and <code>guess2</code>, then the guess with the higher score is returned. If the <code>scoreGuess</code> method returns the same value for <code>guess1</code> and <code>guess2</code>, then the alphabetically greater guess is returned.</p>
+    <p>The following example shows a declaration of a <code>WordMatch</code> object and the outcomes of some possible calls to the <code>scoreGuess</code> and <code>findBetterGuess</code> methods.</p>
+    <p><code>WordMatch game = new WordMatch("concatenation");</code></p>
+    <table class="three-line-table">
+      <thead>
+        <tr><th>Method Call</th><th>Return Value</th><th>Explanation</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>game.scoreGuess("ten")</code></td><td>9</td><td>1 &times; 3 &times; 3</td></tr>
+        <tr><td><code>game.scoreGuess("nation")</code></td><td>36</td><td>1 &times; 6 &times; 6</td></tr>
+        <tr><td><code>game.findBetterGuess("ten", "nation")</code></td><td><code>"nation"</code></td><td>Since <code>scoreGuess</code> returns 36 for <code>"nation"</code> and 9 for <code>"ten"</code>, the guess with the greater score, <code>"nation"</code>, is returned.</td></tr>
+        <tr><td><code>game.scoreGuess("con")</code></td><td>9</td><td>1 &times; 3 &times; 3</td></tr>
+        <tr><td><code>game.scoreGuess("cat")</code></td><td>9</td><td>1 &times; 3 &times; 3</td></tr>
+        <tr><td><code>game.findBetterGuess("con", "cat")</code></td><td><code>"con"</code></td><td>Since <code>scoreGuess</code> returns 9 for both <code>"con"</code> and <code>"cat"</code>, the alphabetically greater guess, <code>"con"</code>, is returned.</td></tr>
+      </tbody>
+    </table>
+    <p>Complete method <code>findBetterGuess</code>. Assume that <code>scoreGuess</code> works as specified, regardless of what you wrote in part (a). You must use <code>scoreGuess</code> appropriately to receive full credit.</p>
+    <p class="frq-section-title">(b)</p>
+    <p>编写 <code>findBetterGuess</code> 方法：比较两个猜测字符串，返回"更好"的那个。若两者得分不同，返回得分高者；若得分相同，返回字典序更大者。</p>
+    <p>示例：<code>secret = "concatenation"</code></p>
+    <ul>
+      <li><code>scoreGuess("ten")</code> = 9，<code>scoreGuess("nation")</code> = 36，返回 <code>"nation"</code>。</li>
+      <li><code>scoreGuess("con")</code> = 9，<code>scoreGuess("cat")</code> = 9，返回 <code>"con"</code>（字典序更大）。</li>
+    </ul>
+
+    <p class="frq-section-title">官方参考解答：</p>
+    <div class="solution-block">
+<pre class="code-block"><code>// (a)
+public int scoreGuess(String guess)
+{
+    int count = 0;
+    for (int i = 0; i &lt;= secret.length() - guess.length(); i++)
+    {
+        if (secret.substring(i, i + guess.length()).equals(guess))
+        {
+            count++;
+        }
+    }
+    return count * guess.length() * guess.length();
+}
+
+// (b)
+public String findBetterGuess(String guess1, String guess2)
+{
+    int score1 = scoreGuess(guess1);
+    int score2 = scoreGuess(guess2);
+    if (score1 &gt; score2)
+    {
+        return guess1;
+    }
+    if (score2 &gt; score1)
+    {
+        return guess2;
+    }
+    if (guess1.compareTo(guess2) &gt; 0)
+    {
+        return guess1;
+    }
+    return guess2;
+}</code></pre>
+    </div>
+
+    <p class="frq-section-title">解析与评分要点：</p>
+    <div class="analysis-block">
+      <ul>
+        <li>Part (a) 共 5 分：将 guess 与 secret 的等长子串比较；使用正确的子串长度；遍历所有必要子串（不越界、不遗漏重叠 occurrence）；统计出现次数；返回次数 × 长度²。</li>
+        <li>Part (b) 共 4 分：调用 <code>scoreGuess</code> 获取两个得分；比较得分；在得分相同时用 <code>compareTo</code> 判断字典序；返回对应的 guess。</li>
+        <li>关键易错点：比较 String 内容必须用 <code>.equals()</code>，不能用 <code>==</code>；<code>compareTo</code> 返回正数表示调用者字典序更大；循环上界是 <code>secret.length() - guess.length()</code>（含），以保证 <code>substring(i, i + guess.length())</code> 不越界。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================
+       五、备考策略与复习清单
+       ============================================ -->
+  <h2 id="section-5">五、备考策略与复习清单</h2>
+  <p>本章虽是 Unit 1 基础章节，但分值权重 15–25%，且为 FRQ1 的直接考查范围。以下按"投入产出比"给出复习优先级、考前自查清单与教师使用建议，建议结合 AP Classroom Unit 1 Progress Check 进行章节终结性测评。</p>
+
+  <h3 id="section-5-1">5.1 复习优先级（按投入产出比排序）</h3>
+  <p>本节给出按投入产出比排序的五个复习优先级。优先攻克前两项即可覆盖考试中 60% 以上的本章相关题目。</p>
+  <ol>
+    <li><strong>String 六方法</strong>（FRQ1 Part B 必考 + MCQ 每年 3–5 题）——达到能默写签名、能手工追踪的程度。</li>
+    <li><strong>整数除法 / cast / 优先级组合题</strong>（MCQ 每年 3–4 题）——专项刷"求输出值"类题目。</li>
+    <li><strong>Math.random 区间公式</strong>（MCQ + FRQ 双线出现，2024 年 FRQ1 直接考）。</li>
+    <li><strong>构造器匹配与实例方法调用</strong>（为第三章 Class Creation 打底）。</li>
+    <li>概念题（错误类型、API、前置/后置条件、对象 vs 类）——考前突击即可。</li>
+  </ol>
+
+  <h3 id="section-5-2">5.2 考前自查清单</h3>
+  <p>以下 9 条是本章节最常被考生忽略、但却最容易快速通过反复练习拿分的知识点。每条都对应本手册的具体内容，建议考前逐条对照检查。</p>
+  <ul>
+    <li>☐ 我能不看资料写出六个 String 方法的完整签名与返回值。</li>
+    <li>☐ 我能说明 <code>substring(2, 5)</code> 取哪些下标（答案：2、3、4）。</li>
+    <li>☐ 我知道 <code>(int)(Math.random() * n) + m</code> 中 n、m 各代表什么。</li>
+    <li>☐ 我能手工追踪含 cast、<code>%</code>、复合赋值的五行走代码段。</li>
+    <li>☐ 我知道 int 除 int 得 int，并知道三种修法（cast 一侧 / 提前声明 double / 乘 1.0）。</li>
+    <li>☐ 我知道 NullPointerException 和 IndexOutOfBoundsException 分别在什么情况下发生。</li>
+    <li>☐ 我知道 static 方法与实例方法分别用什么调用。</li>
+    <li>☐ 我知道 String 不可变，方法返回新串要接住。</li>
+    <li>☐ 我读过 Java Quick Reference（考试提供，平时就要熟悉排版）。</li>
+  </ul>
+
+  <h3 id="section-5-3">5.3 教师使用建议</h3>
+  <p>本节给教师三条使用建议：随堂学案、课前小测与 AP Classroom 联动的终结性测评。所有建议均与本手册的具体章节相对应，可直接落地实施。</p>
+  <ul>
+    <li>本章手册可作为学案随堂使用：第二章知识点梳理配合教材对应章节；第三章易错点适合做成课前小测（每条易错点就是一个现成的辨析题）。</li>
+    <li>第四节 MCQ 建议限时训练（15 题控制在 20 分钟内），FRQ 建议手写后对照评分要点互评，模拟真实阅卷视角。</li>
+    <li>与 AP Classroom 联动：Unit 1 Progress Check（Part A 约 12 题、Part B 约 15 题、Part C 约 18 题 + 1 道 FRQ）可作为章节终结性测评，错题对应本手册知识点编号回炉。</li>
+  </ul>
+
+  <!-- 参考文献（AP-02 必需） -->
+  <section class="references" aria-label="参考文献">
+    <h2 style="border-bottom: none; padding-bottom: 0; margin-top: 0;">参考文献</h2>
+    <ol class="reference-list">
+      <li class="reference-item">College Board. <em>AP Computer Science A Course and Exam Description</em><span class="ref-type">[R]</span>. Effective Fall 2025. New York: The College Board, 2025.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A 2021 International Exam Free-Response Questions</em><span class="ref-type">[R]</span>. 2021.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A 2022 International Exam Free-Response Questions</em><span class="ref-type">[R]</span>. 2022.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A 2023 International Exam Free-Response Questions</em><span class="ref-type">[R]</span>. 2023.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A 2024 International Exam Free-Response Questions</em><span class="ref-type">[R]</span>. 2024.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A 2025 International Exam Free-Response Questions</em><span class="ref-type">[R]</span>. 2025.</li>
+      <li class="reference-item">College Board. <em>AP Computer Science A — Java Quick Reference</em><span class="ref-type">[R]</span>. 考试现场提供的速查表，2025.</li>
+    </ol>
+  </section>
+
+  <div class="callout">
+    <p class="callout-title">版权说明</p>
+    <p>本手册为教学自编资料，知识点框架依据 College Board《AP Computer Science A Course and Exam Description》（2025 版）整理；所引真题版权归 College Board 所有，仅限校内备考教学使用。</p>
+  </div>
+
+</section>
+</body>
+</html>

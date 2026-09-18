@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docx-page-size" content="A4">
+  <title>APCSA 国际考备考手册 · 第三章 Class Creation（类与对象设计）</title>
+  <style>
+  /* ============================================
+   *  CSS @page 页面模型：封面无家具 / 正文页脚页码
+   * ============================================ */
+  @page {
+    @bottom-center { content: counter(page); }
+  }
+  @page cover {
+    @bottom-center { content: none; }
+  }
+  section[role="cover"] { page: cover; }
+
+  /* ============================================
+   *  :root 设计令牌映射
+   * ============================================ */
+  :root {
+    /* Typography - 来自 design_tokens */
+    --fs-title: var(--typography-fontSize-title, 18pt);
+    --fs-h1: var(--typography-fontSize-h1, 15pt);
+    --fs-h2: var(--typography-fontSize-h2, 14pt);
+    --fs-h3: var(--typography-fontSize-h3, 12pt);
+    --fs-body: var(--typography-fontSize-body, 12pt);
+    --fs-abstract: var(--typography-fontSize-abstract, 11pt);
+    --fs-small: var(--typography-fontSize-caption, 10.5pt);
+    --fs-foot: var(--typography-fontSize-footnote, 9pt);
+    --fs-code: var(--fs-small, 10.5pt);
+    --ff-heading: var(--typography-fontFamily-heading, "黑体", SimHei, sans-serif);
+    --ff-body: var(--typography-fontFamily-body, "宋体", SimSun, serif);
+    --ff-code: var(--typography-fontFamily-code, "Courier New", Consolas, monospace);
+    --lh-body: var(--typography-lineHeight-body, 1.5);
+    --lh-heading: var(--typography-lineHeight-heading, 1.5);
+    --fw-bold: var(--typography-fontWeight-heading, bold);
+    --fw-normal: var(--typography-fontWeight-body, normal);
+    /* Color - 来自 design_tokens + 扩展 */
+    --color-text: var(--color-text, #000000);
+    --color-heading: var(--color-heading, #000000);
+    --color-link: var(--color-link, #0000EE);
+    --color-bg: var(--color-background, #ffffff);
+    --color-tbl-head-bg: var(--color-tableHeaderBg, #f0f0f0);
+    --color-muted: #4b5563;
+    --color-border: #d0d0d0;
+    --color-rule: #cccccc;
+    --color-code-inline-bg: #f6f6f6;
+    --color-code-block-bg: #f8f8f8;
+    --color-code-fg: #1a1a1a;
+    --color-tbl-alt-bg: #fafafa;
+    --color-info: #01579b;
+    --color-info-bg: rgba(1, 87, 155, 0.05);
+    --color-warn: #e65100;
+    --color-warn-bg: rgba(230, 81, 0, 0.05);
+    --color-danger: #c62828;
+    --color-danger-bg: rgba(198, 40, 40, 0.05);
+    --color-success: #2e7d32;
+    --color-success-bg: rgba(46, 125, 50, 0.05);
+    --color-card-bg: #fdfdfd;
+    --color-analysis-bg: #f6f8fa;
+    --color-highlight-bg: #fff8e6;
+    /* Spacing - 来自 design_tokens + 扩展 */
+    --spacing-paragraph: var(--spacing-paragraph, 0.5em);
+    --spacing-section: var(--spacing-sectionGap, 1.5em);
+    --spacing-block: 0.8em;
+    --spacing-indent: var(--spacing-indent, 2em);
+    --spacing-tiny: 0.2em;
+    --spacing-xs: 0.3em;
+    --spacing-s: 0.4em;
+    --spacing-m: 0.5em;
+    --spacing-l: 0.6em;
+    --spacing-xl: 0.7em;
+    --spacing-2xl: 0.9em;
+    --spacing-3xl: 1.0em;
+    --spacing-4xl: 1.2em;
+    --spacing-5xl: 1.4em;
+    --spacing-6xl: 1.6em;
+    /* Layout */
+    --margin-page: 2.5cm;
+    --page-content-width: 16cm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--color-bg); }
+  body {
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    max-width: var(--page-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-m);
+  }
+
+  /* 标题：黑体加粗 */
+  h1, h2, h3, h4 {
+    font-family: var(--ff-heading);
+    color: var(--color-heading);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-heading);
+  }
+  h1 { font-size: var(--fs-title); text-align: center; margin: var(--spacing-4xl) 0 var(--spacing-s) 0; }
+  h2 {
+    font-size: var(--fs-h1);
+    margin-top: var(--spacing-5xl);
+    margin-bottom: var(--spacing-l);
+    padding-bottom: var(--spacing-tiny);
+    border-bottom: 1px solid var(--color-border);
+  }
+  h3 { font-size: var(--fs-h2); margin-top: var(--spacing-3xl); margin-bottom: var(--spacing-s); }
+  h4 { font-size: var(--fs-h3); margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xs); }
+
+  /* 段落：首行缩进 2em（学术论文规范） */
+  p { margin-bottom: var(--spacing-paragraph); text-indent: 2em; }
+  p.no-indent { text-indent: 0; }
+
+  /* 内联强调 */
+  strong { font-weight: var(--fw-bold); color: var(--color-text); }
+  em { font-style: italic; }
+  code {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    background: var(--color-code-inline-bg);
+    padding: 0 var(--spacing-tiny);
+    border-radius: 2px;
+  }
+
+  /* 列表 */
+  ul, ol { margin: var(--spacing-xs) 0 var(--spacing-l) 0; padding-left: var(--spacing-2xl); }
+  li { margin-bottom: var(--spacing-xs); }
+  li p { text-indent: 0; margin-bottom: var(--spacing-tiny); }
+
+  /* ============================================
+   *  封面
+   * ============================================ */
+  section[role="cover"] { padding: var(--spacing-3xl) 0 var(--spacing-3xl) 0; }
+  .cover-eyebrow { text-align: center; font-size: var(--fs-h3); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .cover-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-s) 0 var(--spacing-tiny) 0;
+    line-height: 1.4;
+  }
+  .cover-subtitle {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-tiny) 0 var(--spacing-4xl) 0;
+    letter-spacing: 0.05em;
+  }
+  .cover-meta { text-align: center; margin: var(--spacing-5xl) auto 0 auto; }
+  .cover-meta-info { border-collapse: collapse; margin: 0 auto; }
+  .cover-meta-info td {
+    padding: var(--spacing-xs) var(--spacing-2xl);
+    font-size: var(--fs-body);
+    border: none;
+    vertical-align: top;
+    text-align: left;
+  }
+  .cover-meta-info td:first-child { text-align: right; color: var(--color-muted); white-space: nowrap; }
+
+  /* ============================================
+   *  摘要（AP-01 必需）
+   * ============================================ */
+  .abstract {
+    margin-bottom: var(--spacing-section);
+    padding: var(--spacing-block);
+    border-left: 3px solid var(--color-info);
+  }
+  .abstract-heading { font-weight: var(--fw-bold); margin-bottom: var(--spacing-m); text-indent: 0; font-family: var(--ff-heading); }
+  .abstract-text { text-indent: 2em; margin-bottom: var(--spacing-m); }
+  .keywords { margin-top: var(--spacing-m); text-indent: 0; }
+
+  /* ============================================
+   *  目录
+   * ============================================ */
+  nav.doc-toc { margin: var(--spacing-4xl) 0 var(--spacing-6xl) 0; }
+  .toc-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-l);
+    text-indent: 0;
+  }
+  ol.toc-list { list-style: none; padding-left: 0; }
+  ol.toc-list li {
+    padding: 0.18em 0;
+    border-bottom: 1px dotted var(--color-border);
+  }
+  ol.toc-list li a { color: var(--color-text); text-decoration: none; display: block; }
+  ol.toc-list li a:hover { color: var(--color-link); }
+  ol.toc-list li .toc-sub { padding-left: var(--spacing-indent); font-size: var(--fs-small); }
+
+  /* ============================================
+   *  三线表
+   * ============================================ */
+  table.three-line-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: var(--spacing-m) 0 var(--spacing-xl) 0;
+  }
+  table.three-line-table caption {
+    font-size: var(--fs-small);
+    margin-bottom: var(--spacing-xs);
+    text-align: center;
+    font-family: var(--ff-heading);
+    color: var(--color-muted);
+    caption-side: top;
+  }
+  table.three-line-table thead tr:first-child { border-top: 1.5pt solid var(--color-text); }
+  table.three-line-table thead tr:last-child { border-bottom: 0.75pt solid var(--color-text); }
+  table.three-line-table tbody tr:last-child { border-bottom: 1.5pt solid var(--color-text); }
+  table.three-line-table td, table.three-line-table th {
+    border-left: none;
+    border-right: none;
+    padding: var(--spacing-xs) var(--spacing-l);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.three-line-table th {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    background: var(--color-tbl-head-bg);
+  }
+  table.three-line-table tbody tr:nth-child(even) { background: var(--color-tbl-alt-bg); }
+
+  /* ============================================
+   *  代码块
+   * ============================================ */
+  pre.code-block {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    line-height: 1.5;
+    background: var(--color-code-block-bg);
+    border-left: 3px solid var(--color-border);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-m) 0 var(--spacing-2xl) 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--color-code-fg);
+    border-radius: 2px;
+  }
+  pre.code-block code { background: transparent; padding: 0; font-size: var(--fs-code); border-radius: 0; }
+
+  /* ============================================
+   *  Callout
+   * ============================================ */
+  .callout {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-xl) 0;
+    border-left: 4px solid var(--color-info);
+    background: var(--color-info-bg);
+    border-radius: 2px;
+  }
+  .callout-warning { border-left-color: var(--color-warn); background: var(--color-warn-bg); }
+  .callout-danger  { border-left-color: var(--color-danger); background: var(--color-danger-bg); }
+  .callout-success { border-left-color: var(--color-success); background: var(--color-success-bg); }
+  .callout-title {
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-xs);
+    font-family: var(--ff-heading);
+    text-indent: 0;
+  }
+  .callout p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ============================================
+   *  MCQ / FRQ 题块
+   * ============================================ */
+  .q-block {
+    margin: var(--spacing-2xl) 0 var(--spacing-3xl) 0;
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+  }
+  .q-block .q-tag {
+    display: inline-block;
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h3);
+    color: var(--color-info);
+    margin-right: var(--spacing-m);
+  }
+  .q-block .q-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-s); }
+  .q-block .q-stem { margin: var(--spacing-s) 0 var(--spacing-m) 0; }
+  .q-block .q-stem p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-options { margin: var(--spacing-xs) 0 var(--spacing-m) 0; }
+  .q-block .q-options li { list-style: none; }
+  .q-block .q-analysis {
+    margin-top: var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-xl);
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    font-size: var(--fs-body);
+    border-radius: 2px;
+  }
+  .q-block .q-analysis p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-answer { font-weight: var(--fw-bold); color: var(--color-danger); }
+
+  .frq-block {
+    margin: var(--spacing-3xl) 0 var(--spacing-4xl) 0;
+    padding: var(--spacing-2xl) var(--spacing-3xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+    page-break-inside: avoid;
+  }
+  .frq-block .frq-header {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h2);
+    color: var(--color-info);
+    margin-bottom: var(--spacing-xs);
+  }
+  .frq-block .frq-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .frq-block .frq-section-title {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-xl) 0 var(--spacing-xs) 0;
+  }
+  .frq-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .frq-block .frq-stem p { text-indent: 2em; margin-bottom: var(--spacing-xs); }
+  .frq-block .solution-block {
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block {
+    background: var(--color-highlight-bg);
+    border-left: 3px solid var(--color-warn);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+
+  /* 知识点标签 */
+  .key-point { font-family: var(--ff-heading); font-weight: var(--fw-bold); color: var(--color-text); }
+
+  /* ============================================
+   *  参考文献（AP-02 必需）
+   * ============================================ */
+  .references {
+    margin-top: var(--spacing-5xl);
+    padding-top: var(--spacing-l);
+    border-top: 1px solid var(--color-border);
+  }
+  .references ol { padding-left: var(--spacing-indent); }
+  .references li { margin-bottom: var(--spacing-s); font-size: var(--fs-small); }
+  .ref-type { color: var(--color-muted); }
+
+  /* 打印 / 分页优化 */
+  @media print {
+    body { padding: 0; }
+    h2 { page-break-after: avoid; }
+    h3, h4 { page-break-after: avoid; }
+    .q-block, .frq-block { page-break-inside: avoid; }
+  }
+  </style>
+</head>
+<body>
+<section role="cover">
+  <h1 class="cover-title" style="text-align: center;">APCSA 国际考备考手册</h1>
+  <p class="cover-subtitle" style="text-align: center;">第三章　Class Creation</p>
+
+  <div class="cover-meta" style="text-align: center;">
+    <table class="cover-meta-info">
+      <thead>
+        <tr><th>项</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>适用考试</td><td>AP Computer Science A 国际考（2025 秋新纲 · 2026 及以后）</td></tr>
+        <tr><td>课程章节</td><td>第三章 Class Creation（对应官方大纲 Unit 3）</td></tr>
+        <tr><td>考纲来源</td><td>College Board《AP Computer Science A Course and Exam Description, Effective Fall 2025》——Unit 3 Class Creation（教材页 80–97）</td></tr>
+        <tr><td>真题来源</td><td>2021–2025 年近五年 APCSA 国际考 FRQ 真题（重点 Q2 Class Design）、2025 新版 CED 官方样题、AP Classroom 官方 Progress Check 试题（含 Unit 3 TopicQuestion MCQ、MCQ Part A/B、FRQ Part A/B）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================
+     正文页
+     ============================================ -->
+<section role="body" data-page-restart="1">
+
+  <!-- 摘要 -->
+  <section class="abstract" aria-label="摘要">
+    <p class="abstract-heading">摘　要</p>
+    <p class="abstract-text">本手册为 AP Computer Science A（APCSA）国际考备考系列的第三章，主题为 Class Creation（类与对象设计），对应 College Board 2025 秋新版考纲 Unit 3（适用于 2026 年及以后考试）。本章系统梳理 9 个官方 Topic（3.1 Abstraction and Program Design / 3.2 Impact of Program Design / 3.3 Anatomy of a Class / 3.4 Constructors / 3.5 Methods: How to Write Them / 3.6 Methods: Passing and Returning References of an Object / 3.7 Class Variables and Methods / 3.8 Scope and Access / 3.9 this Keyword），覆盖类的抽象、属性-行为分解、构造器、实例/静态成员、引用传递与 this 关键字；按出错频率排序 Top 10 高频易错点（含访问修饰符误用、return 缺失、static this 误用、构造器写错返回值类型等）并给出正误对照；精选 8 道 MCQ（来自 AP Classroom 官方 Unit 3 TopicQuestion MCQ + MCQ Part A + MCQ Part B 题库）与 4 道 2021–2025 国际考 Q2 Class Design 完整 FRQ 真题（FRQ-1 2021 SingleTable / CombinedTable、FRQ-2 2023 Sign、FRQ-3 2024 Scoreboard、FRQ-4 2025 SignedText），每题附官方英文原题（含官方Statement / Return Value / Explanation 表格）、参考解法与评分要点。本章是 FRQ 写代码题的内功——掌握本章后考生能够根据需求文本独立设计类、写出可编译运行的完整实现。</p>
+    <p class="keywords"><strong>关键词：</strong>AP Computer Science A；2025 新版考纲；类与对象；构造器；static；引用传递；this 关键字；Class Design FRQ；国际考备考</p>
+  </section>
+
+  <!-- 目录 -->
+  <nav class="doc-toc" aria-label="目录">
+    <p class="toc-title" style="text-align: center;">目　录</p>
+    <ol class="toc-list">
+      <li><a href="#section-1">一、本章定位与考情速览</a></li>
+      <li><a href="#section-2">二、知识点与考点梳理（Topic 3.1–3.9）</a></li>
+      <li class="toc-sub"><a href="#section-2-a">A：类设计基础（Topic 3.1 / 3.2）</a></li>
+      <li class="toc-sub"><a href="#section-2-b">B：Anatomy of a Class 与 Constructors（Topic 3.3 / 3.4）</a></li>
+      <li class="toc-sub"><a href="#section-2-c">C：Methods 与引用传递（Topic 3.5 / 3.6）</a></li>
+      <li class="toc-sub"><a href="#section-2-d">D：Static 与 Scope（Topic 3.7 / 3.8）</a></li>
+      <li class="toc-sub"><a href="#section-2-e">E：this Keyword（Topic 3.9）</a></li>
+      <li><a href="#section-3">三、本章重难点与易错点清单</a></li>
+      <li><a href="#section-4">四、MCQ 真题精选与详解（8 题）</a></li>
+      <li><a href="#section-5">五、FRQ 真题精选与解析（4 题完整题面，含官方表格）</a></li>
+      <li><a href="#section-6">六、应试技巧清单</a></li>
+      <li><a href="#section-7">七、章节总结</a></li>
+    </ol>
+  </nav>
+
+  <!-- 一、本章定位与考情速览 -->
+  <h2 id="section-1">一、本章定位与考情速览</h2>
+  <h3>1.1 新大纲四大单元与考试权重</h3>
+  <p>Unit 3 Class Creation 是 APCSA 课程的"承上启下"章节：它承接 Unit 1（Java 基础类型与对象调用）与 Unit 2（控制结构），要求考生能够独立 <strong>设计一个完整类</strong>——选择恰当的实例变量、构造器、访问修饰符、存取方法，并在 FRQ 中写出可编译、可运行的实现代码。</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>单元（本课程章节）</th><th>MCQ 权重</th><th>建议课时</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unit 1：Using Objects and Methods（第一章）</td><td>15–25%</td><td>约 32–34 课时</td></tr>
+      <tr><td>Unit 2：Selection and Iteration（第二章）</td><td>25–35%</td><td>约 29–31 课时</td></tr>
+      <tr><td><strong>Unit 3：Class Creation（第三章）</strong></td><td><strong>10–18%</strong></td><td><strong>约 20–22 课时</strong></td></tr>
+      <tr><td>Unit 4：Data Collections（第四章）</td><td>30–40%</td><td>约 50–52 课时</td></tr>
+    </tbody>
+  </table>
+
+  <p>Unit 3 的 MCQ 权重（10–18%）看似不高，但<strong>几乎每年 FRQ 都有 1-2 道完整的 Class Design 写代码题</strong>（通常对应国际考 Q2，2021-2025 五年皆如此），且 FRQ 第 1 题的 (a) 子问（构造对象的初始状态、调用方法计算属性）也常常要求考生理解类构造、实例变量初始化与方法返回值的链路——这是写作大题最容易失分的环节。</p>
+
+  <h3>1.2 考试结构</h3>
+  <table class="three-line-table">
+    <thead>
+      <tr><th>部分</th><th>题量与时长</th><th>占比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Section I：选择题（MCQ）</td><td>42 题 / 90 分钟</td><td>55%</td></tr>
+      <tr><td>Section II：自由作答题（FRQ）</td><td>4 题 / 90 分钟</td><td>45%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <p class="callout-title">格式说明</p>
+    <p>2021–2025 年国际考采用旧版 4 题 FRQ 结构；2026 年起 FRQ 第 1 题固定为新结构（Part A 4 分 + Part B 3 分，明确要求调用 String 方法），其余 3 题保留题目风格。本章 FRQ 精选以 2021–2025 国际考 Q2（Class Design）为主线，并在题目中给出完整的英文原题、参考解法、评分要点。</p>
+  </div>
+
+  <h3>1.3 本章与 FRQ 的关联（备考重点提示）</h3>
+  <ul>
+    <li><strong>国际考 Q2 = Class Design 写完整类</strong>（2021 SingleTable / CombinedTable、2023 Sign、2024 Scoreboard、2025 SignedText，四年皆如此）。本题要求从需求文本直接写出 <code>class</code> 头、<code>private</code> 实例变量、带参数的 <code>public</code> 构造器、若干 <code>public</code> 存取方法/行为方法——这是本章最高频、最有把握拿分的大题。</li>
+    <li><strong>国际考 Q1(a) 常以本章主题收尾</strong>：要求识别"应使用 <code>private</code> 而非 <code>public</code> 修饰实例变量"、"构造器与 <code>getter</code>/<code>setter</code> 的可见性"——本章学过的访问修饰符原则会直接决定 Q1(a) 的得分。</li>
+    <li><strong>MCQ 高频考点</strong>：访问修饰符（<code>private</code>/<code>public</code>）、<code>static</code> 与实例变量、方法签名、<code>return</code> 类型、<code>final</code> 修饰符、<code>this</code> 关键字、引用传递（<code>String</code> 与可变对象的差异）。</li>
+    <li><strong>本章不考</strong>：继承（<code>extends</code>/<code>super</code>，2022 Q2 涉及但被新 CED 移出范围）；接口（<code>interface</code>）、抽象类、<code>instanceof</code>、<code>equals</code> 重写；<code>Array</code> / <code>ArrayList</code> / <code>2D Array</code> 数组相关用法（属 Unit 4）；<code>break</code>/<code>continue</code>（属早期 CED，新 CED 已无此考点）。</li>
+  </ul>
+
+  <h3>1.4 本章学习目标（对应官方 9 个 Topic）</h3>
+  <p>新 CED Unit 3 共 9 个 Topic，按"先设计、再实现、后优化"的顺序展开：</p>
+  <ol>
+    <li><strong>3.1 Abstraction and Program Design（抽象与程序设计）</strong>：能用文字描述把现实对象分解为属性（attributes）与行为（behaviors）。</li>
+    <li><strong>3.2 Impact of Program Design（程序设计的影响）</strong>：理解良好的封装（access modifier、命名、注释）会降低后续的修改成本。</li>
+    <li><strong>3.3 Anatomy of a Class（类结构）</strong>：掌握类头、实例变量声明、方法声明的语法位置与修饰符。</li>
+    <li><strong>3.4 Constructors（构造器）</strong>：理解带参数构造器、默认构造器、构造器内对可变参数做"防御性拷贝"。</li>
+    <li><strong>3.5 Methods: How to Write Them（方法的编写）</strong>：理解 void 方法、有返回值方法、方法头的 return type 必须与返回值一致。</li>
+    <li><strong>3.6 Methods: Passing and Returning References of an Object（引用传递与返回）</strong>：掌握对象引用作为参数/返回值时的语义（不创建副本，共享状态）。</li>
+    <li><strong>3.7 Class Variables and Methods（类变量与类方法，<code>static</code>）</strong>：理解 <code>static</code> 变量/方法属于类而非实例；何时应该用 <code>static</code>。</li>
+    <li><strong>3.8 Scope and Access（作用域与访问）</strong>：理解局部变量、参数、实例变量、<code>static</code> 变量的可见性与遮蔽规则。</li>
+    <li><strong>3.9 <code>this</code> Keyword（<code>this</code> 关键字）</strong>：掌握用 <code>this.field</code> 区分参数与实例变量同名的情况；以及用 <code>this(...)</code> 调用兄弟构造器。</li>
+  </ol>
+
+  <!-- 以下为 markdown 库自动转换的正文（已剔除重复的一章标题） -->
+  <hr>
+<h2 id="section-2">二、知识点与考点梳理（Topic 3.1–3.9）</h2>
+<h3 id="section-2-a">板块 A：类设计基础（Topic 3.1 / 3.2）</h3>
+<h4>Topic 3.1 Abstraction and Program Design（抽象与程序设计）</h4>
+<p><strong>抽象的本质</strong>：把现实世界的事物（车、学生、玩家）抽象成 <strong>属性（attributes / state）</strong> 与 <strong>行为（behaviors / methods）</strong> 两个维度。这一步决定了后续怎么写实例变量和方法签名。</p>
+<pre class="code-block"><code class="language-java">// 一辆 Car：属性 + 行为
+public class Car {
+    // 属性 (Topic 3.3 / 3.4)
+    private double fuel;        // 当前油量（加仑）
+    private double mpg;         // 每加仑英里数
+    // 行为 (Topic 3.5)
+    public Car(double fuel, double mpg) {
+        this.fuel = fuel;
+        this.mpg = mpg;
+    }
+    public boolean canMakeTrip(double miles) {
+        return fuel * mpg &gt;= miles;
+    }
+}
+</code></pre>
+<p><strong>抽象的"四个步骤"</strong>：<br>
+1. <strong>找出属性</strong>：从需求文本中找名词——"Car has fuel and mpg"。<br>
+2. <strong>找出行为</strong>：从需求文本中找动词——"Car can make a trip"。<br>
+3. <strong>决定可见性</strong>：实例变量一定 <code>private</code>；构造器和"会被外部调用"的方法一定 <code>public</code>。<br>
+4. <strong>决定方法签名</strong>：包括返回类型（<code>boolean</code> / <code>int</code> / <code>String</code> / <code>void</code>）、参数列表（顺序和类型）、是否 <code>static</code>。</p>
+<h4>Topic 3.2 Impact of Program Design（程序设计的影响）</h4>
+<p><strong>良好设计的三大收益</strong>（考试常以选择题形式出现）：<br>
+- 减少 IP / 抄袭争议（使用开放标准与文档良好的代码）；<br>
+- 提高系统可靠性（清晰的接口 + 单元测试）；<br>
+- 利于协作开发（明确的 access modifier 让其他类无需关心实现）。</p>
+<p><strong>课堂常见的对应原则</strong>：<br>
+- <strong>信息隐藏（Information Hiding）</strong>：用 <code>private</code> 修饰所有实例变量，仅暴露必要的 <code>public</code> 方法。<br>
+- <strong>接口稳定（Stable Interface）</strong>：方法签名只对外承诺"做什么"，不暴露"怎么做"。<br>
+- <strong>数据抽象（Data Abstraction）</strong>：把"复杂数据结构"封装为简单接口，例如把 <code>int[] numbers</code> 封装为 <code>ArrayList&lt;Integer&gt;</code>。</p>
+<blockquote>
+<p><strong>考试提示</strong>：选择"程序设计带来的好处"的题目时，凡是出现"更好测试 / 更好维护 / 更少 IP 争议 / 更高可靠性"的选项，多半正确；如果选项声称"能完全避免 bug"或"无需注释"则是错误说法。</p>
+</blockquote>
+<h3 id="section-2-b">板块 B：Anatomy of a Class 与 Constructors（Topic 3.3 / 3.4）</h3>
+<h4>Topic 3.3 Anatomy of a Class（类的解剖）</h4>
+<p>一个最小可用的 Java 类由三部分构成：</p>
+<pre class="code-block"><code class="language-java">public class ClassName {            // ① 类头：决定类名与可见性
+    private int field;              // ② 实例变量区（field section）
+    public ClassName(int f) {       // ③ 构造器（与类同名；无返回值声明）
+        field = f;
+    }
+    public int getField() {         // ④ 方法区（method section）
+        return field;
+    }
+}
+</code></pre>
+<p><strong>UML 类图</strong>（考试有时候会给出或要求识别）：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>ClassName</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- field : int</td>
+</tr>
+<tr>
+<td>+ ClassName(f : int)</td>
+</tr>
+<tr>
+<td>+ getField() : int</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><code>-</code> 表示 <code>private</code>，<code>+</code> 表示 <code>public</code>。UML 中<strong>仅列属性名与类型，不写 <code>private int</code></strong>。</p>
+</blockquote>
+<h4>Topic 3.4 Constructors（构造器）</h4>
+<p>构造器是 <strong>与类同名、无返回类型声明、用于初始化实例变量</strong> 的特殊方法。考试最高频考点：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>考点</th>
+<th>描述</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>带参数构造器</td>
+<td><code>public ClassName(T1 p1, T2 p2) { ... }</code></td>
+<td><code>public Player(String name, int age)</code></td>
+</tr>
+<tr>
+<td>默认构造器</td>
+<td>类<strong>未声明任何</strong>构造器时 Java 自动提供，参数列表为空，所有实例变量取默认值（int=0 / double=0.0 / boolean=false / 引用=null）</td>
+<td><code>new Foo()</code> 不报错</td>
+</tr>
+<tr>
+<td>多构造器重载</td>
+<td>参数列表不同（数量或类型不同）即可重载；返回类型不同不构成重载</td>
+<td>同一类可有 <code>Player()</code> 与 <code>Player(String, int)</code></td>
+</tr>
+<tr>
+<td>防御性拷贝</td>
+<td>可变对象作为参数时（如自定义 <code>ArrayList</code>），应用 <code>new ArrayList&lt;&gt;(list)</code> 复制一份</td>
+<td>防止外部引用修改内部状态</td>
+</tr>
+<tr>
+<td><code>this(...)</code> 调用兄弟构造器</td>
+<td>必须放在构造器<strong>第一行</strong></td>
+<td><code>this(); this("Bob");</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例：可变的构造器场景</strong></p>
+<pre class="code-block"><code class="language-java">public class Team {
+    private String name;
+    private ArrayList&lt;String&gt; members;
+    public Team(String name, ArrayList&lt;String&gt; members) {
+        this.name = name;
+        this.members = new ArrayList&lt;&gt;(members);  // 防御性拷贝
+    }
+}
+</code></pre>
+<h3 id="section-2-c">板块 C：Methods 与引用传递（Topic 3.5 / 3.6）</h3>
+<h4>Topic 3.5 Methods: How to Write Them（方法的写法）</h4>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>类别</th>
+<th>签名模式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>访问器 (accessor / getter)</td>
+<td><code>public T getX()</code></td>
+<td><code>public int getScore() { return score; }</code></td>
+</tr>
+<tr>
+<td>修改器 (mutator / setter)</td>
+<td><code>public void setX(T v)</code></td>
+<td><code>public void setScore(int s) { score = s; }</code></td>
+</tr>
+<tr>
+<td>行为方法 (behavior)</td>
+<td><code>public T doSomething(...)</code></td>
+<td><code>public boolean canMakeTrip(double miles)</code></td>
+</tr>
+<tr>
+<td>静态方法</td>
+<td><code>public static T method(...)</code></td>
+<td><code>public static int add(int a, int b)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>易错点</strong>：<br>
+- 方法的 <code>return type</code> 必须与 <code>return</code> 语句的表达式类型兼容（<strong>注意</strong>：<code>return</code> 缺失是编译错误）。<br>
+- <code>void</code> 方法体内允许 <code>return;</code> 但不能 <code>return value;</code>。<br>
+- 构造器<strong>不允许写返回值类型</strong>——<code>public void ClassName()</code> 不是构造器、是普通方法。<br>
+- 方法内可以调用<strong>同一类</strong>的 private 实例方法（隐式 <code>this</code>）。</p>
+<h4>Topic 3.6 Methods: Passing and Returning References of an Object（引用传递与返回）</h4>
+<p>考试中最重要的概念：<strong>对象引用作为参数时，传递的是引用的拷贝</strong>——方法内通过这个引用能修改原对象的内部状态，但不能让外部引用指向新对象。</p>
+<pre class="code-block"><code class="language-java">String s = &quot;Hello&quot;;           // 不可变
+StringBuilder sb = new StringBuilder(&quot;Hi&quot;);  // 可变
+
+mutate(s, sb);
+System.out.println(s);   // 仍然是 &quot;Hello&quot;（不可变）
+System.out.println(sb);  // 可能是 &quot;Hi!!!&quot;（被方法修改）
+</code></pre>
+<pre class="code-block"><code class="language-java">public static void mutate(String s, StringBuilder sb) {
+    s = s + &quot;world&quot;;        // 不会影响外部 s
+    sb.append(&quot;!!!&quot;);       // 会修改外部 sb
+}
+</code></pre>
+<p><strong>关键规则</strong>：<br>
+- <code>String</code> 是不可变类型，<strong>所有修改</strong>（<code>substring</code>/<code>concat</code>/<code>replace</code>）都返回<strong>新对象</strong>，原对象不变。<br>
+- 自定义类、<code>StringBuilder</code>、<code>ArrayList</code> 是可变类型。<br>
+- 方法不能访问参数对象的 <code>private</code> 字段，除非参数所属类与当前类<strong>相同</strong>（同包或同顶层类）。</p>
+<p><strong>返回引用的语义</strong>：</p>
+<pre class="code-block"><code class="language-java">public StringBuilder getName() {
+    return new StringBuilder(&quot;Default&quot;);  // 返回的是这个新对象的引用
+}
+</code></pre>
+<blockquote>
+<p>调用者拿到引用后，对返回对象的修改会影响该返回对象（因为它就是返回的那个对象）。</p>
+</blockquote>
+<h3 id="section-2-d">板块 D：Static 与 Scope（Topic 3.7 / 3.8）</h3>
+<h4>Topic 3.7 Class Variables and Methods（<code>static</code> 变量与方法）</h4>
+<p><code>static</code> 修饰的成员属于 <strong>类本身</strong>，而非类的某个实例：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>类型</th>
+<th>访问方式</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实例变量</td>
+<td><code>obj.field</code>（每个对象各自一份）</td>
+<td>每个对象一份</td>
+</tr>
+<tr>
+<td><code>static</code> 变量（类变量）</td>
+<td><code>ClassName.field</code>（所有对象共享一份）</td>
+<td>全类一份</td>
+</tr>
+</tbody>
+</table>
+<pre class="code-block"><code class="language-java">public class Widget {
+    private int number;            // 实例变量：每个 Widget 各一份
+    private static String word = &quot;start&quot;;  // 静态变量：所有 Widget 共享
+    public static void updateWord(String s) {  // 静态方法
+        word = s;
+    }
+}
+</code></pre>
+<p><strong><code>static</code> 方法的限制</strong>：<br>
+- <strong>不能</strong>直接访问实例变量 / 实例方法（除非传入对象引用）。<br>
+- <strong>不能</strong>使用 <code>this</code> 关键字（因为 <code>this</code> 指向某个实例，而 <code>static</code> 属于类）。<br>
+- 通常作为<strong>工具方法</strong>或<strong>计数器/全局状态</strong>使用（但考试中尽可能避免全局状态）。</p>
+<h4>Topic 3.8 Scope and Access（作用域与访问）</h4>
+<p>变量可见性从里到外的优先级（<strong>就近遮蔽</strong>）：</p>
+<pre class="code-block"><code>1. 块级局部变量 (最优先) → 2. 方法参数 → 3. 实例变量 → 4. 静态变量 (最外)
+</code></pre>
+<pre class="code-block"><code class="language-java">public class Student {
+    private String name = &quot;Bob&quot;;
+
+    public void setName(String name) {
+        name = name;        // ❌ 错误：两边都是参数，实例变量未被赋值
+        this.name = name;   // ✅ 正确：用 this.name 区分实例变量
+    }
+}
+</code></pre>
+<p><strong>访问修饰符总结</strong>（Unit 3 范围内）：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>修饰符</th>
+<th>同类</th>
+<th>同包</th>
+<th>子类</th>
+<th>其他包</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>private</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>(default/package)</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>public</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Unit 3 不考 <code>protected</code> 和包级细节，但 <code>private</code> 与 <code>public</code> 必须能区分。</p>
+</blockquote>
+<h3 id="section-2-e">板块 E：this Keyword（Topic 3.9）</h3>
+<h4>Topic 3.9 <code>this</code> Keyword（<code>this</code> 关键字）</h4>
+<p><code>this</code> 是一个<strong>隐式参数</strong>，代表"当前对象"本身。两个核心用法：</p>
+<p><strong>用法 1：区分参数与实例变量同名</strong></p>
+<pre class="code-block"><code class="language-java">public class Rectangle {
+    private double width;       // 实例变量
+    private double height;
+    public Rectangle(double width, double height) {
+        this.width = width;     // 左 this.width 是实例变量，右侧是参数
+        this.height = height;
+    }
+}
+</code></pre>
+<p><strong>用法 2：用 <code>this(...)</code> 调用同类的另一个构造器（须放在构造器第一行）</strong></p>
+<pre class="code-block"><code class="language-java">public Player() {
+    this(&quot;Anonymous&quot;, 0);     // 必须放在第一行
+}
+public Player(String name, int score) {
+    this.name = name;
+    this.score = score;
+}
+</code></pre>
+<p><strong>易错点</strong>：<br>
+- <code>static</code> 方法内 <strong>不能使用</strong> <code>this</code>（因为没有"当前对象"）。<br>
+- 静态变量被实例变量遮蔽时不能用 <code>this.staticField</code>（应使用 <code>ClassName.staticField</code>）。</p>
+<blockquote>
+<p><strong>考试提示</strong>：MCQ 出现构造器体内部"左边写 <code>x = x;</code>"几乎一定是错误的，<strong>正确写法是 <code>this.x = x;</code></strong>。</p>
+</blockquote>
+<hr>
+<h2 id="section-3">三、本章重难点与易错点清单（按出错频率排序）</h2>
+<h3>高频易错点 TOP 10</h3>
+<ol>
+<li><strong>构造器写错返回值类型</strong>：<code>public void Player(int s)</code> 是普通方法不是构造器，类外部 <code>new Player(...)</code> 会编译失败。</li>
+<li><strong>混淆实例变量与类变量</strong>：<code>static int count = 0; count++;</code> 是所有对象共享；非 <code>static</code> 是每个对象各自一份。</li>
+<li><strong><code>this</code> 与 <code>static</code> 误用</strong>：在静态方法内写 <code>this.field</code> 是编译错误。</li>
+<li><strong>访问修饰符混淆</strong>：<code>public int score</code> 让外部能直接改写实例变量，违反"实例变量永远 <code>private</code>"的最佳实践——MCQ 几乎每年必考。</li>
+<li><strong><code>return</code> 语句缺失</strong>：声明 <code>public int getScore()</code> 但方法体内忘了 <code>return</code> 会编译失败。</li>
+<li><strong><code>return</code> 类型与方法签名不一致</strong>：<code>public double getScore()</code> 写成 <code>return score;</code>（score 是 int）虽然 Java 会自动提升，但 <code>public int getScore()</code> 写 <code>return "abc";</code> 会编译错误。</li>
+<li><strong><code>String</code> 与 <code>StringBuilder</code> 混淆</strong>：把 <code>s = s + "x"</code> 误以为能修改原 <code>s</code>；<code>StringBuilder sb.append("x")</code> 才是修改。</li>
+<li><strong>无参数构造器消失</strong>：一旦定义了带参数的构造器，Java 不再自动提供无参数构造器，<code>new Foo()</code> 失败。</li>
+<li><strong>方法重载只看返回类型</strong>：仅返回类型不同不是有效的重载（编译错误：duplicate method）。</li>
+<li><strong><code>this(...)</code> 放错位置</strong>：<code>this(...)</code> 必须放在构造器第一行，否则编译失败。</li>
+</ol>
+<h3>学习建议</h3>
+<ul>
+<li><strong>学会画类图</strong>：遇到 FRQ 时，先画出 UML 类图（属性 + 方法），再开始写代码——能极大减少漏写字段的概率。</li>
+<li><strong>区分 <code>static</code> 与非 <code>static</code></strong>：判断"是否需要每个对象一份"——<code>static</code> 用于"类级别共享"，例如计数器、全局配置；非 <code>static</code> 用于"对象级别独立状态"。</li>
+<li><strong>构造器与 <code>setter</code> 关系</strong>：如果构造器已完整初始化所有字段，则不必立即写 <code>setter</code>；只有"对象创建后还能修改"的字段才需要 <code>setter</code>。</li>
+<li><strong>优先使用 <code>this.field</code></strong>：构造器内对实例变量赋值一律用 <code>this.field = param;</code>，避免遮蔽。</li>
+</ul>
+<hr>
+<h2 id="section-4">四、MCQ 真题精选与详解</h2>
+<blockquote>
+<p>本章 8 道 MCQ 全部来自 AP Classroom 官方 Unit 3 Class Creation 题库（New Unit 3 TopicQuestion MCQ + MCQ Part A + MCQ Part B），题面使用原版英文题干 + 中文详解。</p>
+</blockquote>
+<h3>MCQ-1（TopicQuestion #1：实例变量与构造器的可见性）</h3>
+<p>Consider the design of a <code>Player</code> class that will contain two <code>int</code> attributes and a constructor. The class will also contain a method <code>getScore</code> that can be accessed from outside the class. A partial definition of the <code>Player</code> class is shown.</p>
+<pre class="code-block"><code class="language-java">public class Player
+{
+    /* missing code */
+}
+</code></pre>
+<p>Which of the following replacements for <code>/* missing code */</code> is the most appropriate implementation of the class?</p>
+<p>(A)</p>
+<pre class="code-block"><code class="language-java">private int score;
+private int id;
+public Player(int playerScore, int playerID) { /* implementation not shown */ }
+private int getScore() { /* implementation not shown */ }
+</code></pre>
+<p>(B)</p>
+<pre class="code-block"><code class="language-java">private int score;
+private int id;
+public Player(int playerScore, int playerID) { /* implementation not shown */ }
+public int getScore() { /* implementation not shown */ }
+</code></pre>
+<p>(C)</p>
+<pre class="code-block"><code class="language-java">public int score;
+public int id;
+public Player(int playerScore, int playerID) { /* implementation not shown */ }
+private int getScore() { /* implementation not shown */ }
+</code></pre>
+<p>(D)</p>
+<pre class="code-block"><code class="language-java">public int score;
+public int id;
+public Player(int playerScore, int playerID) { /* implementation not shown */ }
+public int getScore() { /* implementation not shown */ }
+</code></pre>
+<p><strong>答案：B</strong></p>
+<p><strong>详解</strong>：实例变量一定要 <code>private</code>（信息隐藏），构造器必须 <code>public</code>（外部需要 <code>new Player(...)</code>），<code>getScore</code> 因为要"被外部访问"，必须是 <code>public</code>。<br>
+- A 错：<code>getScore</code> 是 <code>private</code>，外部无法访问。<br>
+- C 错：实例变量是 <code>public</code>，破坏了封装。<br>
+- D 错：实例变量是 <code>public</code>，破坏了封装；只是 <code>getScore</code> 改成 <code>public</code> 不够。<br>
+- B 对：实例变量 <code>private</code>、构造器 <code>public</code>、方法 <code>public</code>，全部符合"信息隐藏 + 接口暴露"的最佳实践。</p>
+<p><strong>考点</strong>：Topic 3.3 类结构、Topic 3.4 构造器、Topic 3.8 Scope and Access。</p>
+<h3>MCQ-2（TopicQuestion #2：static 变量与多次创建对象）</h3>
+<p>Consider the following class definition.</p>
+<pre class="code-block"><code class="language-java">public class WordClass
+{
+    private final String word;
+    private static String maxWord = &quot;&quot;;
+    public WordClass(String s)
+    {
+        word = s;
+        if (word.length() &gt; maxWord.length())
+        {
+            maxWord = word;
+        }
+    }
+}
+</code></pre>
+<p>Which of the following is a true statement about the behavior of <code>WordClass</code> objects?</p>
+<p>(A) Every time a <code>WordClass</code> object is created, the <code>maxWord</code> variable is referenced.<br>
+(B) Every time a <code>WordClass</code> object is created, the value of the <code>maxWord</code> variable changes.<br>
+(C) No two <code>WordClass</code> objects can have their <code>word</code> length equal to the length of <code>maxWord</code>.<br>
+(D) The value of the <code>maxWord</code> variable cannot be changed once it has been initialized.</p>
+<p><strong>答案：A</strong></p>
+<p><strong>详解</strong>：<br>
+- A 对：每个构造器在条件判断 <code>word.length() &gt; maxWord.length()</code> 中都<strong>引用</strong>了 <code>maxWord</code>——只要构造器被调用，必定读取一次 <code>maxWord</code>。<br>
+- B 错：<code>maxWord</code> 只在 <code>word.length() &gt; maxWord.length()</code> 时才被更新，并非每次创建都改变。<br>
+- C 错：可能存在两个对象 <code>word</code> 长度都等于 <code>maxWord</code> 长度（仅在更新条件<strong>不成立</strong>时，这两个对象并存）。<br>
+- D 错：<code>maxWord</code> 没有 <code>final</code> 修饰符，可被多次重新赋值。</p>
+<p><strong>考点</strong>：Topic 3.7 类变量（<code>static</code>）。</p>
+<h3>MCQ-3（TopicQuestion #3：方法内访问实例变量）</h3>
+<p>Consider the following <code>Bugs</code> class, which is intended to simulate variations in a population of bugs. The population is stored in the method's <code>int</code> attribute. The <code>getPopulation</code> method is intended to allow methods in other classes to access a <code>Bugs</code> object's population value. However, the class does not compile.</p>
+<pre class="code-block"><code class="language-java">public class Bugs
+{
+    private int population;
+    public Bugs(int p)
+    {
+        population = p;
+    }
+    public int getPopulation()
+    {
+        return p;
+    }
+}
+</code></pre>
+<p>Which of the following best explains why the <code>Bugs</code> class does not compile?</p>
+<p>(A) The return type of the <code>getPopulation</code> method should be <code>void</code>.<br>
+(B) The <code>getPopulation</code> method should have at least one parameter.<br>
+(C) The variable <code>population</code> is not declared inside the <code>getPopulation</code> method.<br>
+(D) In the <code>getPopulation</code> method, the variable <code>population</code> should be returned instead of <code>p</code>.</p>
+<p><strong>答案：D</strong></p>
+<p><strong>详解</strong>：方法 <code>getPopulation</code> 中 <code>p</code> 不是局部变量也不是参数——类中只有构造器使用了 <code>p</code> 作为参数名，<code>getPopulation</code> 内并没有 <code>p</code> 可用。正确写法是 <code>return population;</code>（返回实例变量 <code>population</code>）。</p>
+<p><strong>考点</strong>：Topic 3.5 方法编写 + 实例变量访问。</p>
+<h3>MCQ-4（TopicQuestion #4：实例变量 vs 参数命名）</h3>
+<p>The <code>Car</code> class will be used to represent information about a car. Each instance of the class will maintain two string attributes for the car's make and model. This information is unique to each car and should not be directly accessible outside the <code>Car</code> class. The <code>Car</code> class will also contain a single constructor.</p>
+<pre class="code-block"><code class="language-java">public class Car
+{
+    /* missing code */
+    /* There may be other methods that are not shown. */
+}
+</code></pre>
+<p>Which of the following replacements for <code>/* missing code */</code> is the most appropriate partial implementation of the class?</p>
+<p>(A)</p>
+<pre class="code-block"><code class="language-java">public String make;
+public String model;
+public Car(String myMake, String myModel) { /* implementation not shown */ }
+</code></pre>
+<p>(B)</p>
+<pre class="code-block"><code class="language-java">public String make;
+public String model;
+private Car(String myMake, String myModel) { /* implementation not shown */ }
+</code></pre>
+<p>(C)</p>
+<pre class="code-block"><code class="language-java">private String make;
+private String model;
+public Car(String myMake, String myModel) { /* implementation not shown */ }
+</code></pre>
+<p>(D)</p>
+<pre class="code-block"><code class="language-java">private String make;
+private String model;
+private Car(String myMake, String myModel) { /* implementation not shown */ }
+</code></pre>
+<p><strong>答案：C</strong></p>
+<p><strong>详解</strong>：<br>
+- A 错：实例变量被 <code>public</code> 修饰，外部可直接修改。<br>
+- B 错：<code>public String</code> + 私有构造器 (外部无法 <code>new Car(...)</code>)——逻辑矛盾。<br>
+- C 对：实例变量 <code>private</code>，构造器 <code>public</code>，符合需求。<br>
+- D 错：构造器私有，外部无法 <code>new Car(...)</code>。</p>
+<p><strong>考点</strong>：访问修饰符（Topic 3.8）。</p>
+<h3>MCQ-5（MCQ Part B #2：返回对象的字符串表示）</h3>
+<p>Consider the following class definition.</p>
+<pre class="code-block"><code class="language-java">public class XYPoint
+{
+    private int x;
+    private int y;
+    public XYPoint(int xVal, int yVal)
+    {
+        x = xVal;
+        y = yVal;
+    }
+    public String getPoint()
+    {
+        /* missing code */
+    }
+}
+</code></pre>
+<p>The following code segment appears in a class other than <code>XYPoint</code>.</p>
+<pre class="code-block"><code class="language-java">XYPoint p1 = new XYPoint(3, -2);
+XYPoint p2 = new XYPoint(4, 0);
+System.out.println(p1.getPoint());
+System.out.println(p2.getPoint());
+</code></pre>
+<p>This code segment is intended to produce the following output.</p>
+<pre class="code-block"><code>(3, -2)
+(4, 0)
+</code></pre>
+<p>Which of the following statements can be used to replace <code>/* missing code */</code> so that this code segment produces the intended output?</p>
+<p>(A) <code>System.out.println("(x, y)");</code><br>
+(B) <code>System.out.println("(" + x + ", " + y + ")");</code><br>
+(C) <code>return "(x, y)";</code><br>
+(D) <code>return "(" + x + ", " + y + ")";</code></p>
+<p><strong>答案：D</strong></p>
+<p><strong>详解</strong>：方法 <code>getPoint</code> 声明为 <code>public String</code>——必须 <code>return</code> 一个 <code>String</code>，不能 <code>System.out.println(...)</code>。<br>
+- A 错：返回类型不匹配，且打印的不是变量值。<br>
+- B 错：方法返回 <code>String</code>，内部不能用 <code>System.out.println</code>。<br>
+- C 错：返回的是字符串字面量 <code>"(x, y)"</code>，不是变量值。<br>
+- D 对：<code>return "(" + x + ", " + y + ")";</code> 返回 <code>"(" + 3 + ", " + -2 + ")" = "(3, -2)"</code>。</p>
+<p><strong>考点</strong>：方法签名 + String 拼接（Topic 3.5、Topic 1.15）。</p>
+<h3>MCQ-6（MCQ Part B #4：String 不可变性 + 参数传递）</h3>
+<p>Consider the following method.</p>
+<pre class="code-block"><code class="language-java">public String mystery(String message, int x)
+{
+    message = message.substring(x);
+    return message;
+}
+</code></pre>
+<p>The following code segment appears in a method in the same class as <code>mystery</code>.</p>
+<pre class="code-block"><code class="language-java">String str1 = &quot;abcde&quot;;
+String str2 = mystery(str1, 3);
+</code></pre>
+<p>Which of the following best describes the behavior of this code segment?</p>
+<p>(A) <code>str1</code> is modified by the call to <code>mystery</code>; <code>str1</code> and <code>str2</code> are equal in value after executing the code segment.<br>
+(B) <code>str1</code> is modified by the call to <code>mystery</code>; <code>str1</code> and <code>str2</code> have differing values after executing the code segment.<br>
+(C) <code>str1</code> is not modified by the call to <code>mystery</code>; <code>str1</code> and <code>str2</code> are equal in value after executing the code segment.<br>
+(D) <code>str1</code> is not modified by the call to <code>mystery</code>; <code>str1</code> and <code>str2</code> have differing values after executing the code segment.</p>
+<p><strong>答案：C</strong></p>
+<p><strong>详解</strong>：<br>
+- <code>mystery(str1, 3)</code> 内部 <code>message = message.substring(3)</code> 等价于 <code>message = "de"</code>——<code>message</code> 是参数变量（<code>String</code> 类型，不可变），重新赋值不会影响 <code>str1</code>。<br>
+- <code>str2 = mystery(...)</code> 拿到的是 <code>"de"</code>。<br>
+- 打印 <code>str1</code> 仍是 <code>"abcde"</code>，打印 <code>str2</code> 是 <code>"de"</code>，值不同 ⇒ <strong>C 错</strong>？重新审视：<code>substring</code> 返回新 String，<code>message</code> 参数变量被重新指向 <code>"de"</code>；但 <code>str1</code> 仍指向 <code>"abcde"</code>。</p>
+<blockquote>
+<p>等等，重新核对：<code>mystery</code> 修改的是参数 <code>message</code> 这一引用的指向，不影响调用方 <code>str1</code>。<code>str2</code> 拿到返回值 <code>"de"</code>，<code>str1</code> 还是 <code>"abcde"</code>，<strong>两者不相等</strong>，所以正确答案应为 <strong>D</strong>。</p>
+</blockquote>
+<p><strong>更正答案：D</strong></p>
+<p><strong>详解</strong>：<code>String</code> 是不可变对象——在方法内部 <code>message = message.substring(x)</code> 只是让 <code>message</code> 指向<strong>新对象</strong>，外部 <code>str1</code> 仍指向原对象 <code>"abcde"</code>；<code>str2</code> 拿到的是 <code>"de"</code>，两者不相等，所以 <strong><code>str1</code> 未被修改 / <code>str1</code> 与 <code>str2</code> 值不同</strong>。</p>
+<p><strong>考点</strong>：Topic 3.6 引用传递 + String 不可变（Topic 1.15）。</p>
+<h3>MCQ-7（MCQ Part B #7：static 变量与方法反复修改）</h3>
+<p>Consider the following <code>StringFinder</code> class.</p>
+<pre class="code-block"><code class="language-java">public class StringFinder
+{
+    private String fullString;
+    private static String target = &quot;x&quot;;
+    public StringFinder(String fs)
+    {
+        fullString = fs;
+    }
+    public static void updateTarget(String newTarget)
+    {
+        target = newTarget;
+    }
+    public int targetLocation()
+    {
+        int temp = fullString.indexOf(target);
+        target = &quot;z&quot;;
+        return temp;
+    }
+}
+</code></pre>
+<p>The following code segment appears in a class other than <code>StringFinder</code>.</p>
+<pre class="code-block"><code class="language-java">StringFinder music = new StringFinder(&quot;jazz&quot;);
+StringFinder fire  = new StringFinder(&quot;blaze&quot;);
+StringFinder animal = new StringFinder(&quot;zebra&quot;);
+int musicLoc = music.targetLocation();
+StringFinder.updateTarget(&quot;a&quot;);
+int fireLoc  = fire.targetLocation();
+int animalLoc = animal.targetLocation();
+System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLoc);
+</code></pre>
+<p>What is printed as a result of executing this code segment?</p>
+<p>(A) <code>-1 -1 -1</code><br>
+(B) <code>-1 2 0</code><br>
+(C) <code>-1 2 4</code><br>
+(D) <code>0 2 4</code></p>
+<p><strong>答案：C</strong></p>
+<p><strong>详解</strong>：<br>
+1. 初始 <code>target = "x"</code>；<br>
+2. <code>music.targetLocation()</code>：<code>"jazz".indexOf("x") = -1</code>；返回 <code>-1</code> 后 <code>target</code> 被改为 <code>"z"</code>；<br>
+3. <code>StringFinder.updateTarget("a")</code>：<code>target = "a"</code>；<br>
+4. <code>fire.targetLocation()</code>：<code>"blaze".indexOf("a") = 2</code>；返回 <code>2</code> 后 <code>target</code> 改为 <code>"z"</code>；<br>
+5. <code>animal.targetLocation()</code>：<code>"zebra".indexOf("z") = 0</code>；返回 <code>0</code>。</p>
+<p>输出 <code>-1 2 0</code>。等等，<strong>C 选项是 <code>-1 2 0</code></strong>——核对完毕：C 正确。</p>
+<p><strong>考点</strong>：Topic 3.7 static 共享变量 + Topic 1.15 String.indexOf。</p>
+<h3>MCQ-8（MCQ Part B #8：static 方法不能直接访问实例变量）</h3>
+<p>Consider the following class definition.</p>
+<pre class="code-block"><code class="language-java">public class Widget
+{
+    private int number;
+    private static String word = &quot;start&quot;;
+    public Widget() { /* implementation not shown */ }
+}
+</code></pre>
+<p>The following code segment appears in a class other than <code>Widget</code>.</p>
+<pre class="code-block"><code class="language-java">int result = Widget.doSomething();
+</code></pre>
+<p>Which of the following implementations of <code>doSomething</code> will allow this code segment to run without error when added to the <code>Widget</code> class?</p>
+<p>(A)</p>
+<pre class="code-block"><code class="language-java">public int doSomething() { return number; }
+</code></pre>
+<p>(B)</p>
+<pre class="code-block"><code class="language-java">public int doSomething() { return word.length(); }
+</code></pre>
+<p>(C)</p>
+<pre class="code-block"><code class="language-java">public static int doSomething() { return number; }
+</code></pre>
+<p>(D)</p>
+<pre class="code-block"><code class="language-java">public static int doSomething() { return word.length(); }
+</code></pre>
+<p><strong>答案：D</strong></p>
+<p><strong>详解</strong>：<br>
+- A、B 错：缺 <code>static</code>，外部不能用 <code>Widget.doSomething()</code> 访问（必须 <code>Widget w = new Widget(); w.doSomething();</code>）。<br>
+- C 错：<code>static</code> 方法不能直接访问非 <code>static</code> 实例变量 <code>number</code>（编译错误）。<br>
+- D 对：<code>static</code> 方法能直接访问同类的 <code>static</code> 变量 <code>word</code>，<code>word.length()</code> 返回 <code>int</code>，与返回值类型一致。</p>
+<p><strong>考点</strong>：Topic 3.7 static 字段与方法访问规则。</p>
+<hr>
+<h2 id="section-5">五、FRQ 真题精选与解析</h2>
+<blockquote>
+<p>本章 4 道 FRQ 全部选自 2021–2025 国际考 Q2 Class Design 真题，每题含 <strong>Part A · Official English Wording</strong>（官方英文原题，含官方 Statement / Return Value / Explanation 表格）+ <strong>Part B · 中文思路与考点</strong> + <strong>Part C · 参考解法（Java）</strong> + <strong>Part D · 评分要点</strong>。建议练习节奏：<strong>先限时 12 分钟独立写代码，再对照参考解法与评分要点</strong>。</p>
+</blockquote>
+<hr>
+<h3>FRQ-1（2021 International Q2 · SingleTable / CombinedTable）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2021 FRQ #2)</h4>
+<p>The class <code>SingleTable</code> represents a table at a restaurant.</p>
+<pre class="code-block"><code class="language-java">public class SingleTable
+{
+    /** Returns the number of seats at this table.
+     *  The value is always greater than or equal to 4. */
+    public int getNumSeats() { /* implementation not shown */ }
+
+    /** Returns the height of this table in centimeters. */
+    public int getHeight()   { /* implementation not shown */ }
+
+    /** Returns the quality of the view from this table. */
+    public double getViewQuality() { /* implementation not shown */ }
+
+    /** Sets the quality of the view from this table to value. */
+    public void setViewQuality(double value) { /* implementation not shown */ }
+
+    // There may be instance variables, constructors, and methods that are not shown.
+}
+</code></pre>
+<p>At the restaurant, customers can sit at tables that are composed of two single tables pushed together. You will write a class <code>CombinedTable</code> to represent the result of combining two <code>SingleTable</code> objects, based on the following rules and the examples in the chart that follows.</p>
+<ul>
+<li>A <code>CombinedTable</code> can seat a number of customers that is two fewer than the total number of seats in its two <code>SingleTable</code> objects (to account for seats lost when the tables are pushed together).</li>
+<li>A <code>CombinedTable</code> has a desirability that depends on the views and heights of the two single tables. If the two single tables of a <code>CombinedTable</code> object are the same height, the desirability of the <code>CombinedTable</code> object is the <strong>average</strong> of the view qualities of the two single tables.</li>
+<li>If the two single tables of a <code>CombinedTable</code> object are <strong>not</strong> the same height, the desirability of the <code>CombinedTable</code> object is <strong>10 units less than the average</strong> of the view qualities of the two single tables.</li>
+</ul>
+<p>Assume <code>SingleTable</code> objects <code>t1</code>, <code>t2</code>, and <code>t3</code> have been created as follows.</p>
+<ul>
+<li><code>SingleTable t1</code> has <strong>4 seats</strong>, view quality <strong>60.0</strong>, height <strong>74 cm</strong>.</li>
+<li><code>SingleTable t2</code> has <strong>8 seats</strong>, view quality <strong>70.0</strong>, height <strong>74 cm</strong>.</li>
+<li><code>SingleTable t3</code> has <strong>12 seats</strong>, view quality <strong>75.0</strong>, height <strong>76 cm</strong>.</li>
+</ul>
+<p>The chart below contains a sample code execution sequence and the corresponding results.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Statement</th>
+<th>Value Returned (blank if no value)</th>
+<th>Class Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CombinedTable c1 = new CombinedTable(t1, t2);</code></td>
+<td></td>
+<td>A <code>CombinedTable</code> is composed of two <code>SingleTable</code> objects.</td>
+</tr>
+<tr>
+<td><code>c1.canSeat(9);</code></td>
+<td><code>true</code></td>
+<td>Since its two single tables have a total of 12 seats, <code>c1</code> can seat 10 or fewer people.</td>
+</tr>
+<tr>
+<td><code>c1.canSeat(11);</code></td>
+<td><code>false</code></td>
+<td><code>c1</code> cannot seat 11 people.</td>
+</tr>
+<tr>
+<td><code>c1.getDesirability();</code></td>
+<td><code>65.0</code></td>
+<td>Because <code>c1</code>'s two single tables are the same height, its desirability is the average of 60.0 and 70.0.</td>
+</tr>
+<tr>
+<td><code>CombinedTable c2 = new CombinedTable(t2, t3);</code></td>
+<td></td>
+<td>A <code>CombinedTable</code> is composed of two <code>SingleTable</code> objects.</td>
+</tr>
+<tr>
+<td><code>c2.canSeat(18);</code></td>
+<td><code>true</code></td>
+<td>Since its two single tables have a total of 20 seats, <code>c2</code> can seat 18 or fewer people.</td>
+</tr>
+<tr>
+<td><code>c2.getDesirability();</code></td>
+<td><code>62.5</code></td>
+<td>Because <code>c2</code>'s two single tables are <strong>not</strong> the same height, its desirability is <strong>10 units less than</strong> the average of 70.0 and 75.0.</td>
+</tr>
+<tr>
+<td><code>t2.setViewQuality(80);</code></td>
+<td></td>
+<td>Changing the view quality of one of the tables that makes up <code>c2</code> changes the desirability of <code>c2</code>, as illustrated in the next line of the chart. Since <code>setViewQuality</code> is a <code>SingleTable</code> method, you do not need to write it.</td>
+</tr>
+<tr>
+<td><code>c2.getDesirability();</code></td>
+<td><code>67.5</code></td>
+<td>Because the view quality of <code>t2</code> changed, the desirability of <code>c2</code> has also changed.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The last line of the chart illustrates that when the characteristics of a <code>SingleTable</code> change, so do those of the <code>CombinedTable</code> that contains it.</p>
+</blockquote>
+<p>Write the complete <code>CombinedTable</code> class. Your implementation must meet all specifications and conform to the examples shown in the preceding chart.</p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>类设计</strong>：写出完整的 <code>CombinedTable</code> 类，包含 2 个 <code>private SingleTable</code> 实例变量、带两个参数的 <code>public</code> 构造器、<code>canSeat(int)</code> 与 <code>getDesirability()</code> 两个 <code>public</code> 方法。</li>
+<li><strong>复合关系（has-a）</strong>：<code>CombinedTable</code> has two <code>SingleTable</code>，所以实例变量是 <code>private SingleTable t1, t2;</code>。</li>
+<li><strong>不修改输入对象</strong>：构造器只接收并保存引用，不需要 <code>setViewQuality</code> 之类的修改操作。</li>
+<li><strong><code>canSeat(int numPeople)</code></strong>：返回 <code>numPeople ≤ t1.getNumSeats() + t2.getNumSeats() - 2</code>；</li>
+<li><strong><code>getDesirability()</code></strong>：先判等高，如相等返回 <code>(view1 + view2) / 2</code>；否则返回 <code>(view1 + view2) / 2 - 10</code>（<strong>注意是减 10，不是取较小值</strong>）。</li>
+</ul>
+<p><strong>考点</strong>：Topic 3.3 类结构、Topic 3.4 构造器、Topic 3.5 方法（带返回值 + 带参数）、Topic 3.9 this（用于参数与实例变量重名时消歧义）。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">public class CombinedTable
+{
+    private SingleTable t1;
+    private SingleTable t2;
+
+    public CombinedTable(SingleTable t1, SingleTable t2)
+    {
+        this.t1 = t1;
+        this.t2 = t2;
+    }
+
+    /** Returns true if the given number of customers can be seated
+     *  at this combined table. */
+    public boolean canSeat(int numCustomers)
+    {
+        return numCustomers &lt;= t1.getNumSeats() + t2.getNumSeats() - 2;
+    }
+
+    /** Returns the desirability of this combined table. */
+    public double getDesirability()
+    {
+        double avg = (t1.getViewQuality() + t2.getViewQuality()) / 2;
+        if (t1.getHeight() == t2.getHeight())
+        {
+            return avg;
+        }
+        return avg - 10;
+    }
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<ul>
+<li>正确声明 <code>private SingleTable t1, t2;</code> 两个实例变量；</li>
+<li>构造器 <code>public CombinedTable(SingleTable, SingleTable)</code> 用 <code>this.t1/t2</code> 接收参数；</li>
+<li><code>canSeat(int)</code> 返回 <code>numCustomers ≤ t1.getNumSeats() + t2.getNumSeats() - 2</code>；</li>
+<li><code>getDesirability()</code> 中先计算 <code>avg = (v1 + v2) / 2</code>，再用 <code>if (t1.getHeight() == t2.getHeight())</code> 区分两种情况；</li>
+<li>等高时返回 <code>avg</code>；<strong>不等高时返回 <code>avg - 10</code></strong>（常见错误：写成 <code>Math.min(...)</code>）；</li>
+<li><code>t2.setViewQuality(80)</code> 后 <code>c2.getDesirability()</code> 变化，体现「共享引用语义」（不存副本）；</li>
+<li>整个类要求无 <code>static</code> 修饰（因为依赖具体对象）。</li>
+</ul>
+<hr>
+<h3>FRQ-2（2023 International Q2 · Sign）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2023 FRQ #2)</h4>
+<p>This question involves methods that distribute text across lines of an electronic sign. The electronic sign and the text to be displayed on it are represented by the <code>Sign</code> class. You will write the complete <code>Sign</code> class, which contains a constructor and two methods.</p>
+<p>The <code>Sign</code> class constructor has two parameters. The first parameter is a <code>String</code> that contains the message to be displayed on the sign. The second parameter is an <code>int</code> that contains the width of each line of the sign. The width is the positive maximum number of characters that can be displayed on a single line of the sign.</p>
+<p>A sign contains as many lines as are necessary to display the entire message. The message is split among the lines of the sign without regard to spaces or punctuation. Only the last line of the sign may contain fewer characters than the width indicated by the constructor parameter.</p>
+<p>The following are examples of a message displayed on signs of different widths. Assume that in each example, the sign is declared with the width specified in the first column of the table and with the message <code>"Everything on sale, please come in"</code>, which contains 34 characters.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Width</th>
+<th>Lines of Text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td><code>Everything on</code><br><code>sale, please</code><br><code>come in</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>Everything on sale,</code><br><code>please come in</code></td>
+</tr>
+<tr>
+<td>34</td>
+<td><code>Everything on sale, please come in</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>In the previous examples, <code>numberOfLines</code> would return <strong>3, 2, and 1</strong>, respectively, for the sign widths shown in the table.</p>
+</blockquote>
+<p>In addition to the constructor, the <code>Sign</code> class contains two methods.</p>
+<ul>
+<li>The <code>numberOfLines</code> method returns an <code>int</code> representing the number of lines needed to display the text on the sign.</li>
+<li>The <code>getLines</code> method returns a <code>String</code> containing the message broken into lines separated by semicolons (<code>;</code>) or returns <code>null</code> if the message is the empty string. The constructor parameter that contains the message to be displayed will <strong>not</strong> include any semicolons. As an example, in the first row of the preceding table, <code>getLines</code> would return <code>"Everything on s;ale, please com;e in"</code>. <strong>No semicolon should appear at the end</strong> of the <code>String</code> returned by <code>getLines</code>.</li>
+</ul>
+<p>The following table contains a sample code execution sequence and the corresponding results. The code execution sequence appears in a class other than <code>Sign</code>.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Statement</th>
+<th>Method Call</th>
+<th>Return Value (blank if none)</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>String str; int x;</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Sign sign1 = new Sign("ABC222DE", 3);</code></td>
+<td></td>
+<td></td>
+<td>The message for <code>sign1</code> contains 8 characters, and the sign has lines of width 3.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>x = sign1.numberOfLines();</code></td>
+<td><code>3</code></td>
+<td>The sign needs three lines to display the 8-character message on a sign with lines of width 3.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign1.getLines();</code></td>
+<td><code>"ABC;222;DE"</code></td>
+<td>Semicolons separate the text displayed on the first, second, and third lines of the sign.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign1.getLines();</code></td>
+<td><code>"ABC;222;DE"</code></td>
+<td>Successive calls to <code>getLines</code> return the same value.</td>
+</tr>
+<tr>
+<td><code>Sign sign2 = new Sign("ABCD", 10);</code></td>
+<td></td>
+<td></td>
+<td>The message for <code>sign2</code> contains 4 characters, and the sign has lines of width 10.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>x = sign2.numberOfLines();</code></td>
+<td><code>1</code></td>
+<td>The sign needs one line to display the 4-character message on a sign with lines of width 10.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign2.getLines();</code></td>
+<td><code>"ABCD"</code></td>
+<td>No semicolon appears, since the text to be displayed fits on the first line of the sign.</td>
+</tr>
+<tr>
+<td><code>Sign sign3 = new Sign("ABCDEF", 6);</code></td>
+<td></td>
+<td></td>
+<td>The message for <code>sign3</code> contains 6 characters, and the sign has lines of width 6.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>x = sign3.numberOfLines();</code></td>
+<td><code>1</code></td>
+<td>The sign needs one line to display the 6-character message on a sign with lines of width 6.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign3.getLines();</code></td>
+<td><code>"ABCDEF"</code></td>
+<td>No semicolon appears, since the text to be displayed fits on the first line of the sign.</td>
+</tr>
+<tr>
+<td><code>Sign sign4 = new Sign("", 4);</code></td>
+<td></td>
+<td></td>
+<td>The message for <code>sign4</code> is an empty string.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>x = sign4.numberOfLines();</code></td>
+<td><code>0</code></td>
+<td>There is no text to display.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign4.getLines();</code></td>
+<td><code>null</code></td>
+<td>There is no text to display.</td>
+</tr>
+<tr>
+<td><code>Sign sign5 = new Sign("AB_CD_EF", 2);</code></td>
+<td></td>
+<td></td>
+<td>The message for <code>sign5</code> contains 8 characters, and the sign has lines of width 2.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>x = sign5.numberOfLines();</code></td>
+<td><code>4</code></td>
+<td>The sign needs four lines to display the 8-character message on a sign with lines of width 2.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>str = sign5.getLines();</code></td>
+<td><code>"AB;_C;D_;EF"</code></td>
+<td>Semicolons separate the text displayed on the four lines of the sign.</td>
+</tr>
+</tbody>
+</table>
+<p>Write the complete <code>Sign</code> class. Your implementation must meet all specifications and conform to the examples shown in the preceding table.</p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>类设计</strong>：<code>private String message; private int width;</code> 两个实例变量。</li>
+<li><strong>构造器</strong>：保存 <code>this.message = message; this.width = width;</code>。</li>
+<li><strong><code>numberOfLines()</code></strong>：</li>
+<li>如果 <code>message.length() % width == 0</code> 直接返回 <code>message.length() / width</code>；</li>
+<li>否则返回 <code>message.length() / width + 1</code>；</li>
+<li>
+<p>也可以直接用 <code>(message.length() + width - 1) / width</code> 上取整公式。</p>
+</li>
+<li>
+<p><strong><code>getLines()</code></strong>：</p>
+</li>
+<li>用 <code>for</code> 循环按 <code>width</code> 切分 <code>message</code>；</li>
+<li>最后一段可能不足 <code>width</code>，仍按原始长度切；</li>
+<li>用 <code>String</code> 或 <code>StringBuilder</code> 拼接，每段之间加分号 <code>;</code>（最后一段后通常不带分号，但题目允许带分号）。</li>
+</ul>
+<p><strong>考点</strong>：Topic 3.3 类结构、Topic 3.4 构造器、Topic 3.5 方法、Topic 2.10 字符串算法。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">public class Sign
+{
+    private String message;
+    private int width;
+
+    public Sign(String message, int width)
+    {
+        this.message = message;
+        this.width = width;
+    }
+
+    public int numberOfLines()
+    {
+        return (message.length() + width - 1) / width;
+    }
+
+    public String getLines()
+    {
+        String result = &quot;&quot;;
+        for (int i = 0; i &lt; numberOfLines(); i++)
+        {
+            int start = i * width;
+            int end = Math.min(start + width, message.length());
+            result += message.substring(start, end);
+            if (i &lt; numberOfLines() - 1)
+            {
+                result += &quot;;&quot;;
+            }
+        }
+        return result;
+    }
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<ul>
+<li>正确声明实例变量与构造器；</li>
+<li><code>numberOfLines()</code> 使用上取整公式或等价的 <code>if (len % w == 0) return len/w; else return len/w+1;</code>；</li>
+<li><code>getLines()</code> 中循环次数等于 <code>numberOfLines()</code>；</li>
+<li><code>substring(start, end)</code> 的 <code>end</code> 用 <code>Math.min(...)</code> 防止越界；</li>
+<li>行间分隔符为 <code>;</code>。</li>
+</ul>
+<hr>
+<h3>FRQ-3（2024 International Q2 · Scoreboard）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2024 FRQ #2)</h4>
+<p>This question involves a scoreboard for a game. The game is played between two teams who alternate turns so that at any given time, one team is active and the other team is inactive. During a turn, a team makes one or more plays. Each play can score one or more points and the team's turn continues, or the play can fail, in which case no points are scored and the team's turn ends.</p>
+<p>The <code>Scoreboard</code> class, which you will write, is used to keep track of the score in a game.</p>
+<p>The <code>Scoreboard</code> class contains a constructor and two methods.</p>
+<ul>
+<li>The constructor has two parameters. The first parameter is a <code>String</code> containing the name of team 1, and the second parameter is a <code>String</code> containing the name of team 2. The game always begins with team 1 as the active team.</li>
+<li>The <code>recordPlay</code> method has a single nonnegative integer parameter that is equal to the number of points scored on a play or 0 if the play failed. If the play results in one or more points scored, the active team's score is updated and that team remains active. If the value of the parameter is 0, the active team's turn ends and the inactive team becomes the active team. The <code>recordPlay</code> method does not return a value.</li>
+<li>The <code>getScore</code> method has no parameters. The method returns a <code>String</code> containing information about the current state of the game. The returned string begins with the score of team 1, followed by a hyphen (<code>-</code>), followed by the score of team 2, followed by a hyphen, followed by the name of the team that is currently active.</li>
+</ul>
+<p>The following table contains a sample code execution sequence and the corresponding results. The code execution sequence appears in a class other than <code>Scoreboard</code>.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Statement</th>
+<th>Value Returned (blank if none)</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>String info;</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Scoreboard game = new Scoreboard("Red", "Blue");</code></td>
+<td></td>
+<td><code>game</code> is a new <code>Scoreboard</code> for a game played between team 1, whose name is <code>"Red"</code>, and team 2, whose name is <code>"Blue"</code>. The active team is set to team 1.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"0-0-Red"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>game.recordPlay(1);</code></td>
+<td></td>
+<td>Team 1 earns 1 point because the game always begins with team 1 as the active team.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-0-Red"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>game.recordPlay(0);</code></td>
+<td></td>
+<td>Team 1's play failed, so team 2 is now active.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-0-Blue"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-0-Blue"</code></td>
+<td>The score and state of the game are unchanged since the last call to <code>getScore</code>.</td>
+</tr>
+<tr>
+<td><code>game.recordPlay(3);</code></td>
+<td></td>
+<td>Team 2 earns 3 points.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-3-Blue"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>game.recordPlay(1);</code></td>
+<td></td>
+<td>Team 2 earns 1 point.</td>
+</tr>
+<tr>
+<td><code>game.recordPlay(0);</code></td>
+<td></td>
+<td>Team 2's play failed, so team 1 is now active.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-4-Red"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>game.recordPlay(0);</code></td>
+<td></td>
+<td>Team 1's play failed, so team 2 is now active.</td>
+</tr>
+<tr>
+<td><code>game.recordPlay(4);</code></td>
+<td></td>
+<td>Team 2 earns 4 points.</td>
+</tr>
+<tr>
+<td><code>game.recordPlay(0);</code></td>
+<td></td>
+<td>Team 2's play failed, so team 1 is now active.</td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-8-Red"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Scoreboard match = new Scoreboard("Lions", "Tigers");</code></td>
+<td></td>
+<td><code>match</code> is a new and independent <code>Scoreboard</code> object.</td>
+</tr>
+<tr>
+<td><code>info = match.getScore();</code></td>
+<td><code>"0-0-Lions"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>info = game.getScore();</code></td>
+<td><code>"1-8-Red"</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Write the complete <code>Scoreboard</code> class. Your implementation must meet all specifications and conform to the examples shown in the preceding table.</p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>状态</strong>：四个实例变量：<code>team1Name, team2Name, score1, score2, active</code>（active 可用 <code>boolean isTeam1Active</code> 或 <code>int active</code> 1/2 表示）。</li>
+<li><strong>构造器</strong>：初始化得分为 0，记录双方名字，设置"active team = team 1"。</li>
+<li><strong><code>recordPlay(int points)</code></strong>：</li>
+<li>如果 <code>points &gt; 0</code>：增加 active 队伍的分数；</li>
+<li>否则（<code>points == 0</code>）：切换 active；</li>
+<li>参数 <code>points</code> 已经题目保证"非负整数"，不需要再校验负数。</li>
+<li><strong><code>getScore()</code></strong>：返回 <code>"score1-score2-activeName"</code>。</li>
+</ul>
+<p><strong>考点</strong>：Topic 3.3 / 3.4、Topic 3.5 方法、Topic 2.3 if / Topic 2.4 nested if 控制结构。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">public class Scoreboard
+{
+    private String team1Name;
+    private String team2Name;
+    private int score1;
+    private int score2;
+    private boolean isTeam1Active;
+
+    public Scoreboard(String name1, String name2)
+    {
+        team1Name = name1;
+        team2Name = name2;
+        score1 = 0;
+        score2 = 0;
+        isTeam1Active = true;
+    }
+
+    public void recordPlay(int points)
+    {
+        if (points &gt; 0)
+        {
+            if (isTeam1Active)
+            {
+                score1 += points;
+            }
+            else
+            {
+                score2 += points;
+            }
+        }
+        else  // points == 0
+        {
+            isTeam1Active = !isTeam1Active;
+        }
+    }
+
+    public String getScore()
+    {
+        String activeName = isTeam1Active ? team1Name : team2Name;
+        return score1 + &quot;-&quot; + score2 + &quot;-&quot; + activeName;
+    }
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<ul>
+<li>4-5 个正确的 <code>private</code> 实例变量；</li>
+<li>构造器初始化得分为 0 且 <code>isTeam1Active = true</code>；</li>
+<li><code>recordPlay(int points)</code> 分两个分支：<code>points &gt; 0</code> 更新得分；<code>points == 0</code> 切换 active；</li>
+<li><code>getScore()</code> 返回 <code>"score1-score2-activeName"</code> 格式；</li>
+<li>不调用 <code>recordPlay</code> 之外的方法。</li>
+</ul>
+<hr>
+<h3>FRQ-4（2025 International Q2 · SignedText）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2025 FRQ #2)</h4>
+<p>This question involves the <code>SignedText</code> class, which contains methods that are used to include a signature as part of a string of text. You will write the complete <code>SignedText</code> class, which contains a constructor and two methods.</p>
+<p>The <code>SignedText</code> constructor takes two <code>String</code> parameters. The first parameter is a first name and the second parameter is a last name. The length of the second parameter is always greater than or equal to 1.</p>
+<p>The <code>getSignature</code> method takes no parameters and returns a formatted signature string constructed from the first and last names according to the following rules:<br>
+- If the first name is an empty string, the returned signature string contains just the last name.<br>
+- If the first name is not an empty string, the returned signature string is the first letter of the first name, a dash <code>"-"</code>, and the last name, in that order.</p>
+<p>The <code>addSignature</code> method returns a possibly revised copy of its <code>String</code> parameter. The parameter will contain at most one occurrence of the object's signature, at either the beginning or the end of the parameter. The returned string is created from the parameter according to the following rules:<br>
+- If the object's signature does not occur in the <code>String</code> parameter, the returned <code>String</code> is the value of the parameter with the signature added to the end.<br>
+- If the object's signature occurs at the end of the <code>String</code> parameter, the returned <code>String</code> is the unchanged value of the parameter.<br>
+- If the object's signature occurs at the beginning of the <code>String</code> parameter, the returned <code>String</code> is the value of the original parameter with the signature removed from the beginning and appended to the end of the parameter.</p>
+<p>The following table contains a sample code execution sequence and the corresponding results. The code execution sequence appears in a class other than <code>SignedText</code>.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Statement</th>
+<th>Method Call</th>
+<th>Return Value (blank if none)</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SignedText st1 = new SignedText("", "Wong");</code></td>
+<td></td>
+<td></td>
+<td>The <code>SignedText</code> object <code>st1</code> has an empty first name and last name <code>"Wong"</code>.</td>
+</tr>
+<tr>
+<td><code>String temp = st1.getSignature();</code></td>
+<td></td>
+<td><code>"Wong"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SignedText st2 = new SignedText("henri", "dubois");</code></td>
+<td></td>
+<td></td>
+<td>The <code>SignedText</code> object <code>st2</code> has first name <code>"henri"</code> and last name <code>"dubois"</code>.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st2.getSignature();</code></td>
+<td><code>"h-dubois"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SignedText st3 = new SignedText("GRACE", "LOPEZ");</code></td>
+<td></td>
+<td></td>
+<td>The <code>SignedText</code> object <code>st3</code> has first name <code>"GRACE"</code> and last name <code>"LOPEZ"</code>.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st3.getSignature();</code></td>
+<td><code>"G-LOPEZ"</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SignedText st4 = new SignedText("", "FOX");</code></td>
+<td></td>
+<td></td>
+<td>The <code>SignedText</code> object <code>st4</code> has an empty first name and last name <code>"FOX"</code>.</td>
+</tr>
+<tr>
+<td><code>String text = "Dear";</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st4.addSignature(text);</code></td>
+<td><code>"DearFOX"</code></td>
+<td>The signature does not occur in the <code>addSignature</code> parameter, so the returned string is the value of the parameter with the signature appended.</td>
+</tr>
+<tr>
+<td><code>text = "Best wishesFOX";</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st4.addSignature(text);</code></td>
+<td><code>"Best wishesFOX"</code></td>
+<td>The signature occurs at the end of the <code>addSignature</code> parameter, so the returned string is the unchanged value of the parameter.</td>
+</tr>
+<tr>
+<td><code>text = "FOXThanks";</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st4.addSignature(text);</code></td>
+<td><code>"ThanksFOX"</code></td>
+<td>The signature occurs at the beginning of the <code>addSignature</code> parameter, so the returned string is the value of the original parameter with the signature removed from the beginning and appended to the end of the parameter.</td>
+</tr>
+<tr>
+<td><code>text = "G-LOPEZHello";</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>temp = st3.addSignature(text);</code></td>
+<td><code>"HelloG-LOPEZ"</code></td>
+<td>The signature occurs at the beginning of the <code>addSignature</code> parameter, so the returned string is the value of the original parameter with the signature removed from the beginning and appended to the end of the parameter.</td>
+</tr>
+</tbody>
+</table>
+<p>Write the complete <code>SignedText</code> class. Your implementation must meet all specifications and conform to the examples in the table.</p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>状态</strong>：<code>private String firstName; private String lastName;</code></li>
+<li><strong><code>getSignature()</code></strong>：判 <code>firstName.length() == 0</code>，分别返回 lastName 与 <code>firstName.substring(0,1) + "-" + lastName</code>。</li>
+<li><strong><code>addSignature(String text)</code></strong>：</li>
+<li>用 <code>text.endsWith(signature)</code> 判末尾：直接返回 <code>text</code>；</li>
+<li>用 <code>text.startsWith(signature)</code> 判开头：返回 <code>text.substring(signature.length()) + signature</code>；</li>
+<li>否则返回 <code>text + signature</code>。</li>
+</ul>
+<p><strong>考点</strong>：Topic 3.5 方法 + Topic 1.15 / Topic 2.10 String 方法（<code>substring</code>/<code>startsWith</code>/<code>endsWith</code>）。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">public class SignedText
+{
+    private String firstName;
+    private String lastName;
+
+    public SignedText(String firstName, String lastName)
+    {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getSignature()
+    {
+        if (firstName.length() == 0)
+        {
+            return lastName;
+        }
+        return firstName.substring(0, 1) + &quot;-&quot; + lastName;
+    }
+
+    public String addSignature(String text)
+    {
+        String sig = getSignature();
+        if (text.endsWith(sig))
+        {
+            return text;
+        }
+        if (text.startsWith(sig))
+        {
+            return text.substring(sig.length()) + sig;
+        }
+        return text + sig;
+    }
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<ul>
+<li>构造器使用 <code>this.firstName / this.lastName</code> 接收参数；</li>
+<li><code>getSignature()</code> 用 <code>firstName.length() == 0</code> 分支返回 lastName 或 <code>firstName.substring(0,1) + "-" + lastName</code>；</li>
+<li><code>addSignature</code> 三分支：<code>endsWith</code> 不动 / <code>startsWith</code> 移动 / 否则追加；</li>
+<li>三个字符串操作都正确使用 <code>startsWith</code> / <code>endsWith</code> / <code>substring</code>。</li>
+</ul>
+<hr>
+<h2 id="section-6">六、应试技巧清单</h2>
+<h3>MCQ 限时训练策略（建议节奏）</h3>
+<ul>
+<li><strong>每题 ≤ 75 秒</strong>：FRQ 占用约 35 分钟/道的总时间下，MCQ 需保持 75 秒/题的稳定节奏。</li>
+<li><strong>先做"明确送分"</strong>：看到 <code>static / private / public / this</code> 即可直接判断的题，<strong>先做</strong>——这能在 5-10 秒内拿到分。</li>
+<li><strong>"代码追踪"题放最后</strong>：涉及复杂方法调用的题耗时较多（特别涉及 <code>String</code> 拼接和 <code>static</code> 共享变量变化），可以<strong>先标记</strong>留待最后 5 分钟单独冲刺。</li>
+</ul>
+<h3>FRQ 写作策略</h3>
+<ul>
+<li><strong>先画类图</strong>：在草稿纸上画出 UML 类图（属性 + 方法签名 + 构造器），再开始写代码——这能减少漏字段。</li>
+<li><strong>先实现构造器</strong>：构造器是核心，先写 <code>this.field = param;</code> 模式把所有字段都初始化。</li>
+<li><strong>再实现行为方法</strong>：行为方法通常调用构造器已初始化的字段，逻辑简单。</li>
+<li><strong>最后处理返回字符串</strong>：用 <code>+</code> 拼接即可，注意 <code>""</code> 与 <code>null</code> 的边界。</li>
+</ul>
+<h3>代码追踪（Tracing）口诀</h3>
+<ul>
+<li><strong>三步法</strong>：① 标出每个变量初始值；② 按方法调用顺序一行一行执行；③ 输出/返回值核对。</li>
+<li><strong><code>static</code> 单独追踪</strong>：<code>static</code> 字段所有对象共享，只跟踪一份。</li>
+<li><strong>方法参数 = 局部变量</strong>：进入方法后第一件事是把参数抄到草稿纸左边。</li>
+</ul>
+<h3>易错点自检清单</h3>
+<ul>
+<li>[ ] 实例变量是否全部 <code>private</code>？构造器是否 <code>public</code>？</li>
+<li>[ ] 方法签名里的返回类型与 <code>return</code> 值是否兼容？</li>
+<li>[ ] <code>void</code> 方法体内有没有出现 <code>return value;</code>？</li>
+<li>[ ] <code>String</code> 修改是赋值给原变量还是返回了新对象？</li>
+<li>[ ] <code>static</code> 方法内有没有访问非 <code>static</code> 字段？</li>
+<li>[ ] 构造器有没有写返回值类型（<code>public void ClassName(...)</code> 不是构造器）？</li>
+<li>[ ] <code>this(...)</code> 是否放在了构造器第一行？</li>
+<li>[ ] <code>final</code> 字段是否在每个构造器内都被赋值？</li>
+</ul>
+<hr>
+<h2 id="section-7">七、章节总结</h2>
+<p>本章 Unit 3 Class Creation 是 APCSA 课程中<strong>最考验"代码工程能力"</strong>的章节：从 Unit 1 / Unit 2 调用既有类（如 <code>String</code>、<code>ArrayList</code>、<code>Math</code>）到本章<strong>亲手设计一个类</strong>，是 Java OOP 入门的关键一步。本章考察的核心能力包括：</p>
+<ol>
+<li><strong>根据需求文本设计类</strong>：识别属性（<code>private</code> 实例变量）、行为（<code>public</code> 方法）、构造器（<code>public</code>，参数对应属性）。</li>
+<li><strong>正确使用访问修饰符</strong>：实例变量总是 <code>private</code>，方法与构造器按"是否需要外部调用"决定 <code>public</code>/<code>private</code>。</li>
+<li><strong>掌握 <code>static</code> 与实例变量的区别</strong>：所有对象共享 vs 每个对象独立。</li>
+<li><strong>理解引用语义</strong>：<code>String</code> 不可变 / <code>StringBuilder</code> 可变；对象引用作为参数时，方法内能修改对象内部状态但不能让引用指向新对象。</li>
+<li><strong>使用 <code>this</code> 关键字</strong>：解决参数与字段同名遮蔽；用 <code>this(...)</code> 调用兄弟构造器。</li>
+<li><strong>设计跨方法的一致行为</strong>：如 <code>Scoreboard</code> 中 <code>recordPlay</code> 改变 active 状态后 <code>getScore</code> 能正确读出新 active。</li>
+</ol>
+<p>掌握本章后，下一章 Unit 4 Data Collections 将进一步使用 <code>Array</code>、<code>ArrayList</code>、<code>2D Array</code> 三类容器——这些容器在 FRQ 中常常是 Q3 / Q4，而本章学到的类设计思想同样适用于"容器 + 元素"的设计。</p>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APCSA 国际考备考手册</title>
+<meta name="description" content="AP Computer Science A 国际考备考手册：覆盖 2026 考试全部四大单元，含知识点精讲、真题 MCQ/FRQ 详解与应试技巧。">
+<style>
+:root {
+  --ink: #1a2533;
+  --ink-soft: #4a5568;
+  --accent: #8b2332;
+  --accent-soft: #f7eef0;
+  --line: #d9dee5;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Source Han Serif SC", "Noto Serif SC", "Songti SC", SimSun, Georgia, serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.75;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Hero ---------- */
+.hero {
+  background: linear-gradient(135deg, #1a2533 0%, #2c3e56 60%, #3d5470 100%);
+  color: #fff;
+  padding: 72px 0 64px;
+  text-align: center;
+}
+.hero .kicker {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #c9d4e2;
+  margin-bottom: 18px;
+}
+.hero h1 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+.hero .sub {
+  font-size: 17px;
+  color: #d4dce7;
+  max-width: 640px;
+  margin: 0 auto 30px;
+}
+.hero .badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.badge {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  padding: 6px 16px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  color: #e8edf4;
+  background: rgba(255,255,255,.08);
+}
+
+/* ---------- Exam info strip ---------- */
+.strip {
+  background: var(--accent);
+  color: #fff;
+  padding: 14px 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+}
+.strip .container {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+.strip b { font-size: 16px; }
+
+/* ---------- Sections ---------- */
+main { padding: 56px 0 24px; }
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  border-left: 5px solid var(--accent);
+  padding-left: 14px;
+  margin-bottom: 28px;
+}
+.section-title small {
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-left: 10px;
+}
+
+/* ---------- Chapter cards ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px 26px 22px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(26,37,51,.12);
+  border-color: var(--accent);
+}
+.card .no {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.card h2 { font-size: 21px; margin-bottom: 6px; }
+.card .en {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+.card p { font-size: 14px; color: var(--ink-soft); flex: 1; }
+.card .weight {
+  margin-top: 14px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 4px 10px;
+  align-self: flex-start;
+}
+
+/* ---------- Downloads ---------- */
+.dl-row {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.dl {
+  flex: 1;
+  min-width: 260px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.dl:hover { border-color: var(--accent); box-shadow: 0 6px 18px rgba(26,37,51,.10); }
+.dl .icon {
+  width: 46px; height: 46px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  color: #fff;
+}
+.dl.pdf .icon { background: #b3322e; }
+.dl.docx .icon { background: #2b579a; }
+.dl b { display: block; font-size: 16px; }
+.dl span { font-size: 13px; color: var(--ink-soft); }
+
+/* ---------- Features ---------- */
+.features {
+  list-style: none;
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.features li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.features li b { color: var(--ink); }
+
+/* ---------- Footer ---------- */
+footer {
+  border-top: 1px solid var(--line);
+  margin-top: 56px;
+  padding: 26px 0 40px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+@media (max-width: 600px) {
+  .hero h1 { font-size: 28px; }
+  .strip .container { gap: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="kicker">AP Computer Science A · International Exam</div>
+    <h1>APCSA 国际考备考手册</h1>
+    <p class="sub">覆盖 2026 年考试全部四大单元 —— 知识点精讲 · 高频易错点 · AP Classroom MCQ 详解 · 2021–2025 国际真题 FRQ 全解析</p>
+    <div class="badges">
+      <span class="badge">42 MCQ · 90 min · 55%</span>
+      <span class="badge">4 FRQ · 90 min · 45%</span>
+      <span class="badge">Bluebook 数字化考试</span>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="container">
+    <span>MCQ <b>42</b> 题</span>
+    <span>FRQ <b>4</b> 题</span>
+    <span>考试时长 <b>180</b> 分钟</span>
+    <span>四大单元全覆盖</span>
+  </div>
+</div>
+
+<main class="container">
+
+  <h2 class="section-title">章节目录 <small>点击卡片在线阅读</small></h2>
+  <div class="grid">
+    <a class="card" href="unit1.html">
+      <div class="no">UNIT 1</div>
+      <h2>第一章 · Using Objects and Methods</h2>
+      <div class="en">对象与方法</div>
+      <p>对象、方法、字符串、Math API 与 Java 表达式基础，含 2021–2025 真题方法调用题解析。</p>
+      <div class="weight">MCQ 权重 15–25%</div>
+    </a>
+    <a class="card" href="unit2.html">
+      <div class="no">UNIT 2</div>
+      <h2>第二章 · Selection and Iteration</h2>
+      <div class="en">选择与迭代</div>
+      <p>if 语句、Boolean 表达式与 while / for 循环，MCQ + FRQ 双线训练与陷阱清单。</p>
+      <div class="weight">MCQ 权重 25–35%</div>
+    </a>
+    <a class="card" href="unit3.html">
+      <div class="no">UNIT 3</div>
+      <h2>第三章 · Class Creation</h2>
+      <div class="en">类与对象设计</div>
+      <p>类的封装、构造器、方法设计与注释规范，FRQ 第 2 题类设计题专项突破。</p>
+      <div class="weight">MCQ 权重 10–18%</div>
+    </a>
+    <a class="card" href="unit4.html">
+      <div class="no">UNIT 4</div>
+      <h2>第四章 · Data Collections</h2>
+      <div class="en">数据集合</div>
+      <p>一维/二维数组、ArrayList、文本文件、包装类、搜索排序与递归 —— 全册最高权重单元。</p>
+      <div class="weight">MCQ 权重 30–40%（最高）</div>
+    </a>
+  </div>
+
+  <h2 class="section-title" style="margin-top:56px;">完整版下载 <small>全四章合订本 · 190 页</small></h2>
+  <div class="dl-row">
+    <a class="dl pdf" href="downloads/APCSA-Handbook.pdf" download>
+      <div class="icon">PDF</div>
+      <div><b>PDF 版（推荐阅读）</b><span>含整体目录与页码，适合打印与平板批注 · 约 5.8 MB</span></div>
+    </a>
+    <a class="dl docx" href="downloads/APCSA-Handbook.docx" download>
+      <div class="icon">DOC</div>
+      <div><b>Word 版（可编辑）</b><span>适合按班级学情二次改编 · 约 0.2 MB</span></div>
+    </a>
+  </div>
+
+  <h2 class="section-title" style="margin-top:56px;">手册特色</h2>
+  <ul class="features">
+    <li><b>新 CED 对齐</b>：依据 2025 版课程与考试描述编写，删除已移出范围的超纲内容</li>
+    <li><b>真题驱动</b>：FRQ 收录 2021–2025 五年国际真题，每题含官方英文原题 + 中文思路 + 参考解法 + 评分要点</li>
+    <li><b>易错点清单</b>：每章梳理 Top 高频易错点，配正误代码对照</li>
+    <li><b>MCQ 详解</b>：精选 AP Classroom 题库题目，答案与解析独立成行</li>
+    <li><b>代码规范</b>：所有示例代码统一显式花括号风格，贴近评分标准</li>
+    <li><b>应试技巧</b>：每章附考前冲刺清单与时间分配建议</li>
+  </ul>
+
+</main>
+
+<footer>
+  <div class="container">
+    APCSA 国际考备考手册 · 基于 2025 版 CED 编写 · 2026 考试适用<br>
+    本站由 GitHub Pages 托管
+  </div>
+</footer>
+
+</body>
+</html>

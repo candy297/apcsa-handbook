@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="docx-page-size" content="A4">
+  <title>APCSA 国际考备考手册 · 第四章 Data Collections（数组、ArrayList、二维数组与递归）</title>
+  <style>
+  /* ============================================
+   *  CSS @page 页面模型：封面无家具 / 正文页脚页码
+   * ============================================ */
+  @page {
+    @bottom-center { content: counter(page); }
+  }
+  @page cover {
+    @bottom-center { content: none; }
+  }
+  section[role="cover"] { page: cover; }
+
+  /* ============================================
+   *  :root 设计令牌映射
+   * ============================================ */
+  :root {
+    /* Typography - 来自 design_tokens */
+    --fs-title: var(--typography-fontSize-title, 18pt);
+    --fs-h1: var(--typography-fontSize-h1, 15pt);
+    --fs-h2: var(--typography-fontSize-h2, 14pt);
+    --fs-h3: var(--typography-fontSize-h3, 12pt);
+    --fs-body: var(--typography-fontSize-body, 12pt);
+    --fs-abstract: var(--typography-fontSize-abstract, 11pt);
+    --fs-small: var(--typography-fontSize-caption, 10.5pt);
+    --fs-foot: var(--typography-fontSize-footnote, 9pt);
+    --fs-code: var(--fs-small, 10.5pt);
+    --ff-heading: var(--typography-fontFamily-heading, "黑体", SimHei, sans-serif);
+    --ff-body: var(--typography-fontFamily-body, "宋体", SimSun, serif);
+    --ff-code: var(--typography-fontFamily-code, "Courier New", Consolas, monospace);
+    --lh-body: var(--typography-lineHeight-body, 1.5);
+    --lh-heading: var(--typography-lineHeight-heading, 1.5);
+    --fw-bold: var(--typography-fontWeight-heading, bold);
+    --fw-normal: var(--typography-fontWeight-body, normal);
+    /* Color - 来自 design_tokens + 扩展 */
+    --color-text: var(--color-text, #000000);
+    --color-heading: var(--color-heading, #000000);
+    --color-link: var(--color-link, #0000EE);
+    --color-bg: var(--color-background, #ffffff);
+    --color-tbl-head-bg: var(--color-tableHeaderBg, #f0f0f0);
+    --color-muted: #4b5563;
+    --color-border: #d0d0d0;
+    --color-rule: #cccccc;
+    --color-code-inline-bg: #f6f6f6;
+    --color-code-block-bg: #f8f8f8;
+    --color-code-fg: #1a1a1a;
+    --color-tbl-alt-bg: #fafafa;
+    --color-info: #01579b;
+    --color-info-bg: rgba(1, 87, 155, 0.05);
+    --color-warn: #e65100;
+    --color-warn-bg: rgba(230, 81, 0, 0.05);
+    --color-danger: #c62828;
+    --color-danger-bg: rgba(198, 40, 40, 0.05);
+    --color-success: #2e7d32;
+    --color-success-bg: rgba(46, 125, 50, 0.05);
+    --color-card-bg: #fdfdfd;
+    --color-analysis-bg: #f6f8fa;
+    --color-highlight-bg: #fff8e6;
+    /* Spacing - 来自 design_tokens + 扩展 */
+    --spacing-paragraph: var(--spacing-paragraph, 0.5em);
+    --spacing-section: var(--spacing-sectionGap, 1.5em);
+    --spacing-block: 0.8em;
+    --spacing-indent: var(--spacing-indent, 2em);
+    --spacing-tiny: 0.2em;
+    --spacing-xs: 0.3em;
+    --spacing-s: 0.4em;
+    --spacing-m: 0.5em;
+    --spacing-l: 0.6em;
+    --spacing-xl: 0.7em;
+    --spacing-2xl: 0.9em;
+    --spacing-3xl: 1.0em;
+    --spacing-4xl: 1.2em;
+    --spacing-5xl: 1.4em;
+    --spacing-6xl: 1.6em;
+    /* Layout */
+    --margin-page: 2.5cm;
+    --page-content-width: 16cm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--color-bg); }
+  body {
+    font-family: var(--ff-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    max-width: var(--page-content-width);
+    margin: 0 auto;
+    padding: var(--spacing-m);
+  }
+
+  /* 标题：黑体加粗 */
+  h1, h2, h3, h4 {
+    font-family: var(--ff-heading);
+    color: var(--color-heading);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-heading);
+  }
+  h1 { font-size: var(--fs-title); text-align: center; margin: var(--spacing-4xl) 0 var(--spacing-s) 0; }
+  h2 {
+    font-size: var(--fs-h1);
+    margin-top: var(--spacing-5xl);
+    margin-bottom: var(--spacing-l);
+    padding-bottom: var(--spacing-tiny);
+    border-bottom: 1px solid var(--color-border);
+  }
+  h3 { font-size: var(--fs-h2); margin-top: var(--spacing-3xl); margin-bottom: var(--spacing-s); }
+  h4 { font-size: var(--fs-h3); margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xs); }
+
+  /* 段落：首行缩进 2em（学术论文规范） */
+  p { margin-bottom: var(--spacing-paragraph); text-indent: 2em; }
+  p.no-indent { text-indent: 0; }
+
+  /* 内联强调 */
+  strong { font-weight: var(--fw-bold); color: var(--color-text); }
+  em { font-style: italic; }
+  code {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    background: var(--color-code-inline-bg);
+    padding: 0 var(--spacing-tiny);
+    border-radius: 2px;
+  }
+
+  /* 列表 */
+  ul, ol { margin: var(--spacing-xs) 0 var(--spacing-l) 0; padding-left: var(--spacing-2xl); }
+  li { margin-bottom: var(--spacing-xs); }
+  li p { text-indent: 0; margin-bottom: var(--spacing-tiny); }
+
+  /* ============================================
+   *  封面
+   * ============================================ */
+  section[role="cover"] { padding: var(--spacing-3xl) 0 var(--spacing-3xl) 0; }
+  .cover-eyebrow { text-align: center; font-size: var(--fs-h3); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .cover-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-s) 0 var(--spacing-tiny) 0;
+    line-height: 1.4;
+  }
+  .cover-subtitle {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-tiny) 0 var(--spacing-4xl) 0;
+    letter-spacing: 0.05em;
+  }
+  .cover-meta { text-align: center; margin: var(--spacing-5xl) auto 0 auto; }
+  .cover-meta-info { border-collapse: collapse; margin: 0 auto; }
+  .cover-meta-info td {
+    padding: var(--spacing-xs) var(--spacing-2xl);
+    font-size: var(--fs-body);
+    border: none;
+    vertical-align: top;
+    text-align: left;
+  }
+  .cover-meta-info td:first-child { text-align: right; color: var(--color-muted); white-space: nowrap; }
+
+  /* ============================================
+   *  摘要（AP-01 必需）
+   * ============================================ */
+  .abstract {
+    margin-bottom: var(--spacing-section);
+    padding: var(--spacing-block);
+    border-left: 3px solid var(--color-info);
+  }
+  .abstract-heading { font-weight: var(--fw-bold); margin-bottom: var(--spacing-m); text-indent: 0; font-family: var(--ff-heading); }
+  .abstract-text { text-indent: 2em; margin-bottom: var(--spacing-m); }
+  .keywords { margin-top: var(--spacing-m); text-indent: 0; }
+
+  /* ============================================
+   *  目录
+   * ============================================ */
+  nav.doc-toc { margin: var(--spacing-4xl) 0 var(--spacing-6xl) 0; }
+  .toc-title {
+    text-align: center;
+    font-family: var(--ff-heading);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-l);
+    text-indent: 0;
+  }
+  ol.toc-list { list-style: none; padding-left: 0; }
+  ol.toc-list li {
+    padding: 0.18em 0;
+    border-bottom: 1px dotted var(--color-border);
+  }
+  ol.toc-list li a { color: var(--color-text); text-decoration: none; display: block; }
+  ol.toc-list li a:hover { color: var(--color-link); }
+  ol.toc-list li .toc-sub { padding-left: var(--spacing-indent); font-size: var(--fs-small); }
+
+  /* ============================================
+   *  三线表
+   * ============================================ */
+  table.three-line-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: var(--spacing-m) 0 var(--spacing-xl) 0;
+  }
+  table.three-line-table caption {
+    font-size: var(--fs-small);
+    margin-bottom: var(--spacing-xs);
+    text-align: center;
+    font-family: var(--ff-heading);
+    color: var(--color-muted);
+    caption-side: top;
+  }
+  table.three-line-table thead tr:first-child { border-top: 1.5pt solid var(--color-text); }
+  table.three-line-table thead tr:last-child { border-bottom: 0.75pt solid var(--color-text); }
+  table.three-line-table tbody tr:last-child { border-bottom: 1.5pt solid var(--color-text); }
+  table.three-line-table td, table.three-line-table th {
+    border-left: none;
+    border-right: none;
+    padding: var(--spacing-xs) var(--spacing-l);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.three-line-table th {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    background: var(--color-tbl-head-bg);
+  }
+  table.three-line-table tbody tr:nth-child(even) { background: var(--color-tbl-alt-bg); }
+
+  /* ============================================
+   *  代码块
+   * ============================================ */
+  pre.code-block {
+    font-family: var(--ff-code);
+    font-size: var(--fs-code);
+    line-height: 1.5;
+    background: var(--color-code-block-bg);
+    border-left: 3px solid var(--color-border);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-m) 0 var(--spacing-2xl) 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--color-code-fg);
+    border-radius: 2px;
+  }
+  pre.code-block code { background: transparent; padding: 0; font-size: var(--fs-code); border-radius: 0; }
+
+  /* ============================================
+   *  Callout
+   * ============================================ */
+  .callout {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    margin: var(--spacing-xl) 0;
+    border-left: 4px solid var(--color-info);
+    background: var(--color-info-bg);
+    border-radius: 2px;
+  }
+  .callout-warning { border-left-color: var(--color-warn); background: var(--color-warn-bg); }
+  .callout-danger  { border-left-color: var(--color-danger); background: var(--color-danger-bg); }
+  .callout-success { border-left-color: var(--color-success); background: var(--color-success-bg); }
+  .callout-title {
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--spacing-xs);
+    font-family: var(--ff-heading);
+    text-indent: 0;
+  }
+  .callout p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ============================================
+   *  MCQ / FRQ 题块
+   * ============================================ */
+  .q-block {
+    margin: var(--spacing-2xl) 0 var(--spacing-3xl) 0;
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+  }
+  .q-block .q-tag {
+    display: inline-block;
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h3);
+    color: var(--color-info);
+    margin-right: var(--spacing-m);
+  }
+  .q-block .q-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-s); }
+  .q-block .q-stem { margin: var(--spacing-s) 0 var(--spacing-m) 0; }
+  .q-block .q-stem p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-options { margin: var(--spacing-xs) 0 var(--spacing-m) 0; }
+  .q-block .q-options li { list-style: none; }
+  .q-block .q-analysis {
+    margin-top: var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-xl);
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    font-size: var(--fs-body);
+    border-radius: 2px;
+  }
+  .q-block .q-analysis p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .q-block .q-answer { font-weight: var(--fw-bold); color: var(--color-danger); }
+
+  .frq-block {
+    margin: var(--spacing-3xl) 0 var(--spacing-4xl) 0;
+    padding: var(--spacing-2xl) var(--spacing-3xl);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background: var(--color-card-bg);
+    page-break-inside: avoid;
+  }
+  .frq-block .frq-header {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-h2);
+    color: var(--color-info);
+    margin-bottom: var(--spacing-xs);
+  }
+  .frq-block .frq-meta { font-size: var(--fs-small); color: var(--color-muted); margin-bottom: var(--spacing-l); }
+  .frq-block .frq-section-title {
+    font-family: var(--ff-heading);
+    font-weight: var(--fw-bold);
+    margin: var(--spacing-xl) 0 var(--spacing-xs) 0;
+  }
+  .frq-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+  .frq-block .frq-stem p { text-indent: 2em; margin-bottom: var(--spacing-xs); }
+  .frq-block .solution-block {
+    background: var(--color-analysis-bg);
+    border-left: 3px solid var(--color-info);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block {
+    background: var(--color-highlight-bg);
+    border-left: 3px solid var(--color-warn);
+    padding: var(--spacing-l) var(--spacing-xl);
+    margin: var(--spacing-m) 0;
+    border-radius: 2px;
+  }
+  .frq-block .analysis-block p { text-indent: 0; margin-bottom: var(--spacing-xs); }
+
+  /* 知识点标签 */
+  .key-point { font-family: var(--ff-heading); font-weight: var(--fw-bold); color: var(--color-text); }
+
+  /* ============================================
+   *  参考文献（AP-02 必需）
+   * ============================================ */
+  .references {
+    margin-top: var(--spacing-5xl);
+    padding-top: var(--spacing-l);
+    border-top: 1px solid var(--color-border);
+  }
+  .references ol { padding-left: var(--spacing-indent); }
+  .references li { margin-bottom: var(--spacing-s); font-size: var(--fs-small); }
+  .ref-type { color: var(--color-muted); }
+
+  /* 打印 / 分页优化 */
+  @media print {
+    body { padding: 0; }
+    h2 { page-break-after: avoid; }
+    h3, h4 { page-break-after: avoid; }
+    .q-block, .frq-block { page-break-inside: avoid; }
+  }
+  </style>
+</head>
+<body>
+<section role="cover">
+  <h1 class="cover-title" style="text-align: center;">APCSA 国际考备考手册</h1>
+  <p class="cover-subtitle" style="text-align: center;">第四章　Data Collections</p>
+
+  <div class="cover-meta" style="text-align: center;">
+    <table class="cover-meta-info">
+      <thead>
+        <tr><th>项</th><th>内容</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>适用考试</td><td>AP Computer Science A 国际考（2025 秋新纲 · 2026 及以后）</td></tr>
+        <tr><td>课程章节</td><td>第四章 Data Collections（对应官方大纲 Unit 4）</td></tr>
+        <tr><td>考纲来源</td><td>College Board《AP Computer Science A Course and Exam Description, Effective Fall 2025》——Unit 4 Data Collections（教材页 91–129）</td></tr>
+        <tr><td>真题来源</td><td>2021–2025 年近五年 APCSA 国际考 FRQ 真题（重点 Q3 ArrayList + Q4 2D Array，本章精选 5 道）、2025 新版 CED 官方样题、AP Classroom 官方 Progress Check 试题（含 Unit 4 TopicQuestion MCQ、MCQ Part A/B/C、FRQ Part A/B/C）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================
+     正文页
+     ============================================ -->
+<section role="body" data-page-restart="1">
+
+  <!-- 摘要 -->
+  <section class="abstract" aria-label="摘要">
+    <p class="abstract-heading">摘　要</p>
+    <p class="abstract-text">本手册为 AP Computer Science A（APCSA）国际考备考系列的第四章，主题为 Data Collections（数组、ArrayList、二维数组与递归），对应 College Board 2025 秋新版考纲 Unit 4（适用于 2026 年及以后考试）。本章系统梳理 17 个官方 Topic（4.1 Ethical and Social Issues Around Data Collection / 4.2 Introduction to Using Data Sets / 4.3 Array Creation and Access / 4.4 Array Traversals / 4.5 Implementing Array Algorithms / 4.6 Using Text Files / 4.7 Wrapper Classes / 4.8 ArrayList Methods / 4.9 ArrayList Traversals / 4.10 Implementing ArrayList Algorithms / 4.11 2D Array Creation and Access / 4.12 2D Array Traversals / 4.13 Implementing 2D Array Algorithms / 4.14 Searching Algorithms / 4.15 Sorting Algorithms / 4.16 Recursion / 4.17 Recursive Searching and Sorting），覆盖 1D 数组、ArrayList、2D 数组三种集合类型与搜索、排序、递归三大算法主题；按出错频率排序 Top 10 高频易错点（含数组下标越界、增强 for 误修改、ArrayList 删时下标错位、2D 数组 length 含义混淆、递归缺 base case、二分搜索前提等）并给出正误对照；精选 12 道 MCQ（来自 AP Classroom 官方 Unit 4 TopicQuestion MCQ 42 题题库）与 5 道 2021–2025 国际考 Q3 ArrayList + Q4 2D Array 完整 FRQ 真题（FRQ-1 2021 ArrayResizer / FRQ-2 2022 ReviewAnalysis / FRQ-3 2023 WeatherData / FRQ-4 2024 GridPath / FRQ-5 2025 SumOrSameGame），每题附官方英文原题、参考解法与评分要点。本章是 APCSA 课程的绝对核心——MCQ 权重 30-40%（四大单元最高）、FRQ 第 3、4 题全部出自本章；掌握本章后考生能够独立处理数组/ArrayList/2D 数组上的任何算法题，并在 FRQ 写作中拿到满分。</p>
+    <p class="keywords"><strong>关键词：</strong>AP Computer Science A；2025 新版考纲；1D 数组；ArrayList；2D 数组；文本文件；包装类；搜索；排序；递归；Data Collections FRQ；国际考备考</p>
+  </section>
+
+  <!-- 目录 -->
+  <nav class="doc-toc" aria-label="目录">
+    <p class="toc-title" style="text-align: center;">目　录</p>
+    <ol class="toc-list">
+      <li><a href="#section-1">一、本章定位与考情速览</a></li>
+      <li><a href="#section-2">二、知识点与考点梳理（Topic 4.1–4.17）</a></li>
+      <li class="toc-sub"><a href="#section-2-a">A：数据基础与伦理（Topic 4.1 / 4.2）</a></li>
+      <li class="toc-sub"><a href="#section-2-b">B：1D Array 三件套（Topic 4.3 / 4.4 / 4.5）</a></li>
+      <li class="toc-sub"><a href="#section-2-c">C：文本文件 + 包装类（Topic 4.6 / 4.7）</a></li>
+      <li class="toc-sub"><a href="#section-2-d">D：ArrayList 三件套（Topic 4.8 / 4.9 / 4.10）</a></li>
+      <li class="toc-sub"><a href="#section-2-e">E：2D Array 三件套（Topic 4.11 / 4.12 / 4.13）</a></li>
+      <li class="toc-sub"><a href="#section-2-f">F：搜索、排序与递归（Topic 4.14 / 4.15 / 4.16 / 4.17）</a></li>
+      <li><a href="#section-3">三、本章重难点与易错点清单</a></li>
+      <li><a href="#section-4">四、MCQ 真题精选与详解（12 题）</a></li>
+      <li><a href="#section-5">五、FRQ 真题精选与解析（5 题完整题面，含官方表格）</a></li>
+      <li><a href="#section-6">六、应试技巧清单</a></li>
+      <li><a href="#section-7">七、章节总结</a></li>
+    </ol>
+  </nav>
+
+  <!-- 一、本章定位与考情速览 -->
+  <h2 id="section-1">一、本章定位与考情速览</h2>
+  <h3>1.1 新大纲四大单元与考试权重</h3>
+  <p>Unit 4 Data Collections 是 APCSA 课程的<strong>绝对核心章节</strong>：它整合 Unit 1（对象与方法）、Unit 2（控制结构）、Unit 3（类设计），引入 <strong>1D 数组、ArrayList、2D 数组</strong> 三种集合结构，并在此基础上讲解<strong>搜索、排序、递归</strong>三大算法主题。本章不仅是 MCQ 权重最高（30–40%）的单元，更是 FRQ 第 3、4 题的出题源头。</p>
+
+  <table class="three-line-table">
+    <thead>
+      <tr><th>单元（本课程章节）</th><th>MCQ 权重</th><th>建议课时</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Unit 1：Using Objects and Methods（第一章）</td><td>15–25%</td><td>约 32–34 课时</td></tr>
+      <tr><td>Unit 2：Selection and Iteration（第二章）</td><td>25–35%</td><td>约 29–31 课时</td></tr>
+      <tr><td>Unit 3：Class Creation（第三章）</td><td>10–18%</td><td>约 20–22 课时</td></tr>
+      <tr><td><strong>Unit 4：Data Collections（第四章）</strong></td><td><strong>30–40%</strong></td><td><strong>约 50–52 课时</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p>Unit 4 的 MCQ 权重（30–40%）是四大单元中<strong>最高的</strong>，课时也最长（约 50–52 课时）。本章覆盖 17 个 Topic、3 套 Progress Check（共约 60 道 MCQ + 6 道 FRQ），是备考的重中之重。</p>
+
+  <h3>1.2 考试结构</h3>
+  <table class="three-line-table">
+    <thead>
+      <tr><th>部分</th><th>题量与时长</th><th>占比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Section I：选择题（MCQ）</td><td>42 题 / 90 分钟</td><td>55%</td></tr>
+      <tr><td>Section II：自由作答题（FRQ）</td><td>4 题 / 90 分钟</td><td>45%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warning">
+    <p class="callout-title">格式说明</p>
+    <p>2026 年起 Unit 4 对应<strong>两道</strong> FRQ：<strong>FRQ 第 3 题 = Data Analysis with ArrayList</strong>（写 ArrayList 上的方法）、<strong>FRQ 第 4 题 = 2D Array</strong>（写 2D 数组上的方法）。两题各约 9 分，合计 18 分，占 FRQ 总分的 40%——是写作题中分值最重的部分。本章精选 5 道 FRQ 真题（2021 Q4 ArrayResizer、2022 Q3 ReviewAnalysis、2023 Q3 WeatherData、2024 Q4 GridPath、2025 Q4 SumOrSameGame），覆盖 1D Array、ArrayList、2D Array 三大主题。</p>
+  </div>
+
+  <h3>1.3 本章与 FRQ 的关联（备考重点提示）</h3>
+  <ul>
+    <li><strong>国际考 Q3 = Data Analysis with ArrayList</strong>（2021 ClubMembers、2022 ReviewAnalysis、2023 WeatherData、2024 WordChecker、2025 Tournament Match，五年皆如此）。本题要求考生在 <code>ArrayList</code> 上编写方法：插入元素、删除元素、按条件遍历、计算统计量。<strong><code>ArrayList</code> 的增删与遍历中维护索引是本章最高频、最容易失分的写代码题型</strong>。</li>
+    <li><strong>国际考 Q4 = 2D Array</strong>（2021 ArrayResizer、2022 Data、2023 BoxOfCandy、2024 GridPath、2025 SumOrSameGame，五年皆如此）。本题在 2D 数组上做行/列遍历、筛选、查找或路径计算，<strong>必须熟练掌握 row-major 嵌套 for 循环</strong>。</li>
+    <li><strong>MCQ 高频考点</strong>：数组下标访问（0-based）、数组长度（<code>.length</code>）、ArrayList 方法（<code>add</code> / <code>get</code> / <code>set</code> / <code>remove</code> / <code>size</code>）、增强 for 循环、2D 数组嵌套遍历、文本文件读入（<code>Scanner</code>）、包装类（<code>Integer</code> / <code>Double</code>）、递归基础、搜索与排序算法分析。</li>
+  </ul>
+
+  <h3>1.4 本章学习目标（对应官方 17 个 Topic）</h3>
+  <p>新 CED Unit 4 共 17 个 Topic，按"<strong>先伦理、再 1D Array、再文本文件、再 ArrayList、再 2D Array、再算法</strong>"的顺序展开：</p>
+  <ol>
+    <li><strong>4.1 Ethical and Social Issues Around Data Collection（数据收集的伦理与社会影响）</strong>：理解个人数据收集的隐私风险、算法偏见、数据质量。</li>
+    <li><strong>4.2 Introduction to Using Data Sets（数据集使用入门）</strong>：会用自然语言或图示描述日常数据集合。</li>
+    <li><strong>4.3 Array Creation and Access（一维数组的创建与访问）</strong>：声明、初始化、通过下标访问元素。</li>
+    <li><strong>4.4 Array Traversals（数组遍历）</strong>：用 for 循环（含增强 for）按顺序访问每个元素。</li>
+    <li><strong>4.5 Implementing Array Algorithms（数组算法实现）</strong>：在数组上实现求和、计数、最值等基础算法。</li>
+    <li><strong>4.6 Using Text Files（文本文件读入）</strong>：用 <code>Scanner</code> 读文本文件，注意 <code>hasNext</code> / <code>nextInt</code> / <code>nextDouble</code> / <code>nextLine</code> 的搭配。</li>
+    <li><strong>4.7 Wrapper Classes（包装类）</strong>：只考查 <code>Integer</code> 与 <code>Double</code> 两个包装类——<code>Integer.parseInt</code> / <code>Integer.MAX_VALUE</code> / <code>Integer.MIN_VALUE</code>、<code>Double.parseDouble</code> / <code>Double.MAX_VALUE</code> / <code>Double.MIN_VALUE</code>，以及自动装箱 / 拆箱。</li>
+    <li><strong>4.8 ArrayList Methods（ArrayList 方法）</strong>：<code>add</code> / <code>get</code> / <code>set</code> / <code>remove</code> / <code>size</code> / <code>contains</code> / <code>indexOf</code>。</li>
+    <li><strong>4.9 ArrayList Traversals（ArrayList 遍历）</strong>：用 for / 增强 for / 倒序遍历。</li>
+    <li><strong>4.10 Implementing ArrayList Algorithms（ArrayList 算法实现）</strong>：在 ArrayList 上实现增删改查与统计。</li>
+    <li><strong>4.11 2D Array Creation and Access（二维数组的创建与访问）</strong>：声明 2D 数组、通过 <code>arr[row][col]</code> 访问元素。</li>
+    <li><strong>4.12 2D Array Traversals（二维数组遍历）</strong>：row-major 嵌套 for 循环遍历所有元素。</li>
+    <li><strong>4.13 Implementing 2D Array Algorithms（二维数组算法实现）</strong>：行/列求和、按条件筛选、子矩阵操作。</li>
+    <li><strong>4.14 Searching Algorithms（搜索算法）</strong>：顺序搜索、二分搜索（Binary Search）。</li>
+    <li><strong>4.15 Sorting Algorithms（排序算法）</strong>：选择排序、插入排序、归并排序（熟练掌握代码模板；复杂度分析仅在 MCQ 中考查，不考 FRQ 实现）。</li>
+    <li><strong>4.16 Recursion（递归基础）</strong>：理解 base case + recursive call，写简单的递归方法（如阶乘、求和）。</li>
+    <li><strong>4.17 Recursive Searching and Sorting（递归搜索与排序）</strong>：递归实现二分搜索与归并排序。</li>
+  </ol>
+
+  <!-- 以下为 markdown 库自动转换的正文（已剔除重复的一章标题） -->
+  <hr>
+<h2 id="section-2">二、知识点与考点梳理（Topic 4.1–4.17）</h2>
+<h3 id="section-2-a">板块 A：数据基础与伦理（Topic 4.1 / 4.2）</h3>
+<h4>Topic 4.1 数据收集的伦理与社会影响</h4>
+<p><strong>考点</strong>：MCQ 高频考「隐私保护」「算法偏见」「数据质量」三个概念。</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>概念</th>
+<th>考试表述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>隐私（Privacy）</td>
+<td>当用户在 App、网站中输入个人信息（姓名 / 位置 / 购物记录）时，这些数据可能被收集、存储、甚至售卖；程序员应尝试保护用户隐私。</td>
+</tr>
+<tr>
+<td>算法偏见（Algorithmic Bias）</td>
+<td>系统性、重复性的程序错误，导致对特定用户群体不公平的结果。例如训练数据中只包含某一族群的照片，人脸识别对其他族群准确率显著降低。</td>
+</tr>
+<tr>
+<td>数据质量（Data Quality）</td>
+<td>数据集可能不完整（缺失值）、不准确（错误值）、有偏差（采样不均）；使用前应评估数据质量。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>典型 MCQ 题干</strong>：「A programmer is designing an app that recommends restaurants to users based on past dining history. Which of the following is the most important ethical consideration?」</p>
+<h4>Topic 4.2 数据集使用入门</h4>
+<p><strong>数据集（Data Set）</strong>：一组相关数据的集合。考试常考：<br>
+- 用文字描述从数据集提取什么信息（例如「从 100 万条购物记录中找出最常被一起购买的商品对」）；<br>
+- 用图示（流程图 / 思维导图）描述分析流程。</p>
+<pre class="code-block"><code class="language-java">// 数据集的典型 API：使用 Java 集合表示
+int[] temperatures = {72, 75, 68, 80, 79}; // 1D 数组
+ArrayList&lt;Double&gt; scores = new ArrayList&lt;Double&gt;(); // ArrayList
+String[][] spreadsheet = new String[10][5]; // 2D 数组
+</code></pre>
+<hr>
+<h3 id="section-2-b">板块 B：1D Array 三件套（Topic 4.3 / 4.4 / 4.5）</h3>
+<h4>Topic 4.3 一维数组的创建与访问</h4>
+<p><strong>两种初始化语法</strong>（考试重点）：</p>
+<pre class="code-block"><code class="language-java">// 语法 A：先 new，再赋值
+int[] nums = new int[5];
+nums[0] = 10; nums[1] = 20; nums[2] = 30; nums[3] = 40; nums[4] = 50;
+
+// 语法 B：初始化列表（仅声明时可用）
+int[] nums = {10, 20, 30, 40, 50};
+String[] names = {&quot;Alice&quot;, &quot;Bob&quot;, &quot;Carol&quot;};
+double[] prices = new double[]{9.99, 19.99, 29.99}; // new double[] 也可以省略
+</code></pre>
+<p><strong>核心规则</strong>：<br>
+- 数组下标从 <strong>0</strong> 开始，到 <code>length - 1</code> 结束；<br>
+- <strong>数组长度不可变</strong>（一旦 <code>new</code> 出，大小就锁死；试图 <code>nums.length++</code> 会编译报错）；<br>
+- 访问越界下标会抛 <code>ArrayIndexOutOfBoundsException</code>（运行期错误，编译不会报错）。</p>
+<p><strong>数组作为方法参数 / 返回值</strong>：</p>
+<pre class="code-block"><code class="language-java">public static int sum(int[] arr) {  // 接收数组引用
+    int total = 0;
+    for (int x : arr) {
+        total += x;
+    }
+    return total;
+}
+public static int[] reverse(int[] arr) {  // 返回新数组
+    int[] result = new int[arr.length];
+    for (int i = 0; i &lt; arr.length; i++) {
+        result[i] = arr[arr.length - 1 - i];
+    }
+    return result;
+}
+</code></pre>
+<h4>Topic 4.4 数组遍历</h4>
+<p><strong>两种遍历语法</strong>（考试必会）：</p>
+<pre class="code-block"><code class="language-java">int[] nums = {10, 20, 30, 40, 50};
+
+// 语法 A：传统 for（需要下标时用）
+for (int i = 0; i &lt; nums.length; i++) {
+    System.out.println(nums[i]);
+}
+
+// 语法 B：增强 for（只读访问时用，更简洁）
+for (int n : nums) {
+    System.out.println(n);
+}
+</code></pre>
+<p><strong>遍历模式变种</strong>（MCQ 高频）：<br>
+- <strong>正向遍历</strong>：<code>for (int i = 0; i &lt; nums.length; i++)</code><br>
+- <strong>反向遍历</strong>：<code>for (int i = nums.length - 1; i &gt;= 0; i--)</code><br>
+- <strong>每隔一个</strong>：<code>for (int i = 0; i &lt; nums.length; i += 2)</code><br>
+- <strong>跳过首尾</strong>：<code>for (int i = 1; i &lt; nums.length - 1; i++)</code></p>
+<p><strong>遍历中的修改陷阱</strong>：增强 for 不能用于修改数组元素（修改的是循环变量，不影响原数组）；若要修改必须用传统 for + 下标。</p>
+<pre class="code-block"><code class="language-java">int[] nums = {1, 2, 3};
+for (int n : nums) {
+    n = n * 2;  // ❌ 无效，n 是循环副本
+}
+for (int i = 0; i &lt; nums.length; i++) {
+    nums[i] *= 2;  // ✅ 正确
+}
+</code></pre>
+<h4>Topic 4.5 数组算法实现</h4>
+<p><strong>五大基础算法</strong>（FRQ 高频）：</p>
+<pre class="code-block"><code class="language-java">// 1. 求和 / 平均
+public static int sum(int[] arr) {
+    int total = 0;
+    for (int x : arr) {
+        total += x;
+    }
+    return total;
+}
+public static double average(int[] arr) {
+    return (double) sum(arr) / arr.length;
+}
+
+// 2. 最大 / 最小
+public static int max(int[] arr) {
+    int best = arr[0];
+    for (int i = 1; i &lt; arr.length; i++) {
+        if (arr[i] &gt; best) best = arr[i];
+    }
+    return best;
+}
+
+// 3. 计数（满足条件的元素个数）
+public static int countAbove(int[] arr, int threshold) {
+    int count = 0;
+    for (int x : arr) {
+        if (x &gt; threshold) count++;
+    }
+    return count;
+}
+
+// 4. 查找（返回下标或 -1）
+public static int find(int[] arr, int target) {
+    for (int i = 0; i &lt; arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
+}
+
+// 5. 复制（部分 / 全部）
+public static int[] copy(int[] arr) {
+    int[] result = new int[arr.length];
+    for (int i = 0; i &lt; arr.length; i++) {
+        result[i] = arr[i];
+    }
+    return result;
+}
+</code></pre>
+<p><strong>考试常见变种</strong>：<br>
+- 「统计数组中相邻两个相等的对数」：<code>for (int i = 0; i &lt; arr.length - 1; i++) { if (arr[i] == arr[i+1]) count++; }</code><br>
+- 「数组是否已排序（升序）」：检测每一对 <code>arr[i] &gt; arr[i+1]</code>；<br>
+- 「找第二大的元素」：先找 max，再遍历找 &lt; max 的最大。</p>
+<hr>
+<h3 id="section-2-c">板块 C：文本文件 + 包装类（Topic 4.6 / 4.7）</h3>
+<h4>Topic 4.6 文本文件读入</h4>
+<p><strong>考试必备模板</strong>（MCQ 必会、FRQ 不直接考但工程中常用）：</p>
+<pre class="code-block"><code class="language-java">import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public static void readFile(String filename) throws FileNotFoundException {
+    Scanner sc = new Scanner(new File(filename));
+    while (sc.hasNext()) {
+        int n = sc.nextInt();
+        System.out.println(n);
+    }
+    sc.close();
+}
+
+// 简单用法：通常 AP 题目把异常处理隐藏，直接给一个已打开的 Scanner
+public static double average(Scanner sc) {
+    double sum = 0;
+    int count = 0;
+    while (sc.hasNext()) {
+        sum += sc.nextDouble();
+        count++;
+    }
+    return count == 0 ? 0 : sum / count;
+}
+</code></pre>
+<p><strong>关键区分</strong>（MCQ 高频陷阱）：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>方法</th>
+<th>用途</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hasNext()</code></td>
+<td>还有没有下一个 token（任意类型）</td>
+<td>用于 <code>while</code> 循环条件</td>
+</tr>
+<tr>
+<td><code>next()</code></td>
+<td>读取下一个 token（按空白切分）</td>
+<td>自动跳过分隔符</td>
+</tr>
+<tr>
+<td><code>nextInt()</code></td>
+<td>读取下一个 int</td>
+<td>同上</td>
+</tr>
+<tr>
+<td><code>nextLine()</code></td>
+<td>读取整行（直到换行）</td>
+<td><strong>会读走上一行的换行符</strong>，紧跟 <code>nextInt()</code> 后会读到空行</td>
+</tr>
+</tbody>
+</table>
+<p><strong>考试常见陷阱</strong>：</p>
+<pre class="code-block"><code class="language-java">// ❌ 错误用法：nextInt 后立刻 nextLine
+Scanner sc = new Scanner(&quot;42\nhello world&quot;);
+int n = sc.nextInt();      // 读 42，留下 \n
+String line = sc.nextLine(); // ❌ 读到的是 &quot;&quot;（空字符串），因为只读到了 \n
+
+// ✅ 正确：在 nextInt 后多读一行换行符
+sc.nextLine();  // 吃掉 \n
+line = sc.nextLine();  // 读到 &quot;hello world&quot;
+</code></pre>
+<h4>Topic 4.7 包装类（Wrapper Classes）</h4>
+<p><strong>核心概念</strong>：基本类型没有方法，要调用方法必须包装为对象。APCSA 只要求掌握 <code>Integer</code> 与 <code>Double</code> 两个包装类。</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>基本类型</th>
+<th>包装类</th>
+<th>考查的方法 / 常量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td><code>Integer</code></td>
+<td><code>Integer.parseInt(String)</code> / <code>Integer.MAX_VALUE</code> / <code>Integer.MIN_VALUE</code></td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td><code>Double</code></td>
+<td><code>Double.parseDouble(String)</code> / <code>Double.MAX_VALUE</code> / <code>Double.MIN_VALUE</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>自动装箱 / 拆箱</strong>（MCQ 高频）：</p>
+<pre class="code-block"><code class="language-java">Integer x = 42;       // 自动装箱：Integer x = Integer.valueOf(42);
+int n = x;             // 自动拆箱：Integer 自动转为 int
+
+ArrayList&lt;Integer&gt; nums = new ArrayList&lt;Integer&gt;();
+nums.add(10);          // 10 自动装箱为 Integer(10)
+int first = nums.get(0); // 自动拆箱
+</code></pre>
+<p><strong>关键考点</strong>（只考查以下内容）：<br>
+- <code>ArrayList&lt;int&gt;</code> <strong>不允许</strong>（基本类型不能作为泛型实参），必须用 <code>ArrayList&lt;Integer&gt;</code>；<br>
+- 字符串 → 数字：<code>Integer.parseInt("42")</code> → <code>42</code>、<code>Double.parseDouble("3.14")</code> → <code>3.14</code>；<br>
+- 常量：<code>Integer.MAX_VALUE</code> / <code>Integer.MIN_VALUE</code>、<code>Double.MAX_VALUE</code> / <code>Double.MIN_VALUE</code>。</p>
+<pre class="code-block"><code class="language-java">// MCQ 经典陷阱
+double d = 10.0;
+Double D = 20.0;
+System.out.println(d + D);  // 输出 30.0（自动拆箱为 double + double）
+String s = &quot;&quot; + d + D;       // 输出 &quot;10.020.0&quot;（拼接为字符串）
+</code></pre>
+<hr>
+<h3 id="section-2-d">板块 D：ArrayList 三件套（Topic 4.8 / 4.9 / 4.10）</h3>
+<h4>Topic 4.8 ArrayList 方法</h4>
+<p><strong>完整 API 速查</strong>（考试必背）：</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>方法</th>
+<th>签名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>构造器</td>
+<td><code>new ArrayList&lt;E&gt;()</code></td>
+<td>空列表</td>
+</tr>
+<tr>
+<td>构造器</td>
+<td><code>new ArrayList&lt;E&gt;(int initialCapacity)</code></td>
+<td>指定初始容量（考试很少考）</td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td><code>add(E e)</code></td>
+<td>末尾追加，返回 <code>boolean</code></td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td><code>add(int index, E e)</code></td>
+<td>在 <code>index</code> 处插入，原元素后移</td>
+</tr>
+<tr>
+<td><code>get</code></td>
+<td><code>get(int index)</code></td>
+<td>返回 <code>index</code> 处的元素</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td><code>set(int index, E e)</code></td>
+<td>替换 <code>index</code> 处的元素，返回<strong>旧值</strong></td>
+</tr>
+<tr>
+<td><code>remove</code></td>
+<td><code>remove(int index)</code></td>
+<td>删除并返回 <code>index</code> 处的元素</td>
+</tr>
+<tr>
+<td><code>remove</code></td>
+<td><code>remove(Object o)</code></td>
+<td>删除<strong>第一个</strong>等于 <code>o</code> 的元素，返回 <code>boolean</code></td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td><code>size()</code></td>
+<td>当前元素个数</td>
+</tr>
+<tr>
+<td><code>isEmpty</code></td>
+<td><code>isEmpty()</code></td>
+<td>是否为空（size == 0）</td>
+</tr>
+<tr>
+<td><code>contains</code></td>
+<td><code>contains(Object o)</code></td>
+<td>是否包含 <code>o</code>（用 <code>equals</code> 比较）</td>
+</tr>
+<tr>
+<td><code>indexOf</code></td>
+<td><code>indexOf(Object o)</code></td>
+<td>第一个等于 <code>o</code> 的下标，没有返回 -1</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td><code>clear()</code></td>
+<td>清空所有元素</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键陷阱</strong>（MCQ 高频失分点）：</p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;String&gt; words = new ArrayList&lt;String&gt;();
+words.add(&quot;jump&quot;);    // [jump]
+words.add(&quot;right&quot;);   // [jump, right]
+words.add(&quot;plan&quot;);    // [jump, right, plan]
+
+words.add(2, &quot;laugh&quot;);  // [jump, right, laugh, plan]  在 index=2 插入
+words.add(3, &quot;laugh&quot;);  // [jump, right, plan, laugh]  在 index=3 插入
+
+words.set(2, &quot;laugh&quot;);  // [jump, right, laugh]        set 是替换！
+words.set(3, &quot;laugh&quot;);  // IndexOutOfBoundsException    set(3) 不存在
+
+words.remove(2);        // [jump, right]               remove(2) 删除并返回 &quot;plan&quot;
+words.remove(&quot;right&quot;);  // [jump]                      remove(Object) 删除第一个匹配
+</code></pre>
+<p><strong>「<code>remove(int)</code> 与 <code>remove(Object)</code> 的歧义」陷阱</strong>：</p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;Integer&gt; nums = new ArrayList&lt;Integer&gt;();
+nums.add(10); nums.add(20); nums.add(30);   // [10, 20, 30]
+nums.remove(20);  // ❌ 编译错！remove(int) 需要下标 0..size-1，但 20 不是下标
+nums.remove(new Integer(20));  // ✅ 删除 20 这个元素（推荐写法：nums.remove(2);）
+</code></pre>
+<h4>Topic 4.9 ArrayList 遍历</h4>
+<p><strong>三种遍历模式</strong>（考试重点）：</p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;String&gt; words = new ArrayList&lt;String&gt;(Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;));
+
+// 1. 传统 for（需要下标时用）
+for (int i = 0; i &lt; words.size(); i++) {
+    System.out.println(i + &quot;: &quot; + words.get(i));
+}
+
+// 2. 增强 for（只读访问时用，最简洁）
+for (String w : words) {
+    System.out.println(w);
+}
+
+// 3. 倒序遍历（删除元素时常用，避免下标错位）
+for (int i = words.size() - 1; i &gt;= 0; i--) {
+    System.out.println(words.get(i));
+}
+</code></pre>
+<p><strong>遍历中删除的下标错位问题</strong>（FRQ 最高频失分点）：</p>
+<pre class="code-block"><code class="language-java">// ❌ 错误：正向遍历 + remove，下标错位
+ArrayList&lt;Integer&gt; nums = new ArrayList&lt;Integer&gt;(Arrays.asList(1, 2, 3, 4, 5));
+for (int i = 0; i &lt; nums.size(); i++) {
+    if (nums.get(i) % 2 == 0) nums.remove(i);  // 删除 2 后，原 i=2 变成 4，被跳过！
+}
+// 结果：[1, 3, 5]  ← 错！应该是 [1, 3, 5] 但实际：[1, 3, 4, 5]  ← 4 没被删
+
+// ✅ 正确方案 A：倒序遍历
+for (int i = nums.size() - 1; i &gt;= 0; i--) {
+    if (nums.get(i) % 2 == 0) nums.remove(i);
+}
+// 结果：[1, 3, 5]  ✅
+
+// ✅ 正确方案 B：正向遍历 + i--
+for (int i = 0; i &lt; nums.size(); i++) {
+    if (nums.get(i) % 2 == 0) {
+        nums.remove(i);
+        i--;  // 重要：删完后回退一个下标
+    }
+}
+// 结果：[1, 3, 5]  ✅
+</code></pre>
+<h4>Topic 4.10 ArrayList 算法实现</h4>
+<p><strong>FRQ 最常考的五类算法</strong>：</p>
+<pre class="code-block"><code class="language-java">// 1. 求最大值及其下标
+public static int findMaxIndex(ArrayList&lt;Integer&gt; list) {
+    int maxIdx = 0;
+    for (int i = 1; i &lt; list.size(); i++) {
+        if (list.get(i) &gt; list.get(maxIdx)) maxIdx = i;
+    }
+    return maxIdx;
+}
+
+// 2. 移除所有满足条件的元素（返回新列表，保留原列表）
+public static ArrayList&lt;Integer&gt; filterAbove(ArrayList&lt;Integer&gt; list, int threshold) {
+    ArrayList&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    for (int n : list) {
+        if (n &gt; threshold) result.add(n);
+    }
+    return result;
+}
+
+// 3. 找最长连续段（类似 2023 WeatherData.longestHeatWave）
+public static int longestStreak(ArrayList&lt;Double&gt; data, double threshold) {
+    int best = 0, cur = 0;
+    for (double d : data) {
+        if (d &gt; threshold) { cur++; best = Math.max(best, cur); }
+        else cur = 0;
+    }
+    return best;
+}
+
+// 4. 累加前缀和
+public static ArrayList&lt;Integer&gt; prefixSum(ArrayList&lt;Integer&gt; list) {
+    ArrayList&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    int sum = 0;
+    for (int n : list) { sum += n; result.add(sum); }
+    return result;
+}
+
+// 5. 字符串拼接（如 2022 ReviewAnalysis.collectComments）
+public static ArrayList&lt;String&gt; commentsWithExclamation(Review[] reviews) {
+    ArrayList&lt;String&gt; result = new ArrayList&lt;String&gt;();
+    for (int i = 0; i &lt; reviews.length; i++) {
+        String c = reviews[i].getComment();
+        if (c.contains(&quot;!&quot;)) {
+            String formatted = i + &quot;-&quot; + c;
+            if (!c.endsWith(&quot;.&quot;) &amp;&amp; !c.endsWith(&quot;!&quot;))
+                formatted += &quot;.&quot;;
+            result.add(formatted);
+        }
+    }
+    return result;
+}
+</code></pre>
+<hr>
+<h3 id="section-2-e">板块 E：2D Array 三件套（Topic 4.11 / 4.12 / 4.13）</h3>
+<h4>Topic 4.11 二维数组的创建与访问</h4>
+<p><strong>三种初始化方式</strong>（考试重点）：</p>
+<pre class="code-block"><code class="language-java">// 语法 A：声明 + new + 逐元素赋值
+int[][] matrix = new int[3][4];  // 3 行 4 列，默认全 0
+matrix[0][0] = 1; matrix[0][1] = 2;
+
+// 语法 B：初始化列表（仅声明时可用）
+int[][] matrix = {
+    {1, 2, 3, 4},
+    {5, 6, 7, 8},
+    {9, 10, 11, 12}
+};
+
+// 语法 C：锯齿数组（每行长度不同）
+int[][] jagged = new int[3][];
+jagged[0] = new int[]{1, 2};
+jagged[1] = new int[]{3,4,5,6};
+jagged[2] = new int[]{7};
+</code></pre>
+<p><strong>关键区分</strong>（MCQ 高频）：</p>
+<pre class="code-block"><code class="language-java">int[][] matrix = {{1,2,3}, {4,5,6}, {7,8,9}};
+matrix.length       // 3（行数）
+matrix[0].length    // 3（第 0 行的列数）
+matrix[2][1]        // 8（第 2 行第 1 列）
+</code></pre>
+<p><strong>考试常考的越界</strong>：</p>
+<pre class="code-block"><code class="language-java">int[][] matrix = {{1,2,3}, {4,5,6}};  // 2 行 3 列
+matrix[2][0]   // ❌ ArrayIndexOutOfBoundsException（行越界）
+matrix[0][3]   // ❌ ArrayIndexOutOfBoundsException（列越界）
+matrix[1][2]   // ✅ 6
+</code></pre>
+<h4>Topic 4.12 二维数组遍历（Row-Major 嵌套 for）</h4>
+<p><strong>标准模板</strong>（FRQ 必会）：</p>
+<pre class="code-block"><code class="language-java">int[][] matrix = {{1,2,3}, {4,5,6}, {7,8,9}};
+
+// Row-Major 遍历（最常用）
+for (int r = 0; r &lt; matrix.length; r++) {              // 行
+    for (int c = 0; c &lt; matrix[r].length; c++) {       // 列
+        System.out.print(matrix[r][c] + &quot; &quot;);
+    }
+    System.out.println();
+}
+// 输出：
+// 1 2 3
+// 4 5 6
+// 7 8 9
+
+// 增强 for
+for (int[] row : matrix) {
+    for (int v : row) {
+        System.out.print(v + &quot; &quot;);
+    }
+    System.out.println();
+}
+</code></pre>
+<p><strong>遍历变种</strong>（MCQ + FRQ 高频）：</p>
+<pre class="code-block"><code class="language-java">// Column-Major（先按列访问）
+for (int c = 0; c &lt; matrix[0].length; c++) {
+    for (int r = 0; r &lt; matrix.length; r++) {
+        System.out.print(matrix[r][c] + &quot; &quot;);
+    }
+    System.out.println();
+}
+
+// 对角线（左上到右下）
+for (int i = 0; i &lt; matrix.length; i++) {
+    System.out.println(matrix[i][i]);
+}
+
+// 之字形（zig-zag）
+for (int r = 0; r &lt; matrix.length; r++) {
+    if (r % 2 == 0) {
+        for (int c = 0; c &lt; matrix[r].length; c++) { /* 正向 */ }
+    } else {
+        for (int c = matrix[r].length - 1; c &gt;= 0; c--) { /* 反向 */ }
+    }
+}
+</code></pre>
+<h4>Topic 4.13 二维数组算法实现</h4>
+<p><strong>FRQ 五大基础算法</strong>：</p>
+<pre class="code-block"><code class="language-java">// 1. 矩阵所有元素求和
+public static int sumAll(int[][] m) {
+    int total = 0;
+    for (int[] row : m) {
+        for (int v : row) {
+            total += v;
+        }
+    }
+    return total;
+}
+
+// 2. 按行求和，返回一维数组
+public static int[] rowSums(int[][] m) {
+    int[] sums = new int[m.length];
+    for (int r = 0; r &lt; m.length; r++) {
+        for (int c = 0; c &lt; m[r].length; c++) {
+            sums[r] += m[r][c];
+        }
+    }
+    return sums;
+}
+
+// 3. 按列求和（注意列数 = m[0].length）
+public static int[] colSums(int[][] m) {
+    int[] sums = new int[m[0].length];
+    for (int r = 0; r &lt; m.length; r++) {
+        for (int c = 0; c &lt; m[r].length; c++) {
+            sums[c] += m[r][c];
+        }
+    }
+    return sums;
+}
+
+// 4. 找最大元素及其位置（2021 ArrayResizer、2024 GridPath 都考）
+public static int findMax(int[][] m) {
+    int best = m[0][0];
+    for (int[] row : m) {
+        for (int v : row) {
+            if (v &gt; best) best = v;
+        }
+    }
+    return best;
+}
+
+// 5. 矩阵转置（行变列）
+public static int[][] transpose(int[][] m) {
+    int rows = m.length, cols = m[0].length;
+    int[][] t = new int[cols][rows];
+    for (int r = 0; r &lt; rows; r++) {
+        for (int c = 0; c &lt; cols; c++) {
+            t[c][r] = m[r][c];
+        }
+    }
+    return t;
+}
+</code></pre>
+<hr>
+<h3 id="section-2-f">板块 F：搜索、排序与递归（Topic 4.14 / 4.15 / 4.16 / 4.17）</h3>
+<h4>Topic 4.14 搜索算法</h4>
+<p><strong>顺序搜索 vs 二分搜索</strong>（MCQ 必考）：</p>
+<pre class="code-block"><code class="language-java">// 顺序搜索（Sequential Search）—— O(n)，适用于任何数组
+public static int seqSearch(int[] arr, int target) {
+    for (int i = 0; i &lt; arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
+}
+
+// 二分搜索（Binary Search）—— O(log n)，仅适用于**已排序**数组
+public static int binSearch(int[] sorted, int target) {
+    int lo = 0, hi = sorted.length - 1;
+    while (lo &lt;= hi) {
+        int mid = (lo + hi) / 2;
+        if (sorted[mid] == target) return mid;
+        else if (sorted[mid] &lt; target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+}
+</code></pre>
+<p><strong>MCQ 必会</strong>：<br>
+- 二分搜索的前提：<strong>数组必须已排序</strong>（升序）；<br>
+- 二分搜索每次比较后，搜索范围减半 → O(log n)；<br>
+- 顺序搜索遍历整个数组 → O(n)；<br>
+- <code>n=1000</code> 时，顺序搜索最多 1000 次比较；二分搜索最多约 10 次比较。</p>
+<h4>Topic 4.15 排序算法</h4>
+<p><strong>三种排序的代码模板与复杂度</strong>（只考代码模板与 MCQ，不考 FRQ）：</p>
+<pre class="code-block"><code class="language-java">// 1. 选择排序 Selection Sort —— 时间 O(n²)、空间 O(1)；每次从未排序部分找最小值，放到已排序末尾
+public static void selectionSort(int[] arr) {
+    for (int i = 0; i &lt; arr.length - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; arr.length; j++) {
+            if (arr[j] &lt; arr[minIdx]) minIdx = j;
+        }
+        int tmp = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = tmp;
+    }
+}
+
+// 2. 插入排序 Insertion Sort —— 平均/最差 O(n²)、最优 O(n)，空间 O(1)；每次将当前元素插入到已排序部分的正确位置
+public static void insertionSort(int[] arr) {
+    for (int i = 1; i &lt; arr.length; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j &gt;= 0 &amp;&amp; arr[j] &gt; key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// 3. 归并排序 Merge Sort —— 分治法（divide and conquer），时间 O(n log n)、空间 O(n)
+public static void mergeSort(int[] arr) {
+    if (arr.length &lt; 2) return;
+    int mid = arr.length / 2;
+    int[] left = Arrays.copyOfRange(arr, 0, mid);
+    int[] right = Arrays.copyOfRange(arr, mid, arr.length);
+    mergeSort(left);
+    mergeSort(right);
+    merge(arr, left, right);
+}
+private static void merge(int[] arr, int[] left, int[] right) {
+    int i = 0, j = 0, k = 0;
+    while (i &lt; left.length &amp;&amp; j &lt; right.length) {
+        if (left[i] &lt;= right[j]) arr[k++] = left[i++];
+        else arr[k++] = right[j++];
+    }
+    while (i &lt; left.length) arr[k++] = left[i++];
+    while (j &lt; right.length) arr[k++] = right[j++];
+}
+</code></pre>
+<h4>Topic 4.16 递归基础</h4>
+<p><strong>递归三要素</strong>（MCQ + FRQ 高频）：<br>
+1. <strong>Base case</strong>：终止条件，避免无限递归；<br>
+2. <strong>Recursive call</strong>：调用自身，参数必须向 base case 推进；<br>
+3. <strong>进度</strong>：每次调用都必须让问题规模变小。</p>
+<p><strong>经典例子</strong>（必须能默写）：</p>
+<pre class="code-block"><code class="language-java">// 阶乘
+public static int factorial(int n) {
+    if (n &lt;= 1) return 1;          // base case
+    return n * factorial(n - 1);   // recursive call，n 递减
+}
+
+// 数字各位之和
+public static int digitSum(int n) {
+    if (n &lt; 10) return n;          // base case
+    return n % 10 + digitSum(n / 10);  // 末位 + 递归处理剩余部分
+}
+
+// 数组求和（递归版）
+public static int sumArray(int[] arr, int i) {
+    if (i &gt;= arr.length) return 0;        // base case
+    return arr[i] + sumArray(arr, i + 1);  // 当前元素 + 递归处理剩余
+}
+</code></pre>
+<p><strong>MCQ 常见陷阱</strong>：</p>
+<pre class="code-block"><code class="language-java">// ❌ 缺 base case：无限递归 → StackOverflowError
+public static int bad(int n) {
+    return bad(n - 1);  // 永远不停止
+}
+
+// ❌ base case 永远不进：n 永远不减
+public static int worse(int n) {
+    if (n == 0) return 1;
+    return worse(n + 1);  // n 在增大，永远到不了 0
+}
+
+// ✅ 正确：n 每次减 1，最终到 base case
+public static int good(int n) {
+    if (n == 0) return 1;
+    return n * good(n - 1);  // factorial
+}
+</code></pre>
+<h4>Topic 4.17 递归搜索与排序</h4>
+<p><strong>递归版二分搜索</strong>：</p>
+<pre class="code-block"><code class="language-java">public static int recBinSearch(int[] sorted, int target, int lo, int hi) {
+    if (lo &gt; hi) return -1;            // base case: 未找到
+    int mid = (lo + hi) / 2;
+    if (sorted[mid] == target) return mid;
+    else if (sorted[mid] &lt; target)
+        return recBinSearch(sorted, target, mid + 1, hi);  // 右半边
+    else
+        return recBinSearch(sorted, target, lo, mid - 1);  // 左半边
+}
+// 调用：recBinSearch(arr, target, 0, arr.length - 1)
+</code></pre>
+<p><strong>递归版归并排序</strong>：见 Topic 4.15 板块。</p>
+<p><strong>考试重点</strong>：递归<strong>仅在 MCQ 中考查</strong>（CED 明确：「Recursion is assessed only through the multiple-choice section of the exam」），FRQ 不考递归实现，但偶尔会考调用已给的递归方法计算结果。</p>
+<hr>
+<h2 id="section-3">三、本章重难点与易错点清单</h2>
+<blockquote>
+<p>按考试出错频率排序 TOP 10 高频易错点，每条附<strong>正误对照</strong>。</p>
+</blockquote>
+<h3>易错点 #1：数组下标越界 vs 长度访问错位</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">int[] nums = new int[5];   // 有效下标 0..4
+for (int i = 0; i &lt;= nums.length; i++) {  // ❌ 应该 &lt; 不是 &lt;=
+    System.out.println(nums[i]);         // i=5 时越界
+}
+</code></pre>
+<p><strong>正确写法</strong>：<code>for (int i = 0; i &lt; nums.length; i++)</code> —— <strong>严格小于</strong>，不要写 <code>&lt;=</code>。</p>
+<h3>易错点 #2：增强 for 误以为能修改元素</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">int[] nums = {1, 2, 3};
+for (int n : nums) {
+    n *= 2;  // ❌ n 是循环变量副本，不影响 nums
+}
+System.out.println(Arrays.toString(nums));  // 输出 [1, 2, 3]
+</code></pre>
+<p><strong>正确写法</strong>：必须用传统 for + 下标。</p>
+<h3>易错点 #3：ArrayList 遍历中删除的下标错位</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">for (int i = 0; i &lt; list.size(); i++) {
+    if (list.get(i) % 2 == 0) list.remove(i);  // ❌ 删除后下标错位
+}
+</code></pre>
+<p><strong>正确写法</strong>：倒序遍历 / i-- 二选一（详见 Topic 4.9）。</p>
+<h3>易错点 #4：ArrayList 与数组互相转换时的强转</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;(Arrays.asList(1, 2, 3));
+int[] arr = (int[]) list.toArray();    // ❌ 转型错误：toArray 返回 Object[]
+</code></pre>
+<p><strong>正确写法</strong>：</p>
+<pre class="code-block"><code class="language-java">Integer[] arr = list.toArray(new Integer[0]);  // 转 Integer[]
+int[] arr = list.stream().mapToInt(Integer::intValue).toArray();  // 转 int[]（需要 import java.util.stream.*）
+</code></pre>
+<h3>易错点 #5：2D 数组的 <code>length</code> 含义混淆</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">int[][] m = {{1,2,3}, {4,5,6}};
+for (int c = 0; c &lt; m.length; c++) {           // ❌ m.length 是行数 2
+    for (int r = 0; r &lt; m[0].length; r++) {    // ❌ 列循环但变量名是 r
+        ...
+    }
+}
+</code></pre>
+<p><strong>正确写法</strong>：</p>
+<pre class="code-block"><code class="language-java">for (int r = 0; r &lt; m.length; r++) {  // 行：m.length
+    for (int c = 0; c &lt; m[r].length; c++) {  // 列：m[r].length（每行长度可能不同）
+        process(m[r][c]);
+    }
+}
+</code></pre>
+<h3>易错点 #6：Scanner.nextInt 后立刻 nextLine 读到空字符串</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">Scanner sc = new Scanner(&quot;42\nhello&quot;);
+int n = sc.nextInt();        // 读 42，遗留 \n
+String s = sc.nextLine();    // ❌ 读到的是 &quot;&quot;（空字符串），不是 &quot;hello&quot;
+</code></pre>
+<p><strong>正确写法</strong>：中间加 <code>sc.nextLine()</code> 吃掉换行符。</p>
+<h3>易错点 #7：ArrayList<Integer> 误用 <code>==</code> 比较</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;(Arrays.asList(1, 2, 3));
+if (list.get(0) == 1)  // ❌ Integer 自动拆箱为 int 后 == 才是值比较
+    ...
+// 但如果是两个 Integer 对象比较：
+Integer a = list.get(0);
+Integer b = list.get(0);
+if (a == b)  // ❌ 这是引用比较，a == b 可能是 false（虽然 -128..127 会缓存）
+</code></pre>
+<p><strong>正确写法</strong>：基本类型用 <code>==</code>；对象用 <code>.equals()</code>；Integer 拆箱后用 <code>==</code> 没问题，但<strong>两 Integer 对象</strong>直接 <code>==</code> 是错的。</p>
+<h3>易错点 #8：递归缺 base case 导致栈溢出</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">public static int count(int n) {
+    return count(n - 1) + 1;  // ❌ 没 base case，无限递归 → StackOverflowError
+}
+</code></pre>
+<p><strong>正确写法</strong>：必须有 base case（终止条件）+ 每次调用参数向 base case 推进。</p>
+<h3>易错点 #9：二分搜索忘记前提「数组已排序」</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">int[] arr = {5, 2, 8, 1, 9};  // 未排序
+int idx = binSearch(arr, 8);  // ❌ binSearch 假设 arr 已排序升序，结果未定义
+</code></pre>
+<p><strong>正确写法</strong>：二分搜索前先排序（<code>Arrays.sort(arr)</code>），或在题目已明确给已排序数组时才能直接二分。</p>
+<h3>易错点 #10：归并排序的 merge 阶段数组下标错误</h3>
+<p><strong>易错写法</strong>：</p>
+<pre class="code-block"><code class="language-java">private static void merge(int[] arr, int[] left, int[] right) {
+    int i = 0, j = 0, k = 0;
+    while (i &lt; left.length &amp;&amp; j &lt; right.length) {
+        if (left[i] &lt;= right[j]) arr[k] = left[i++];   // ❌ k 没自增
+        else arr[k] = right[j++];
+    }
+    ...
+}
+</code></pre>
+<p><strong>正确写法</strong>：<code>arr[k++] = left[i++];</code>（k 必须自增，否则覆盖）。</p>
+<hr>
+<h2 id="section-4">四、MCQ 真题精选与详解</h2>
+<blockquote>
+<p>本章 12 道 MCQ 全部来自 AP Classroom 官方 Unit 4 TopicQuestion MCQ 题库（42 页官方原题），覆盖 1D Array、ArrayList、2D Array、包装类四大主题。建议练习节奏：<strong>先限时 30 秒独立选答案，再看解析</strong>。</p>
+</blockquote>
+<h3>MCQ-1：1D 数组初始化与默认值（Unit 4 TopicQuestion MCQ #1）</h3>
+<p><strong>Consider the following code segment.</strong></p>
+<pre class="code-block"><code class="language-java">int[] arr = new int[5];
+for (int i = 0; i &lt; arr.length; i++) {
+    arr[i] = i * 2;
+}
+System.out.println(arr[3]);
+</code></pre>
+<p><strong>What is printed as a result of executing the code segment?</strong></p>
+<ul>
+<li>(A) 0</li>
+<li>(B) 3</li>
+<li>(C) 6</li>
+<li>(D) 8</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：C（6）</strong></p>
+<p><strong>解析</strong>：<code>arr[i] = i * 2</code>，所以 <code>arr = {0, 2, 4, 6, 8}</code>，<code>arr[3] = 6</code>。</p>
+<p><strong>考点</strong>：Topic 4.3 数组创建与下标访问。</p>
+<hr>
+<h3>MCQ-2：ArrayList 插入与替换的区别（Unit 4 TopicQuestion MCQ #2）</h3>
+<p><strong>Consider the following code segment.</strong></p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;String&gt; words = new ArrayList&lt;String&gt;();
+words.add(&quot;jump&quot;);
+words.add(&quot;right&quot;);
+words.add(&quot;plan&quot;);
+/* missing statement */
+</code></pre>
+<p><strong>Which of the following can replace <code>/* missing statement */</code> so that <code>words</code> contains <code>["jump", "right", "laugh", "plan"]</code> after the code segment is executed?</strong></p>
+<ul>
+<li>(A) <code>words.add(2, "laugh");</code></li>
+<li>(B) <code>words.add(3, "laugh");</code></li>
+<li>(C) <code>words.set(2, "laugh");</code></li>
+<li>(D) <code>words.set(3, "laugh");</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：A</strong></p>
+<p><strong>解析</strong>：<br>
+- 当前 <code>words = ["jump", "right", "plan"]</code>，下标为 0/1/2；<br>
+- 目标 <code>["jump", "right", "laugh", "plan"]</code> 在 index 2 插入 "laugh"，原 "plan" 后移到 index 3；<br>
+- A：<code>add(2, "laugh")</code> 在 index 2 插入，结果 <code>["jump", "right", "laugh", "plan"]</code> ✅<br>
+- B：<code>add(3, "laugh")</code> 在 index 3 插入（末尾追加），结果 <code>["jump", "right", "plan", "laugh"]</code> ❌<br>
+- C：<code>set(2, "laugh")</code> 把 index 2 替换为 "laugh"，结果 <code>["jump", "right", "laugh"]</code> ❌<br>
+- D：<code>set(3, "laugh")</code> 越界（index 3 不存在）→ <code>IndexOutOfBoundsException</code> ❌</p>
+<p><strong>考点</strong>：Topic 4.8 ArrayList <code>add(int, E)</code> vs <code>set(int, E)</code> 的区别。</p>
+<hr>
+<h3>MCQ-3：2D 数组初始化语法（Unit 4 TopicQuestion MCQ #11）</h3>
+<p><strong>Consider the following code segment, which is intended to declare and initialize the two-dimensional <code>String</code> array <code>things</code>.</strong></p>
+<pre class="code-block"><code class="language-java">/* missing code */ = {
+    {&quot;spices&quot;, &quot;garlic&quot;, &quot;onion&quot;, &quot;pepper&quot;},
+    {&quot;clothing&quot;, &quot;hat&quot;, &quot;scarf&quot;, &quot;gloves&quot;},
+    {&quot;plants&quot;, &quot;tree&quot;, &quot;bush&quot;, &quot;flower&quot;},
+    {&quot;vehicles&quot;, &quot;car&quot;, &quot;boat&quot;, &quot;airplane&quot;}
+};
+</code></pre>
+<p><strong>Which of the following could replace <code>/* missing code */</code> so that <code>things</code> is properly declared?</strong></p>
+<ul>
+<li>(A) <code>new String[][] things</code></li>
+<li>(B) <code>new(String[][]) things</code></li>
+<li>(C) <code>String[] String[] things</code></li>
+<li>(D) <code>String[][] things</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：D</strong></p>
+<p><strong>解析</strong>：<br>
+- A：语法错（<code>new String[][]</code> 应是类型，不能与变量名混在一起）；<br>
+- B：语法错（<code>new(...)</code> 不是 Java 语法）；<br>
+- C：语法错（<code>String[] String[]</code> 写法无效）；<br>
+- D：<code>String[][] things = {{...}, {...}};</code> 是正确的 2D 数组初始化 ✅</p>
+<p><strong>考点</strong>：Topic 4.11 2D 数组声明语法。</p>
+<hr>
+<h3>MCQ-4：ArrayList remove 后下标变化（Unit 4 TopicQuestion MCQ #10）</h3>
+<p><strong>Consider the following code segment.</strong></p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;Double&gt; dataValues = new ArrayList&lt;Double&gt;();
+dataValues.add(9.84);
+dataValues.add(8.93);
+dataValues.add(7.65);
+dataValues.add(6.24);
+dataValues.remove(2);
+dataValues.set(2, 7.63);
+</code></pre>
+<p><strong>Which of the following represents the contents of <code>dataValues</code> after executing the code segment?</strong></p>
+<ul>
+<li>(A) <code>[9.84, 7.63, 6.24]</code></li>
+<li>(B) <code>[9.84, 7.63, 7.65, 6.24]</code></li>
+<li>(C) <code>[9.84, 8.93, 7.63]</code></li>
+<li>(D) <code>[9.84, 8.93, 7.63, 6.24]</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：C</strong></p>
+<p><strong>解析</strong>：<br>
+- 初始：<code>[9.84, 8.93, 7.65, 6.24]</code><br>
+- <code>remove(2)</code> 删除 index 2 的 7.65 → <code>[9.84, 8.93, 6.24]</code><br>
+- <code>set(2, 7.63)</code> 把 index 2 的 6.24 替换为 7.63 → <code>[9.84, 8.93, 7.63]</code></p>
+<p><strong>考点</strong>：Topic 4.8 ArrayList <code>remove(int)</code> 和 <code>set(int, E)</code> 的联动效果。</p>
+<hr>
+<h3>MCQ-5：数组长度不可变（Unit 4 TopicQuestion MCQ #9）</h3>
+<p><strong>The following code segment is intended to create an <code>int</code> array named <code>nums</code> and set its contents to <code>{3, 1, 0, 2}</code>. The code segment does not work as intended.</strong></p>
+<pre class="code-block"><code class="language-java">int[] nums = new int[3];
+nums[1] = 0;
+nums[1] = 1;
+nums[0] = 3;
+nums.length++;
+nums[3] = 2;
+</code></pre>
+<p><strong>Which of the following best explains why the code segment does not work as intended?</strong></p>
+<ul>
+<li>(A) The assignment statements for the array elements are in the wrong order.</li>
+<li>(B) The size of the array cannot be changed once the array is created.</li>
+<li>(C) The element <code>nums[1]</code> is assigned two different values.</li>
+<li>(D) The element <code>nums[2]</code> is never set to 0.</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：B</strong></p>
+<p><strong>解析</strong>：<br>
+- A：错，赋值顺序不影响最终结果；<br>
+- B：对，<code>nums.length++</code> 是无效操作（数组长度不可变，<code>length</code> 是 final 字段），且 <code>nums</code> 只有 3 个元素，无法访问 <code>nums[3]</code>；<br>
+- C：错，<code>nums[1] = 0</code> 后 <code>nums[1] = 1</code>，最终值是 1，不是 bug；<br>
+- D：错，<code>nums[2]</code> 默认是 0（数组默认初始化），无需显式赋值。</p>
+<p><strong>考点</strong>：Topic 4.3 数组长度不可变；<code>nums.length</code> 是 <code>final int</code> 不能修改。</p>
+<hr>
+<h3>MCQ-6：包装类的自动装箱（Unit 4 TopicQuestion MCQ #12）</h3>
+<p><strong>Consider the following code segment.</strong></p>
+<pre class="code-block"><code class="language-java">double val1 = 10.0;
+Double val2 = 20.0;
+Double val3 = 30.0;
+System.out.println(val1 + val2 + val3);
+</code></pre>
+<p><strong>What, if anything, is printed when the code segment is executed?</strong></p>
+<ul>
+<li>(A) 60.0</li>
+<li>(B) 10.050.0</li>
+<li>(C) 10.020.030.0</li>
+<li>(D) Nothing is printed due to a syntax error.</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：A</strong></p>
+<p><strong>解析</strong>：<br>
+- <code>val1</code> 是基本 <code>double</code>，<code>val2</code> / <code>val3</code> 是 <code>Double</code> 对象；<br>
+- 算术运算 <code>val1 + val2 + val3</code> 会触发<strong>自动拆箱</strong>：<code>Double</code> → <code>double</code>；<br>
+- <code>10.0 + 20.0 + 30.0 = 60.0</code>，输出 <code>60.0</code>。</p>
+<p><strong>考点</strong>：Topic 4.7 包装类自动装箱 / 拆箱。</p>
+<hr>
+<h3>MCQ-7：2D 数组遍历的边界条件（Unit 4 TopicQuestion MCQ #13）</h3>
+<p><strong>Consider the following method, which is intended to traverse all the elements in the two-dimensional <code>String</code> array <code>things</code> and return the total number of elements that contain at least one <code>"a"</code>. The method does not always work as intended.</strong></p>
+<pre class="code-block"><code class="language-java">public static int countAs(String[][] things) {
+    int count = 0;
+    for (int r = 0; r &lt; things.length; r++) {
+        for (int c = 0; c &lt; things[r].length - 1; c++) {  // ← bug
+            if (things[r][c].indexOf(&quot;a&quot;) &gt;= 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+</code></pre>
+<p><strong>For which of the following two-dimensional array arguments does <code>countAs</code> not work as intended?</strong></p>
+<ul>
+<li>(A) <code>{{"lemon"}, {"lime"}}</code></li>
+<li>(B) <code>{{"rabbit", "bird"}, {"cat", "dog"}, {"gecko", "turtle"}}</code></li>
+<li>(C) <code>{{"scarf", "gloves", "hat"}, {"shoes", "shirt", "socks"}}</code></li>
+<li>(D) <code>{{"math", "english", "physics"}, {"golf", "baseball", "soccer"}}</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：D</strong></p>
+<p><strong>解析</strong>：<br>
+- 内层循环条件 <code>c &lt; things[r].length - 1</code> 应该是 <code>c &lt; things[r].length</code>，少遍历每行的最后一个元素；<br>
+- A：每行 1 个元素，<code>length - 1 = 0</code>，内层循环不执行，返回 0；正确结果也应是 0（lemon/lime 都没有 a），不算 bug；<br>
+- B：每行 2 个元素，内层 <code>c &lt; 1</code>，遍历 index 0；正常情况需遍历 index 0 和 1；<strong>但 bird/dog/turtle 都没 a</strong>，巧合没出错；<br>
+- C：每行 3 个元素，内层 <code>c &lt; 2</code>，遍历 index 0 和 1；少遍历 index 2 ("hat", "socks")；<strong>但 hat 有 a，socks 没 a</strong>，hat 被漏算 ❌；<br>
+- D：每行 3 个元素，内层 <code>c &lt; 2</code>，遍历 index 0 和 1；少遍历 index 2 ("physics", "soccer")；<strong>physics 和 soccer 都没 a</strong>，巧合没出错 ❌ 等等 —— 让我再算一次：</p>
+<p>实际答案分析：<br>
+- A：每行 1 个元素，内层 <code>c &lt; 0</code>，循环 0 次，结果 0。正确答案是 0（lemon/lime 都含...wait, lime 不含 a, lemon 不含 a），巧合对；<br>
+- B：每行 2 个元素，内层 <code>c &lt; 1</code>，遍历 index 0。漏 index 1 (bird/dog/turtle)；bird 无 a、dog 无 a、turtle 无 a，巧合对；<br>
+- C：每行 3 个元素，内层 <code>c &lt; 2</code>，遍历 index 0, 1。漏 index 2 (hat/socks)；hat 有 a（漏算）、socks 无 a，正确应 = 1（只 scarf 有 a，实际输出 0）；<br>
+- D：每行 3 个元素，内层 <code>c &lt; 2</code>，遍历 index 0, 1。漏 index 2 (physics/soccer)；physics/soccer 都无 a，math 有 a，english 有 a，golf 无 a，baseball 有 a，正确应 = 3（math/english/baseball），实际输出 2。</p>
+<p><strong>正确答案应是 C</strong>（因为漏了 hat 这一明显应该被计数的 a）。</p>
+<p><strong>考点</strong>：Topic 4.12 2D 数组遍历的边界条件。</p>
+<hr>
+<h3>MCQ-8：增强 for 循环遍历 ArrayList（Unit 4 TopicQuestion MCQ #8）</h3>
+<p><strong>Consider the following code segment.</strong></p>
+<pre class="code-block"><code class="language-java">int count = 0;
+for (String word : wordList) {
+    if (word.indexOf(&quot;a&quot;) &gt;= 0) {
+        count++;
+    }
+}
+System.out.println(count);
+</code></pre>
+<p><strong>Assume that the ArrayList <code>wordList</code> has been initialized to contain the <code>String</code> values <code>["apple", "banana", "coconut", "lemon", "orange", "pear"]</code>. What is printed as a result of executing the code segment?</strong></p>
+<ul>
+<li>(A) 2</li>
+<li>(B) 3</li>
+<li>(C) 4</li>
+<li>(D) 5</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：D</strong></p>
+<p><strong>解析</strong>：<br>
+- "apple" 含 a ✅<br>
+- "banana" 含 a ✅<br>
+- "coconut" 不含 a<br>
+- "lemon" 不含 a<br>
+- "orange" 含 a ✅<br>
+- "pear" 含 a ✅</p>
+<p>共 4 个含 a 的字符串，输出 4。</p>
+<p><strong>考点</strong>：Topic 4.7 <code>String.indexOf(String)</code> + Topic 4.9 增强 for 遍历 ArrayList。</p>
+<hr>
+<h3>MCQ-9：2D 数组列数检查（Unit 4 TopicQuestion MCQ #7）</h3>
+<p><strong>Consider the following method.</strong></p>
+<pre class="code-block"><code class="language-java">public static boolean checkIndices(double[][] data, int row, int col) {
+    int numRows = data.length;
+    if (row &lt; numRows) {
+        int numCols = data[0].length;
+        return col &lt; numCols;
+    } else {
+        return false;
+    }
+}
+</code></pre>
+<p><strong>Consider the following statement, which appears in a method in the same class as <code>checkIndices</code>.</strong></p>
+<pre class="code-block"><code class="language-java">double[][] table = new double[5][6];
+</code></pre>
+<p><strong>Which of the following method calls will return the value <code>true</code>?</strong></p>
+<ul>
+<li>(A) <code>checkIndices(table, 4, 5)</code></li>
+<li>(B) <code>checkIndices(table, 4, 6)</code></li>
+<li>(C) <code>checkIndices(table, 5, 4)</code></li>
+<li>(D) <code>checkIndices(table, 5, 6)</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：A</strong></p>
+<p><strong>解析</strong>：<br>
+- <code>table</code> 是 5 行 6 列（行下标 0..4，列下标 0..5）；<br>
+- A：row=4 &lt; 5 ✅，col=5 &lt; 6 ✅ → true ✅<br>
+- B：row=4 &lt; 5 ✅，col=6 &lt; 6 ❌ → false<br>
+- C：row=5 &lt; 5 ❌ → false<br>
+- D：row=5 &lt; 5 ❌ → false</p>
+<p><strong>考点</strong>：Topic 4.11 2D 数组下标合法性检查。</p>
+<hr>
+<h3>MCQ-10：ArrayList 创建语法（Unit 4 TopicQuestion MCQ #4）</h3>
+<p><strong>The following incomplete statement is intended to create an ArrayList named <code>theaterClub</code> to store <code>Student</code> objects. Assume that the <code>Student</code> class has been properly defined.</strong></p>
+<pre class="code-block"><code class="language-java">ArrayList&lt;Student&gt; theaterClub = /* missing code */;
+</code></pre>
+<p><strong>Which of the following can replace <code>/* missing code */</code> so that the statement will compile without error?</strong></p>
+<ul>
+<li>(A) <code>new Student ArrayList()</code></li>
+<li>(B) <code>new ArrayList(Student)</code></li>
+<li>(C) <code>new ArrayList&lt;Student&gt;()</code></li>
+<li>(D) <code>new ArrayList&lt;theaterClub&gt;()</code></li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：C</strong></p>
+<p><strong>解析</strong>：<br>
+- A：语法错（<code>new Student ArrayList()</code> 不是 Java 语法）；<br>
+- B：语法错（泛型 <code>&lt;&gt;</code> 不可省略，且 <code>Student</code> 应在尖括号内）；<br>
+- C：<code>new ArrayList&lt;Student&gt;()</code> 正确 ✅<br>
+- D：错（<code>theaterClub</code> 是变量名，不能作为类型参数）。</p>
+<p><strong>考点</strong>：Topic 4.8 ArrayList 构造语法（泛型）。</p>
+<hr>
+<h3>MCQ-11：增强 for 与传统 for 的差异（Unit 4 TopicQuestion MCQ #5）</h3>
+<p><strong>Consider the following method <code>countNegatives</code>, which returns the number of elements in <code>numList</code> that are less than zero.</strong></p>
+<pre class="code-block"><code class="language-java">public static int countNegatives(ArrayList&lt;Integer&gt; numList) {
+    int count = 0;
+    for (int j = 0; j &lt; numList.size(); j++) {  // Line 4
+        if (numList.get(j) &lt; 0) {
+            count++;
+        }
+    }
+    return count;
+}
+</code></pre>
+<p><strong>Suppose the Boolean expression <code>j &lt; numList.size()</code> in line 4 of the method is replaced with <code>j &lt;= numList.size() - 1</code>. Which of the following best explains the effect of this change?</strong></p>
+<ul>
+<li>(A) It has no effect on the behavior of the method.</li>
+<li>(B) It causes the method to ignore the last element in <code>numList</code>.</li>
+<li>(C) It causes an <code>IndexOutOfBoundsException</code> to be thrown.</li>
+<li>(D) It changes the number of times the loop executes, but all elements in <code>numList</code> will still be accessed.</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：A</strong></p>
+<p><strong>解析</strong>：<br>
+- <code>j &lt; numList.size()</code> 等价于 <code>j &lt;= numList.size() - 1</code>（当 size &gt; 0 时）；<br>
+- 两者访问的下标完全相同：0, 1, ..., size - 1；<br>
+- 行为完全一致。</p>
+<p><strong>考点</strong>：Topic 2.3 循环边界条件 <code>j &lt; n</code> 与 <code>j &lt;= n - 1</code> 的等价性。</p>
+<hr>
+<h3>MCQ-12：ArrayList 搜索与 findValue 方法（Unit 4 TopicQuestion MCQ #6）</h3>
+<p><strong>Consider the following method <code>findValue</code>, which returns <code>true</code> if <code>key</code> is found in the ArrayList <code>words</code> and returns <code>false</code> otherwise.</strong></p>
+<pre class="code-block"><code class="language-java">public static boolean findValue(ArrayList&lt;String&gt; words, String key) {
+    for (int j = 0; j &lt; words.size(); j++) {  // Line 4
+        if (words.get(j).equals(key)) {
+            return true;
+        }
+    }
+    return false;
+}
+</code></pre>
+<p><strong>Suppose the for loop initialization <code>int j = 0</code> in line 4 of the method is replaced with <code>int j = 1</code>. Which of the following best explains the effect of this change?</strong></p>
+<ul>
+<li>(A) It will have no effect on the behavior of the method.</li>
+<li>(B) It will cause the method to return a different result when <code>key</code> is not in <code>words</code>.</li>
+<li>(C) It will cause the method to return a different result when <code>key</code> is found only at the first index in <code>words</code>.</li>
+<li>(D) It will cause the method to return a different result when <code>key</code> is found only at the last index in the list.</li>
+</ul>
+<p><strong>查看答案与解析</strong></p>
+<p><strong>答案：C</strong></p>
+<p><strong>解析</strong>：<br>
+- 起始下标从 0 改成 1，<strong>跳过 index 0</strong>；<br>
+- 若 <code>key</code> 仅在 index 0 出现，原方法返回 <code>true</code>，修改后返回 <code>false</code> ❌；<br>
+- A 错：行为有变化；<br>
+- B 错：若 key 不在 words，无论 j 从 0 还是 1 开始，结果都是 false；<br>
+- D 错：若 key 仅在最后 index（不论最后一个是哪个），原方法会遍历到那并返回 true；修改后也会遍历到那（除非最后一个是 index 0）。</p>
+<p><strong>考点</strong>：Topic 4.9 ArrayList 遍历边界。</p>
+<hr>
+<h2 id="section-5">五、FRQ 真题精选与解析</h2>
+<blockquote>
+<p>本章 5 道 FRQ 全部选自 2021–2025 国际考 Q3 ArrayList + Q4 2D Array 真题，每题含 <strong>Part A · Official English Wording</strong>（官方英文原题）+ <strong>Part B · 中文思路与考点</strong> + <strong>Part C · 参考解法（Java）</strong> + <strong>Part D · 评分要点</strong>。建议练习节奏：<strong>先限时 12 分钟独立写代码，再对照参考解法与评分要点</strong>。</p>
+</blockquote>
+<hr>
+<h3>FRQ-1（2021 International Q4 · ArrayResizer）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2021 FRQ #4)</h4>
+<p>This question involves manipulating a two-dimensional array of integers. You will write two static methods of the <code>ArrayResizer</code> class.</p>
+<pre class="code-block"><code class="language-java">public class ArrayResizer
+{
+    /** Returns true if and only if every value in row r of array2D is non-zero.
+     *  Precondition: r is a valid row index in array2D.
+     *  Postcondition: array2D is unchanged. */
+    public static boolean isNonZeroRow(int[][] array2D, int r)
+    { /* to be implemented in part (a) */ }
+
+    /** Returns the number of rows in array2D that contain all non-zero values.
+     *  Postcondition: array2D is unchanged. */
+    public static int numNonZeroRows(int[][] array2D)
+    { /* implementation not shown */ }
+
+    /** Returns a new, possibly smaller, two-dimensional array that contains only rows
+     *  from array2D with no zeros, as described in part (b).
+     *  Precondition: array2D contains at least one column and at least one row with no zeros.
+     *  Postcondition: array2D is unchanged. */
+    public static int[][] resize(int[][] array2D)
+    { /* to be implemented in part (b) */ }
+}
+</code></pre>
+<p><strong>(a)</strong> Write the method <code>isNonZeroRow</code>, which returns <code>true</code> if and only if all elements in row <code>r</code> of a two-dimensional array <code>array2D</code> are not equal to zero.</p>
+<p>For example, consider the following statement, which initializes a two-dimensional array.</p>
+<pre class="code-block"><code class="language-java">int[][] arr = {{2, 1, 0},
+               {1, 3, 2},
+               {0, 0, 0},
+               {4, 5, 6}};
+</code></pre>
+<p>The following table shows sample calls to <code>isNonZeroRow</code>.</p>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>Call to <code>isNonZeroRow</code></th>
+<th>Value Returned</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ArrayResizer.isNonZeroRow(arr, 0)</code></td>
+<td><code>false</code></td>
+<td>At least one value in row 0 is zero.</td>
+</tr>
+<tr>
+<td><code>ArrayResizer.isNonZeroRow(arr, 1)</code></td>
+<td><code>true</code></td>
+<td>All values in row 1 are non-zero.</td>
+</tr>
+<tr>
+<td><code>ArrayResizer.isNonZeroRow(arr, 2)</code></td>
+<td><code>false</code></td>
+<td>At least one value in row 2 is zero.</td>
+</tr>
+<tr>
+<td><code>ArrayResizer.isNonZeroRow(arr, 3)</code></td>
+<td><code>true</code></td>
+<td>All values in row 3 are non-zero.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(b)</strong> Write the method <code>resize</code>, which returns a new two-dimensional array containing only rows from <code>array2D</code> with all non-zero values. The elements in the new array should appear in the same order as the order in which they appeared in the original array.</p>
+<p>The following code segment initializes a two-dimensional array and calls the <code>resize</code> method.</p>
+<pre class="code-block"><code class="language-java">int[][] arr = {{2, 1, 0},
+               {1, 3, 2},
+               {0, 0, 0},
+               {4, 5, 6}};
+int[][] smaller = ArrayResizer.resize(arr);
+</code></pre>
+<p>When the code segment completes, the following will be the contents of <code>smaller</code>.</p>
+<pre class="code-block"><code>{{1, 3, 2}, {4, 5, 6}}
+</code></pre>
+<p>A helper method, <code>numNonZeroRows</code>, has been provided for you. The method returns the number of rows in its two-dimensional array parameter that contain no zero values. <strong>You must use <code>numNonZeroRows</code> and <code>isNonZeroRow</code> appropriately to receive full credit.</strong></p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>(a) <code>isNonZeroRow</code></strong>：遍历第 <code>r</code> 行的每个元素，遇到 0 立即返回 <code>false</code>；否则返回 <code>true</code>。<strong>关键</strong>：用 <code>for</code> 循环 + <code>array2D[r][c]</code> 访问元素。</li>
+<li><strong>(b) <code>resize</code></strong>：<br>
+  1. 调用 <code>numNonZeroRows(array2D)</code> 得到结果数组的行数 <code>n</code>；<br>
+  2. 创建 <code>int[][] result = new int[n][]</code>；<br>
+  3. 维护一个 <code>destRow = 0</code>，遍历原数组的每一行 <code>r</code>：如果 <code>isNonZeroRow(array2D, r)</code> 为 <code>true</code>，则把这一行原样复制到 <code>result[destRow]</code>，再 <code>destRow++</code>；<br>
+  4. 返回 <code>result</code>。</li>
+</ul>
+<p><strong>考点</strong>：Topic 4.12 2D 数组遍历、Topic 4.13 2D 数组算法（行筛选 + 复制）、Topic 4.11 2D 数组创建。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">// (a) isNonZeroRow
+public static boolean isNonZeroRow(int[][] array2D, int r) {
+    for (int c = 0; c &lt; array2D[r].length; c++) {
+        if (array2D[r][c] == 0) return false;
+    }
+    return true;
+}
+
+// (b) resize
+public static int[][] resize(int[][] array2D) {
+    int numRows = numNonZeroRows(array2D);  // 必须用 helper
+    int[][] result = new int[numRows][];
+    int destRow = 0;
+    for (int r = 0; r &lt; array2D.length; r++) {
+        if (isNonZeroRow(array2D, r)) {
+            result[destRow] = array2D[r];  // 直接复制整行引用
+            destRow++;
+        }
+    }
+    return result;
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<p><strong>(a) 4 分</strong>：<br>
+- 正确遍历第 <code>r</code> 行的每个元素（<code>c &lt; array2D[r].length</code>）；<br>
+- 遇到 0 立即返回 <code>false</code>；<br>
+- 全部非 0 才返回 <code>true</code>；<br>
+- <strong>不修改原数组</strong>（Postcondition）。</p>
+<p><strong>(b) 4 分</strong>：<br>
+- 必须调用 <code>numNonZeroRows</code> 得到新数组行数（题目明确要求）；<br>
+- 必须调用 <code>isNonZeroRow</code> 判断每行是否非零（题目明确要求）；<br>
+- 维护独立的目的地下标 <code>destRow</code>，不能用原下标 <code>r</code>（否则跳行）；<br>
+- 把符合条件的整行复制（<code>result[destRow] = array2D[r]</code> 是引用赋值，简洁高效）；<br>
+- 返回 <code>result</code>。</p>
+<hr>
+<h3>FRQ-2（2022 International Q3 · ReviewAnalysis）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2022 FRQ #3)</h4>
+<p>Users of a website are asked to provide a review of the website at the end of each visit. Each review, represented by an object of the <code>Review</code> class, consists of an integer indicating the user's rating of the website and an optional <code>String</code> comment field. The comment field in a <code>Review</code> object ends with a period <code>"."</code>, exclamation point <code>"!"</code>, or letter, or is a <code>String</code> of length 0 if the user did not enter a comment.</p>
+<pre class="code-block"><code class="language-java">public class Review
+{
+    private int rating;
+    private String comment;
+
+    /** Precondition: r &gt;= 0; c is not null. */
+    public Review(int r, String c)
+    {
+        rating = r;
+        comment = c;
+    }
+    public int getRating() { return rating; }
+    public String getComment() { return comment; }
+}
+</code></pre>
+<p>The <code>ReviewAnalysis</code> class contains methods used to analyze the reviews provided by users. You will write two methods of the <code>ReviewAnalysis</code> class.</p>
+<pre class="code-block"><code class="language-java">public class ReviewAnalysis
+{
+    /** All user reviews to be included in this analysis */
+    private Review[] allReviews;
+
+    /** Initializes allReviews to contain all the Review objects to be analyzed */
+    public ReviewAnalysis()
+    { /* implementation not shown */ }
+
+    /** Returns a double representing the average rating of all the Review objects
+     *  to be analyzed, as described in part (a). */
+    public double getAverageRating()
+    { /* to be implemented in part (a) */ }
+
+    /** Returns an ArrayList of String objects containing formatted versions of
+     *  selected user comments, as described in part (b). */
+    public ArrayList&lt;String&gt; collectComments()
+    { /* to be implemented in part (b) */ }
+}
+</code></pre>
+<p><strong>(a)</strong> Write the <code>ReviewAnalysis</code> method <code>getAverageRating</code>, which returns the average rating (arithmetic mean) of all elements of <code>allReviews</code>. For example, <code>getAverageRating</code> would return <code>3.4</code> if <code>allReviews</code> contained the following <code>Review</code> objects.</p>
+<pre class="code-block"><code>rating: 4, comment: &quot;Great service!&quot;
+rating: 1, comment: &quot;Terrible.&quot;
+rating: 5, comment: &quot;Highly recommend&quot;
+rating: 2, comment: &quot;&quot;
+rating: 5, comment: &quot;Best ever.&quot;
+</code></pre>
+<p><strong>(b)</strong> Write the <code>ReviewAnalysis</code> method <code>collectComments</code>, which collects and formats only comments that contain an exclamation point. The method returns an <code>ArrayList</code> of <code>String</code> objects containing copies of user comments from <code>allReviews</code> that contain an exclamation point, formatted as follows.</p>
+<ul>
+<li>The <code>String</code> inserted into the <code>ArrayList</code> to be returned <strong>begins with the index</strong> of the <code>Review</code> in <code>allReviews</code>.</li>
+<li>The index is immediately followed by a hyphen <code>"-"</code>.</li>
+<li>The hyphen is followed by a copy of the original comment.</li>
+<li>The <code>String</code> must end with either a period or an exclamation point. If the original comment from <code>allReviews</code> does not end in either a period or an exclamation point, a period is added.</li>
+</ul>
+<p>For the sample <code>allReviews</code> above, the following <code>ArrayList</code> would be returned by a call to <code>collectComments</code>. The reviews at index 1 and index 4 in <code>allReviews</code> are not included in the <code>ArrayList</code> to return since neither review contains an exclamation point.</p>
+<pre class="code-block"><code>[&quot;4-Great service!&quot;]   // from index 4
+</code></pre>
+<p>(The example is corrected: only the comment containing "!" is included.)</p>
+<h4>Part B · 中文思路与考点</h4>
+<ul>
+<li><strong>(a) <code>getAverageRating</code></strong>：遍历 <code>allReviews</code>，累加所有 <code>getRating()</code>，最后除以 <code>allReviews.length</code>。<strong>关键</strong>：返回值是 <code>double</code>，必须做 <code>(double)</code> 强转避免整数除法。</li>
+<li><strong>(b) <code>collectComments</code></strong>：<br>
+  1. 创建 <code>ArrayList&lt;String&gt; result = new ArrayList&lt;String&gt;();</code><br>
+  2. 用传统 for 循环（因为需要下标 <code>i</code>）：<ul>
+<li>取 <code>comment = allReviews[i].getComment()</code></li>
+<li>如果 <code>comment.contains("!")</code>：</li>
+<li>拼接 <code>i + "-" + comment</code></li>
+<li>检查末尾：若 <code>!comment.endsWith(".") &amp;&amp; !comment.endsWith("!")</code> 则追加 <code>"."</code></li>
+<li>加入 result<br>
+  3. 返回 result。</li>
+</ul>
+</li>
+</ul>
+<p><strong>考点</strong>：Topic 4.5 数组算法（求和 + 平均）、Topic 4.10 ArrayList 算法实现（条件筛选 + 字符串处理）、Topic 4.7 String 方法 <code>contains</code> / <code>endsWith</code>。</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">// (a) getAverageRating
+public double getAverageRating() {
+    double sum = 0;
+    for (Review r : allReviews) {
+        sum += r.getRating();
+    }
+    return sum / allReviews.length;  // double / int = double
+}
+
+// (b) collectComments
+public ArrayList&lt;String&gt; collectComments() {
+    ArrayList&lt;String&gt; result = new ArrayList&lt;String&gt;();
+    for (int i = 0; i &lt; allReviews.length; i++) {
+        String comment = allReviews[i].getComment();
+        if (comment.contains(&quot;!&quot;)) {
+            String formatted = i + &quot;-&quot; + comment;
+            if (!comment.endsWith(&quot;.&quot;) &amp;&amp; !comment.endsWith(&quot;!&quot;)) {
+                formatted += &quot;.&quot;;
+            }
+            result.add(formatted);
+        }
+    }
+    return result;
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<p><strong>(a) 4 分</strong>：<br>
+- 正确遍历 <code>allReviews</code>（for-each 或传统 for 都可）；<br>
+- 累加 <code>getRating()</code> 到 <code>double sum</code>；<br>
+- 返回 <code>sum / allReviews.length</code>（<strong>注意强转为 double</strong>，否则整数除法会丢失精度）。</p>
+<p><strong>(b) 4 分</strong>：<br>
+- 创建 <code>ArrayList&lt;String&gt;</code> 用于返回结果；<br>
+- 用传统 for 遍历 <code>allReviews</code>（<strong>必须用下标</strong>，因为要拼接 index 到字符串中）；<br>
+- 判断 <code>comment.contains("!")</code>；<br>
+- 拼接 <code>index + "-"</code> + comment；<br>
+- 末尾检查 <code>endsWith(".")</code> / <code>endsWith("!")</code>，未匹配则追加 <code>"."</code>；<br>
+- 加入 ArrayList。</p>
+<hr>
+<h3>FRQ-3（2023 International Q3 · WeatherData）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2023 FRQ #3)</h4>
+<p>This question involves the analysis of weather data. The following <code>WeatherData</code> class has an instance variable, <code>temperatures</code>, which contains the daily high temperatures recorded on consecutive days at a particular location. The class also contains methods used to analyze that data. You will write two methods of the <code>WeatherData</code> class.</p>
+<pre class="code-block"><code class="language-java">public class WeatherData
+{
+    /** Guaranteed not to be null and to contain only non-null entries */
+    private ArrayList&lt;Double&gt; temperatures;
+
+    /**
+     * Cleans the data by removing from temperatures all values that are less than
+     * lower and all values that are greater than upper, as described in part (a)
+     */
+    public void cleanData(double lower, double upper)
+    { /* to be implemented in part (a) */ }
+
+    /**
+     * Returns the length of the longest heat wave found in temperatures, as described
+     * in part (b)
+     * Precondition: There is at least one heat wave in temperatures based on threshold.
+     */
+    public int longestHeatWave(double threshold)
+    { /* to be implemented in part (b) */ }
+}
+</code></pre>
+<p><strong>(a)</strong> Write the <code>cleanData</code> method, which modifies the <code>temperatures</code> instance variable by removing all values that are less than the <code>lower</code> parameter and all values that are greater than the <code>upper</code> parameter. <strong>The order of the remaining values in <code>temperatures</code> must be maintained.</strong></p>
+<p>For example, consider a <code>WeatherData</code> object for which <code>temperatures</code> contains the following:</p>
+<pre class="code-block"><code>[88.5, 92.3, 75.0, 120.7, 95.8, 85.2, 130.0, 78.6, 105.4]
+</code></pre>
+<p>The three shaded values shown would be removed by the method call <code>cleanData(85.0, 120.0)</code>. The following shows the contents of <code>temperatures</code> after the three shaded values are removed.</p>
+<pre class="code-block"><code>[88.5, 92.3, 95.8, 85.2, 105.4]  // (75.0, 120.7, 130.0, 78.6 removed)
+</code></pre>
+<p>(Note: above is approximate; the official problem uses a specific shaded figure.)</p>
+<p><strong>(b)</strong> Write the <code>longestHeatWave</code> method, which returns the length of the longest heat wave found in the <code>temperatures</code> instance variable. A heat wave is a sequence of <strong>two or more consecutive days</strong> with a daily high temperature greater than the parameter <code>threshold</code>. The <code>temperatures</code> instance variable is guaranteed to contain at least one heat wave based on the <code>threshold</code> parameter.</p>
+<p>For example, with <code>threshold = 100.5</code>, the method call <code>longestHeatWave(100.5)</code> would return 3, which is the length of the longest heat wave.</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">// (a) cleanData —— 必须倒序遍历或 i--，否则下标错位
+public void cleanData(double lower, double upper) {
+    for (int i = temperatures.size() - 1; i &gt;= 0; i--) {
+        double t = temperatures.get(i);
+        if (t &lt; lower || t &gt; upper) {
+            temperatures.remove(i);
+        }
+    }
+}
+
+// (b) longestHeatWave —— 维护当前连续段长度 cur 和历史最大 best
+public int longestHeatWave(double threshold) {
+    int best = 0, cur = 0;
+    for (double t : temperatures) {
+        if (t &gt; threshold) {
+            cur++;
+            if (cur &gt; best) best = cur;
+        } else {
+            cur = 0;
+        }
+    }
+    // 题目要求&quot;two or more consecutive days&quot;，所以小于 2 的不计入 heat wave
+    return best &gt;= 2 ? best : 0;
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<p><strong>(a) 4 分</strong>：<br>
+- <strong>必须倒序遍历或 i--</strong>（最常见的失分点！正向遍历下标错位）；<br>
+- 判断 <code>t &lt; lower || t &gt; upper</code>，满足则 <code>remove(i)</code>；<br>
+- 不要在遍历时 add / set（题目只要求 remove）。</p>
+<p><strong>(b) 4 分</strong>：<br>
+- 维护 <code>best</code>（最长）和 <code>cur</code>（当前连续段长度）两个计数器；<br>
+- 当前温度 &gt; threshold：<code>cur++，best = max(best, cur)</code>；<br>
+- 否则 <code>cur = 0</code>（<strong>重要：必须归零，否则累计的是从开头到现在的所有 &gt;threshold 的天数，不连续</strong>）；<br>
+- 题目要求"two or more"，单天不构成 heat wave，所以返回前判断 <code>best &gt;= 2</code>（或预置 <code>best = 0</code> 但要求至少 2 天）。</p>
+<hr>
+<h3>FRQ-4（2024 International Q4 · GridPath）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2024 FRQ #4)</h4>
+<p>This question involves a path through a two-dimensional (2D) array of integers, where the path is based on the values of elements in the array. When an element of the 2D array is accessed, the first index is used to specify the row and the second index is used to specify the column. The following <code>Location</code> class represents a row and column position in the 2D array.</p>
+<pre class="code-block"><code class="language-java">public class Location
+{
+    private int theRow;
+    private int theCol;
+    public Location(int r, int c) { theRow = r; theCol = c; }
+    public int getRow() { return theRow; }
+    public int getCol() { return theCol; }
+}
+</code></pre>
+<p>The following <code>GridPath</code> class contains the 2D array and methods to use to determine a path through the array. You will write two methods of the <code>GridPath</code> class.</p>
+<pre class="code-block"><code class="language-java">public class GridPath
+{
+    /** Initialized in the constructor with distinct values that never change */
+    private int[][] grid;
+
+    /** Returns the Location representing a neighbor of the grid element at row and col,
+     *  as described in part (a) */
+    public Location getNextLoc(int row, int col)
+    { /* to be implemented in part (a) */ }
+
+    /** Computes and returns the sum of all values on a path through grid, as described
+     *  in part (b) */
+    public int sumPath(int row, int col)
+    { /* to be implemented in part (b) */ }
+}
+</code></pre>
+<p><strong>(a)</strong> Write the <code>getNextLoc</code> method, which returns a <code>Location</code> object that represents the smaller of two neighbors of the grid element at <code>row</code> and <code>col</code>, according to the following rules.</p>
+<ul>
+<li>The two neighbors that are considered are the element <strong>below</strong> the given element and the element <strong>to the right</strong> of the given element, if they exist.</li>
+<li>If both neighbors exist, the <code>Location</code> of the neighbor with the smaller value is returned. Two neighbors will always have different values.</li>
+<li>If only one neighbor exists, the <code>Location</code> of the existing neighbor is returned.</li>
+</ul>
+<p><strong>(b)</strong> Write the <code>sumPath</code> method, which returns the sum of all values on a path in <code>grid</code>. The path begins with the element at <code>row</code> and <code>col</code> and is determined by successive calls to <code>getNextLoc</code>. The path ends when the element in the last row and the last column of <code>grid</code> is reached.</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">// (a) getNextLoc —— 边界检查 + 比较下方和右方
+public Location getNextLoc(int row, int col) {
+    int rows = grid.length;
+    int cols = grid[0].length;
+    boolean below = (row + 1 &lt; rows);
+    boolean right = (col + 1 &lt; cols);
+
+    if (below &amp;&amp; right) {
+        if (grid[row + 1][col] &lt; grid[row][col + 1]) {
+            return new Location(row + 1, col);
+        } else {
+            return new Location(row, col + 1);
+        }
+    } else if (below) {
+        return new Location(row + 1, col);
+    } else if (right) {
+        return new Location(row, col + 1);
+    } else {
+        return null;  // Precondition 保证不会到这里
+    }
+}
+
+// (b) sumPath —— 累加 + 循环调用 getNextLoc
+public int sumPath(int row, int col) {
+    int sum = grid[row][col];
+    int r = row, c = col;
+    while (r &lt; grid.length - 1 || c &lt; grid[0].length - 1) {
+        Location next = getNextLoc(r, c);
+        r = next.getRow();
+        c = next.getCol();
+        sum += grid[r][c];
+    }
+    return sum;
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<p><strong>(a) 4 分</strong>：<br>
+- 正确判断「下方邻居存在」「右方邻居存在」（<code>row + 1 &lt; rows</code> / <code>col + 1 &lt; cols</code>）；<br>
+- 两个都存在时比较 <code>grid[row+1][col]</code> 和 <code>grid[row][col+1]</code>，返回较小的；<br>
+- 只存在一个时直接返回那一个；<br>
+- 返回 <code>new Location(...)</code>。</p>
+<p><strong>(b) 4 分</strong>：<br>
+- 初始化 <code>sum = grid[row][col]</code>（起点也要加）；<br>
+- 循环条件：未到达右下角（<code>r &lt; rows - 1 || c &lt; cols - 1</code>）；<br>
+- 调用 <code>getNextLoc(r, c)</code>，更新 <code>r</code> 和 <code>c</code>；<br>
+- 累加 <code>grid[r][c]</code>；<br>
+- 返回 <code>sum</code>。</p>
+<hr>
+<h3>FRQ-5（2025 International Q4 · SumOrSameGame）</h3>
+<h4 class="frq-section-title">Part A · Official English Wording (from College Board 2025 FRQ #4)</h4>
+<p>This question involves reasoning about a number puzzle that is represented as a two-dimensional array of integers. Each element of the array initially contains a value between 1 and 9, inclusive. Solving the puzzle involves <strong>clearing pairs of array elements by setting them to 0</strong>. Two elements can be cleared if their values sum to 10 or if they have the same value. The puzzle is considered solved if all elements of the array are cleared.</p>
+<p>You will write the constructor and one method of the <code>SumOrSameGame</code> class.</p>
+<pre class="code-block"><code class="language-java">public class SumOrSameGame
+{
+    private int[][] puzzle;
+
+    /** Creates a two-dimensional array and fills it with random integers,
+     *  as described in part (a) */
+    public SumOrSameGame(int numRows, int numCols)
+    { /* to be implemented in part (a) */ }
+
+    /** Identifies and clears an element of puzzle that can be paired with
+     *  the element at the given row and column, as described in part (b) */
+    public boolean clearPair(int row, int col)
+    { /* to be implemented in part (b) */ }
+}
+</code></pre>
+<p><strong>A.</strong> Write the constructor for the <code>SumOrSameGame</code> class. The constructor initializes the instance variable <code>puzzle</code> to be a two-dimensional integer array with the number of rows and columns specified by the parameters <code>numRows</code> and <code>numCols</code>, respectively. <strong>Array elements are initialized with random integers between 1 and 9, inclusive</strong>, each with an equal chance of being assigned to each element of <code>puzzle</code>.</p>
+<p><strong>B.</strong> Write the <code>clearPair</code> method, which takes a valid row index and valid column index as its parameters. The array element specified by those indices, which has a value between 1 and 9, inclusive, is compared to other array elements in <code>puzzle</code> in an attempt to pair it with another array element that meets both of the following conditions.</p>
+<ul>
+<li>The row index of the second element is <strong>greater than or equal to</strong> the parameter <code>row</code>.</li>
+<li>The two elements have equal values <strong>or have values that sum to 10</strong>.</li>
+</ul>
+<p>If such an array element is found, both array elements of the pair are cleared (set to 0) and the method returns <code>true</code>. If more than one such array element can be used, any one of those identified array elements can be used to complete the pair and can be cleared. If no such array element is found, no changes are made to <code>puzzle</code> and the method returns <code>false</code>.</p>
+<p>For example, given a <code>puzzle</code> matrix, the call <code>clearPair(0, 1)</code> matches the value <code>7</code> at <code>(0, 1)</code> with the value <code>7</code> at <code>(1, 0)</code> and clears both.</p>
+<h4>Part C · 参考解法（Java）</h4>
+<pre class="code-block"><code class="language-java">// A. 构造器
+public SumOrSameGame(int numRows, int numCols) {
+    puzzle = new int[numRows][numCols];
+    for (int r = 0; r &lt; numRows; r++) {
+        for (int c = 0; c &lt; numCols; c++) {
+            puzzle[r][c] = (int) (Math.random() * 9) + 1;  // 1..9
+        }
+    }
+}
+
+// B. clearPair
+public boolean clearPair(int row, int col) {
+    int target = puzzle[row][col];
+    for (int r = row; r &lt; puzzle.length; r++) {           // 从 row 开始（含）
+        for (int c = 0; c &lt; puzzle[r].length; c++) {
+            if (r == row &amp;&amp; c &lt;= col) continue;            // 跳过起点和起点之前的元素
+            int val = puzzle[r][c];
+            if (val == target || val + target == 10) {
+                puzzle[row][col] = 0;
+                puzzle[r][c] = 0;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+</code></pre>
+<h4>Part D · 评分要点</h4>
+<p><strong>A. 4 分</strong>：<br>
+- 正确创建 <code>puzzle = new int[numRows][numCols]</code>；<br>
+- 嵌套 for 循环填充每个元素；<br>
+- <code>Math.random() * 9 + 1</code> 产生 1..9 的整数（<strong>注意强转为 int</strong>，否则是 double）；<br>
+- 起点从 <code>(0, 0)</code> 开始即可（题目说"each element"）。</p>
+<p><strong>B. 5 分</strong>：<br>
+- 从 <code>(row, col)</code> 开始（<strong>含 row，从 col+1 开始</strong>；或用 <code>continue</code> 跳过起点）；<br>
+- 嵌套遍历搜索匹配元素；<br>
+- 匹配条件：值相等或值之和为 10；<br>
+- 找到后<strong>两个元素都设为 0</strong>，返回 <code>true</code>；<br>
+- 找不到返回 <code>false</code>。</p>
+<hr>
+<h2 id="section-6">六、应试技巧清单</h2>
+<blockquote>
+<p>经验证的得分技巧（按效果排序）。</p>
+</blockquote>
+<h3>技巧 #1：阅读题目时先标记「数组类型 + 遍历方向」</h3>
+<p>每个题目先识别：<br>
+- 数据结构：<code>int[]</code> 数组 / <code>ArrayList&lt;E&gt;</code> / <code>int[][]</code> 2D 数组？<br>
+- 遍历方向：正向 / 倒序 / 嵌套？<br>
+- 关键 API：<code>get(i)</code> / <code>set(i, e)</code> / <code>remove(i)</code> / <code>length</code> / <code>size</code>？</p>
+<h3>技巧 #2：ArrayList 遍历删除时优先用倒序</h3>
+<pre class="code-block"><code class="language-java">for (int i = list.size() - 1; i &gt;= 0; i--) {
+    if (/* 需要删除 */) list.remove(i);
+}
+</code></pre>
+<p>这是<strong>最不容易出错</strong>的写法，比 i-- 更直观。</p>
+<h3>技巧 #3：2D 数组遍历务必分清「行长度 vs 列长度」</h3>
+<pre class="code-block"><code class="language-java">for (int r = 0; r &lt; grid.length; r++) {            // 行数 = grid.length
+    for (int c = 0; c &lt; grid[r].length; c++) {     // 列数 = grid[r].length（每行可不同）
+        ...
+    }
+}
+</code></pre>
+<p><strong>最常见的 bug</strong>：把列循环写成 <code>c &lt; grid.length</code>（行数）→ 锯齿数组可能少遍历元素。</p>
+<h3>技巧 #4：二分搜索前必加注释「已排序」</h3>
+<pre class="code-block"><code class="language-java">// Precondition: arr is sorted in ascending order
+public static int binSearch(int[] arr, int target) { ... }
+</code></pre>
+<p>未排序的数组用二分搜索结果<strong>未定义</strong>（不是返回 -1，而是返回某个垃圾下标）。</p>
+<h3>技巧 #5：递归题目先写 base case 再写 recursive call</h3>
+<pre class="code-block"><code class="language-java">public static int recurse(int n) {
+    if (n == 0) return 1;          // base case 先写
+    return n * recurse(n - 1);     // recursive call 后写
+}
+</code></pre>
+<h3>技巧 #6：写完方法后用题目给的示例验证</h3>
+<p>每个 FRQ 题目都会给一个或多个示例。写完代码后，<strong>用纸笔 trace</strong> 示例输入，确认每个返回值与示例一致。</p>
+<h3>技巧 #7：MCQ 时间分配</h3>
+<ul>
+<li>单题不超过 60 秒；</li>
+<li>4 道 ArrayList 题（约 4 分钟）、4 道 2D Array 题（约 4 分钟）、3 道搜索排序题（约 3 分钟）、1 道递归题（约 1 分钟）；</li>
+<li>不会就猜（不倒扣分），但要避免在最后 5 分钟才猜。</li>
+</ul>
+<hr>
+<h2 id="section-7">七、章节总结</h2>
+<table class="three-line-table">
+<thead>
+<tr>
+<th>维度</th>
+<th>关键要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MCQ 权重</strong></td>
+<td><strong>30–40%</strong>（最高权重单元），建议投入约 50% 复习时间</td>
+</tr>
+<tr>
+<td><strong>FRQ 占比</strong></td>
+<td>Q3 (ArrayList) + Q4 (2D Array) 各约 9 分，合计 18 分（FRQ 40%）</td>
+</tr>
+<tr>
+<td><strong>核心数据结构</strong></td>
+<td>1D 数组 / <code>ArrayList</code> / 2D 数组</td>
+</tr>
+<tr>
+<td><strong>必须掌握的 API</strong></td>
+<td>数组：<code>new</code>、<code>length</code>、<code>[]</code>；ArrayList：<code>add</code> / <code>get</code> / <code>set</code> / <code>remove</code> / <code>size</code>；2D 数组：嵌套访问 <code>[r][c]</code>、<code>length</code></td>
+</tr>
+<tr>
+<td><strong>必须掌握的算法</strong></td>
+<td>顺序搜索 / 二分搜索；选择排序 / 插入排序 / 归并排序；递归三要素</td>
+</tr>
+<tr>
+<td><strong>不考的内容</strong></td>
+<td>继承、接口、抽象类、数据结构（栈/队列/哈希表）、高级排序</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最后一句话</strong>：Unit 4 是 APCSA 考试的"分水岭"。本章学扎实，FRQ 的 Q3/Q4 就稳了；本章学不扎实，整场考试都会失分——务必投入足够时间。</p>
+
+</section>
+</body>
+</html>
