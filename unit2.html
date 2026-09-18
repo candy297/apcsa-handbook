@@ -368,8 +368,131 @@
     .q-block, .frq-block { page-break-inside: avoid; }
   }
   </style>
+<style>
+/* ===== 侧边导航栏（WorkBuddy 注入） ===== */
+@media (min-width: 1100px) {
+  body { padding-left: 300px !important; }
+}
+#wb-sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 280px;
+  background: #f7f8fa;
+  border-right: 1px solid #e3e6ea;
+  overflow-y: auto;
+  z-index: 999;
+  font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  transition: transform .25s ease;
+}
+#wb-sidebar .wb-brand {
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid #e3e6ea;
+  background: #fff;
+  position: sticky; top: 0;
+}
+#wb-sidebar .wb-home {
+  display: inline-block;
+  font-size: 12px; color: #8b2332; text-decoration: none;
+  margin-bottom: 6px;
+}
+#wb-sidebar .wb-home:hover { text-decoration: underline; }
+#wb-sidebar .wb-chapter {
+  font-size: 15px; font-weight: 700; color: #1a2533; line-height: 1.4;
+}
+#wb-sidebar .wb-list { padding: 10px 0 30px; }
+#wb-sidebar a {
+  display: block;
+  text-decoration: none;
+  color: #4a5568;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 7px 18px 7px 26px;
+  border-left: 3px solid transparent;
+}
+#wb-sidebar a.wb-h2 {
+  font-weight: 600;
+  color: #1a2533;
+  cursor: pointer;
+  position: relative;
+  padding-right: 34px;
+}
+#wb-sidebar a.wb-h2::after {
+  content: "";
+  position: absolute; right: 16px; top: 50%;
+  width: 7px; height: 7px;
+  border-right: 1.6px solid #9aa4b0;
+  border-bottom: 1.6px solid #9aa4b0;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform .2s;
+}
+#wb-sidebar .wb-group.open > a.wb-h2::after {
+  transform: translateY(-30%) rotate(-135deg);
+}
+#wb-sidebar a:hover { background: #eceff3; color: #8b2332; }
+#wb-sidebar a.wb-active {
+  background: #eceff3;
+  color: #8b2332;
+  border-left-color: #8b2332;
+  font-weight: 600;
+}
+#wb-sidebar .wb-sub { display: none; }
+#wb-sidebar .wb-group.open > .wb-sub { display: block; }
+#wb-sidebar .wb-sub a { padding-left: 42px; font-size: 12.5px; color: #5a6472; }
+#wb-sidebar::-webkit-scrollbar { width: 6px; }
+#wb-sidebar::-webkit-scrollbar-thumb { background: #c9cfd6; border-radius: 3px; }
+#wb-sidebar::-webkit-scrollbar-track { background: transparent; }
+#wb-toggle {
+  display: none;
+  position: fixed; left: 14px; bottom: 18px;
+  z-index: 1000;
+  background: #8b2332; color: #fff;
+  border: none; border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  cursor: pointer;
+}
+@media (max-width: 1099px) {
+  #wb-sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,.15); }
+  #wb-sidebar.wb-show { transform: translateX(0); }
+  #wb-toggle { display: block; }
+}
+section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
+</style>
 </head>
 <body>
+<nav id="wb-sidebar">
+  <div class="wb-brand">
+    <a class="wb-home" href="index.html">&#8592; 返回手册首页</a>
+    <div class="wb-chapter">APCSA 备考手册<br>第二章 · Selection and Iteration</div>
+  </div>
+<div class="wb-list">
+<div class="wb-group">
+<a class="wb-h2" data-target="section-1" href="#section-1">一、本章定位与考情速览</a>
+<div class="wb-sub">
+<a data-target="sec-1-1" href="#sec-1-1">1.1 新大纲四大单元与考试权重</a>
+<a data-target="sec-1-2" href="#sec-1-2">1.2 考试结构</a>
+<a data-target="sec-1-3" href="#sec-1-3">1.3 本章与 FRQ 的关联（备考重点提示）</a>
+<a data-target="sec-1-4" href="#sec-1-4">1.4 本章学习目标（对应官方 12 个 Topic）</a>
+</div></div>
+<div class="wb-group">
+<a class="wb-h2" data-target="section-2" href="#section-2">二、知识点与考点梳理（Topic 2.1–2.12）</a>
+<div class="wb-sub">
+<a data-target="sec-2-s" href="#sec-2-s">板块 S：算法与控制结构总览（Topic 2.1 / 2.9）</a>
+<a data-target="sec-2-b" href="#sec-2-b">板块 B：if / Nested if 选择结构（Topic 2.3 / 2.4）</a>
+<a data-target="sec-2-c" href="#sec-2-c">板块 C：while 循环（Topic 2.7）</a>
+<a data-target="sec-2-d" href="#sec-2-d">板块 D：for 循环与字符串算法（Topic 2.8 / 2.10 / 2.11）</a>
+<a data-target="sec-2-r" href="#sec-2-r">板块 R：Informal Run-Time Analysis（Topic 2.12）</a>
+<a data-target="sec-3-f" href="#sec-3-f">板块 F：易错点专题（综合）</a>
+</div></div>
+<div class="wb-group"><a class="wb-h2" data-target="section-4" href="#section-4">四、MCQ 真题精选与详解</a></div>
+<div class="wb-group"><a class="wb-h2" data-target="section-5" href="#section-5">五、FRQ 真题精选与解析</a></div>
+<div class="wb-group"><a class="wb-h2" data-target="section-6" href="#section-6">六、应试技巧清单</a></div>
+<div class="wb-group"><a class="wb-h2" data-target="section-7" href="#section-7">七、章节总结</a></div>
+</div>
+</nav>
+<button id="wb-toggle">&#9776; 目录</button>
+
 <section role="cover">
   <h1 class="cover-title" style="text-align: center;">APCSA 国际考备考手册</h1>
   <p class="cover-subtitle" style="text-align: center;">第二章　Selection and Iteration</p>
@@ -424,7 +547,7 @@
 
   <!-- 一、本章定位与考情速览 -->
   <h2 id="section-1">一、本章定位与考情速览</h2>
-  <h3>1.1 新大纲四大单元与考试权重</h3>
+  <h3 id="sec-1-1">1.1 新大纲四大单元与考试权重</h3>
   <p>2025 年秋起，APCSA 课程框架由旧的 10 个单元重组为 4 个单元。<strong>Unit 2 Selection and Iteration 是 MCQ 权重最高的单元之一</strong>（25–35%），所有 FRQ 都会涉及 if / while / for 与循环计数，因此本章是整个课程的"分水岭"——掌握得好，后续 Unit 3、4（Array、ArrayList、2D Array）的方法编写将水到渠成；掌握不好，则全卷所有写代码题都会卡壳。</p>
 
   <table class="three-line-table">
@@ -439,7 +562,7 @@
     </tbody>
   </table>
 
-  <h3>1.2 考试结构</h3>
+  <h3 id="sec-1-2">1.2 考试结构</h3>
   <table class="three-line-table">
     <thead>
       <tr><th>部分</th><th>题量与时长</th><th>占比</th></tr>
@@ -455,7 +578,7 @@
     <p>2021–2025 年国际考采用旧版分制 FRQ（共 4 题，分值不固定）；2026 年起 FRQ 第 1 题固定为新结构（Part A 4 分 + Part B 3 分，明确要求调用 String 方法）。本章 FRQ 精选以 2025 新版 CED 配套 AP Classroom Unit 2 Progress Check 完整题面为主，每题含官方英文原文与中文参考解。</p>
   </div>
 
-  <h3>1.3 本章与 FRQ 的关联（备考重点提示）</h3>
+  <h3 id="sec-1-3">1.3 本章与 FRQ 的关联（备考重点提示）</h3>
   <p>本章覆盖的"判别-分支-循环-边界"四件套，是 Q1 与 Q2 的方法编写"地基"：</p>
   <ul>
     <li><strong>Q1 Methods and Control Structures</strong>：Part A 必含 if / while 嵌套，Part B 必调用 String 方法（与第一章强联动）。</li>
@@ -466,7 +589,7 @@
   </ul>
   <p>换句话说：<strong>本章是一切写代码题的内功</strong>。MCQ 也同样——Unit 2 的 Top 10 高频考点几乎全部是布尔表达式与循环计数的代码追踪。</p>
 
-  <h3>1.4 本章学习目标（对应官方 12 个 Topic）</h3>
+  <h3 id="sec-1-4">1.4 本章学习目标（对应官方 12 个 Topic）</h3>
   <p>完成本章后应能：</p>
   <ul>
     <li>用比较运算符（<code>==</code>、<code>!=</code>、<code>&lt;</code>、<code>&lt;=</code>、<code>&gt;</code>、<code>&gt;=</code>）和逻辑运算符（<code>&amp;&amp;</code>、<code>||</code>、<code>!</code>）写出布尔表达式。</li>
@@ -486,7 +609,7 @@
   <!-- 以下为 markdown 库自动转换的正文（已剔除重复的一章标题） -->
   <h2 id="section-2">二、知识点与考点梳理（Topic 2.1–2.12）</h2>
 <p>本章共 12 个 Topic（依据 College Board《AP Computer Science A CED, Effective Fall 2025》），按知识结构分为六大板块。每个知识点均标注考纲 Learning Objective（LO）编号，便于对照官方大纲复习。</p>
-<h3>板块 S：算法与控制结构总览（Topic 2.1 / 2.9）</h3>
+<h3 id="sec-2-s">板块 S：算法与控制结构总览（Topic 2.1 / 2.9）</h3>
 <h4>S1. Topic 2.1 — Algorithms with Selection and Repetition（LO 2.1.A–2.1.B）</h4>
 <p><strong>核心概念</strong>：</p>
 <ul>
@@ -664,7 +787,7 @@ boolean result = (a &gt; 10) &amp;&amp; (b++ &gt; 5);
 System.out.println(b);   // 输出 10，b++ 没执行
 </code></pre>
 <p><strong>选择题考法</strong>：追踪含 <code>&amp;&amp;</code> / <code>||</code> 与副作用的代码段最终变量的值。</p>
-<h3>板块 B：if / Nested if 选择结构（Topic 2.3 / 2.4）</h3>
+<h3 id="sec-2-b">板块 B：if / Nested if 选择结构（Topic 2.3 / 2.4）</h3>
 <h4>B1. Topic 2.3 — if Statements：<code>if</code> / <code>if-else</code> / <code>if-else if-else</code>（LO 2.3.A）</h4>
 <p><strong>三种基本形态</strong>：</p>
 <pre class="code-block"><code class="language-java">// 1. 单分支
@@ -704,7 +827,7 @@ if (条件 1) {
 }
 </code></pre>
 <p><strong>选择题考法</strong>：给一段嵌套 if，问条件为何时执行某分支；或问输出结果。</p>
-<h3>板块 C：while 循环（Topic 2.7）</h3>
+<h3 id="sec-2-c">板块 C：while 循环（Topic 2.7）</h3>
 <h4>C1. Topic 2.7 — while Loops 语法与执行流程（LO 2.7.A）</h4>
 <pre class="code-block"><code class="language-java">int i = 0;             // 1. 初始化
 while (i &lt; 5) {        // 2. 条件判断
@@ -733,7 +856,7 @@ while (n != 0) {           // 0 是哨兵
 System.out.println(&quot;sum = &quot; + sum);
 </code></pre>
 <p><strong>选择题考法</strong>：给一段 while 循环 + 输入序列，问最终 sum 多少 / 输出多少；或问"哨兵是哪个值"。</p>
-<h3>板块 D：for 循环与字符串算法（Topic 2.8 / 2.10 / 2.11）</h3>
+<h3 id="sec-2-d">板块 D：for 循环与字符串算法（Topic 2.8 / 2.10 / 2.11）</h3>
 <h4>D1. Topic 2.8 — for Loops 语法与三要素（LO 2.8.A）</h4>
 <pre class="code-block"><code class="language-java">for (初始化; 条件; 更新) {
     // 循环体
@@ -790,7 +913,7 @@ for (int i = 0; i &lt; s.length(); i++) {
 // (2,0) (2,1) (2,2) (2,3)
 </code></pre>
 <p><strong>总迭代次数 = 外层 × 内层</strong>。例如 3×4 = 12 次。MCQ 常考这种"求循环总次数"题。</p>
-<h3>板块 R：Informal Run-Time Analysis（Topic 2.12）</h3>
+<h3 id="sec-2-r">板块 R：Informal Run-Time Analysis（Topic 2.12）</h3>
 <h4>R1. Topic 2.12 — Informal Run-Time Analysis：循环次数的 O() 估算（LO 2.12.A）</h4>
 <p><strong>核心概念</strong>：</p>
 <ul>
@@ -816,7 +939,7 @@ for (int i = 0; i &lt; n; i++) {
 }
 </code></pre>
 <p><strong>选择题考法</strong>：给定一段嵌套循环，问"输入 n 时总执行次数是多少"（答案通常是 n² 级别，常数 n，n(n+1)/2，n²-n 等）。MCQ 不考 O() 严格定义，只识别"线性"与"平方级"差异即可。</p>
-<h3>板块 F：易错点专题（综合）</h3>
+<h3 id="sec-3-f">板块 F：易错点专题（综合）</h3>
 <h4>F1. <code>=</code> vs <code>==</code>（LO 2.1.A 巩固）</h4>
 <pre class="code-block"><code class="language-java">int a = 5;
 if (a = 10) { /* 编译错误 */ }   // 编译期报错：int 不能转 boolean
@@ -1646,5 +1769,67 @@ System.out.println(title + &quot; by &quot; + artist);
 </table>
 
 </section>
+<script>
+(function () {
+  var sb = document.getElementById('wb-sidebar');
+  var tg = document.getElementById('wb-toggle');
+  if (!sb) return;
+  // 窄屏开合
+  tg.addEventListener('click', function (e) {
+    e.stopPropagation();
+    sb.classList.toggle('wb-show');
+  });
+  document.addEventListener('click', function (e) {
+    if (window.innerWidth < 1100 && sb.classList.contains('wb-show') && !sb.contains(e.target)) {
+      sb.classList.remove('wb-show');
+    }
+  });
+  // 分组折叠
+  sb.querySelectorAll('a.wb-h2').forEach(function (h) {
+    h.addEventListener('click', function (ev) {
+      var grp = h.parentElement;
+      var hasSub = grp.querySelector('.wb-sub');
+      if (hasSub) {
+        // 有子项：第一次点折叠/展开，若已展开则允许默认锚点跳转
+        if (!grp.classList.contains('open')) {
+          ev.preventDefault();
+          grp.classList.add('open');
+        }
+      }
+    });
+  });
+  // 默认展开第一组
+  var first = sb.querySelector('.wb-group');
+  if (first) first.classList.add('open');
+  // scrollspy
+  var links = Array.prototype.slice.call(sb.querySelectorAll('a[data-target]'));
+  var targets = links.map(function (a) {
+    return document.getElementById(a.getAttribute('data-target'));
+  });
+  function spy() {
+    var pos = window.scrollY + 120;
+    var idx = 0;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= pos) idx = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('wb-active', i === idx); });
+    if (targets[idx]) {
+      var grp = targets[idx].closest ? null : null;
+      var p = links[idx].parentElement;
+      if (p.classList.contains('wb-sub')) p.parentElement.classList.add('open');
+    }
+    var act = sb.querySelector('.wb-active');
+    if (act) act.scrollIntoView({ block: 'nearest' });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      requestAnimationFrame(function () { spy(); ticking = false; });
+      ticking = true;
+    }
+  });
+  spy();
+})();
+</script>
 </body>
 </html>
