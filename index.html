@@ -147,42 +147,6 @@ main { padding: 56px 0 24px; }
   align-self: flex-start;
 }
 
-/* ---------- Downloads ---------- */
-.dl-row {
-  display: flex;
-  gap: 22px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.dl {
-  flex: 1;
-  min-width: 260px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 22px 26px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  text-decoration: none;
-  color: var(--ink);
-  transition: border-color .15s ease, box-shadow .15s ease;
-}
-.dl:hover { border-color: var(--accent); box-shadow: 0 6px 18px rgba(26,37,51,.10); }
-.dl .icon {
-  width: 46px; height: 46px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
-  color: #fff;
-}
-.dl.pdf .icon { background: #b3322e; }
-.dl.docx .icon { background: #2b579a; }
-.dl b { display: block; font-size: 16px; }
-.dl span { font-size: 13px; color: var(--ink-soft); }
-
 /* ---------- Features ---------- */
 .features {
   list-style: none;
@@ -271,18 +235,6 @@ footer {
       <div class="en">数据集合</div>
       <p>一维/二维数组、ArrayList、文本文件、包装类、搜索排序与递归 —— 全册最高权重单元。</p>
       <div class="weight">MCQ 权重 30–40%（最高）</div>
-    </a>
-  </div>
-
-  <h2 class="section-title" style="margin-top:56px;">完整版下载 <small>全四章合订本 · 190 页</small></h2>
-  <div class="dl-row">
-    <a class="dl pdf" href="downloads/APCSA-Handbook.pdf" download>
-      <div class="icon">PDF</div>
-      <div><b>PDF 版（推荐阅读）</b><span>含整体目录与页码，适合打印与平板批注 · 约 5.8 MB</span></div>
-    </a>
-    <a class="dl docx" href="downloads/APCSA-Handbook.docx" download>
-      <div class="icon">DOC</div>
-      <div><b>Word 版（可编辑）</b><span>适合按班级学情二次改编 · 约 0.2 MB</span></div>
     </a>
   </div>
 
