@@ -369,7 +369,7 @@
   }
   </style>
 <style>
-/* ===== 侧边导航栏（WorkBuddy 注入） ===== */
+/* ===== 侧边导航栏（WorkBuddy 注入 v2） ===== */
 @media (min-width: 1100px) {
   body { padding-left: 300px !important; }
 }
@@ -411,21 +411,8 @@
 #wb-sidebar a.wb-h2 {
   font-weight: 600;
   color: #1a2533;
-  cursor: pointer;
   position: relative;
-  padding-right: 34px;
-}
-#wb-sidebar a.wb-h2::after {
-  content: "";
-  position: absolute; right: 16px; top: 50%;
-  width: 7px; height: 7px;
-  border-right: 1.6px solid #9aa4b0;
-  border-bottom: 1.6px solid #9aa4b0;
-  transform: translateY(-70%) rotate(45deg);
-  transition: transform .2s;
-}
-#wb-sidebar .wb-group.open > a.wb-h2::after {
-  transform: translateY(-30%) rotate(-135deg);
+  padding-right: 40px;
 }
 #wb-sidebar a:hover { background: #eceff3; color: #8b2332; }
 #wb-sidebar a.wb-active {
@@ -434,6 +421,25 @@
   border-left-color: #8b2332;
   font-weight: 600;
 }
+/* ^ 折叠箭头（独立开关，不随标题跳转） */
+#wb-sidebar .wb-caret {
+  position: absolute; right: 8px; top: 0; bottom: 0;
+  width: 28px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+#wb-sidebar .wb-caret::before {
+  content: "";
+  width: 8px; height: 8px;
+  border-right: 2px solid #9aa4b0;
+  border-bottom: 2px solid #9aa4b0;
+  transform: rotate(45deg);          /* 收起：箭头向下 */
+  transition: transform .2s;
+}
+#wb-sidebar .wb-group.open > a.wb-h2 .wb-caret::before {
+  transform: rotate(-135deg);        /* 展开：箭头向上 ^ */
+}
+#wb-sidebar .wb-caret:hover::before { border-color: #8b2332; }
 #wb-sidebar .wb-sub { display: none; }
 #wb-sidebar .wb-group.open > .wb-sub { display: block; }
 #wb-sidebar .wb-sub a { padding-left: 42px; font-size: 12.5px; color: #5a6472; }
@@ -468,7 +474,7 @@ section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
   </div>
 <div class="wb-list">
 <div class="wb-group">
-<a class="wb-h2" data-target="section-1" href="#section-1">一、本章定位与考情速览</a>
+<a class="wb-h2" data-target="section-1" href="#section-1">一、本章定位与考情速览<span class="wb-caret"></span></a>
 <div class="wb-sub">
 <a data-target="sec-1-1" href="#sec-1-1">1.1 新大纲四大单元与考试权重</a>
 <a data-target="sec-1-2" href="#sec-1-2">1.2 考试结构</a>
@@ -476,7 +482,7 @@ section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
 <a data-target="sec-1-4" href="#sec-1-4">1.4 本章学习目标（对应官方 12 个 Topic）</a>
 </div></div>
 <div class="wb-group">
-<a class="wb-h2" data-target="section-2" href="#section-2">二、知识点与考点梳理（Topic 2.1–2.12）</a>
+<a class="wb-h2" data-target="section-2" href="#section-2">二、知识点与考点梳理（Topic 2.1–2.12）<span class="wb-caret"></span></a>
 <div class="wb-sub">
 <a data-target="sec-2-s" href="#sec-2-s">板块 S：算法与控制结构总览（Topic 2.1 / 2.9）</a>
 <a data-target="sec-2-b" href="#sec-2-b">板块 B：if / Nested if 选择结构（Topic 2.3 / 2.4）</a>
@@ -492,6 +498,7 @@ section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
 </div>
 </nav>
 <button id="wb-toggle">&#9776; 目录</button>
+
 
 <section role="cover">
   <h1 class="cover-title" style="text-align: center;">APCSA 国际考备考手册</h1>
@@ -1774,7 +1781,7 @@ System.out.println(title + &quot; by &quot; + artist);
   var sb = document.getElementById('wb-sidebar');
   var tg = document.getElementById('wb-toggle');
   if (!sb) return;
-  // 窄屏开合
+  // 窄屏抽屉开合
   tg.addEventListener('click', function (e) {
     e.stopPropagation();
     sb.classList.toggle('wb-show');
@@ -1784,24 +1791,26 @@ System.out.println(title + &quot; by &quot; + artist);
       sb.classList.remove('wb-show');
     }
   });
-  // 分组折叠
+  // ^ 箭头：独立的折叠/展开开关（不触发锚点跳转）
+  sb.querySelectorAll('.wb-caret').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      var grp = c.closest('.wb-group');
+      if (grp) grp.classList.toggle('open');
+    });
+  });
+  // 标题文字：跳转并确保本组展开
   sb.querySelectorAll('a.wb-h2').forEach(function (h) {
-    h.addEventListener('click', function (ev) {
-      var grp = h.parentElement;
-      var hasSub = grp.querySelector('.wb-sub');
-      if (hasSub) {
-        // 有子项：第一次点折叠/展开，若已展开则允许默认锚点跳转
-        if (!grp.classList.contains('open')) {
-          ev.preventDefault();
-          grp.classList.add('open');
-        }
-      }
+    h.addEventListener('click', function () {
+      var grp = h.closest('.wb-group');
+      if (grp) grp.classList.add('open');
     });
   });
   // 默认展开第一组
   var first = sb.querySelector('.wb-group');
   if (first) first.classList.add('open');
-  // scrollspy
+  // scrollspy：滚动高亮当前小节，并自动展开其所在分组
   var links = Array.prototype.slice.call(sb.querySelectorAll('a[data-target]'));
   var targets = links.map(function (a) {
     return document.getElementById(a.getAttribute('data-target'));
@@ -1813,11 +1822,8 @@ System.out.println(title + &quot; by &quot; + artist);
       if (targets[i] && targets[i].offsetTop <= pos) idx = i;
     }
     links.forEach(function (a, i) { a.classList.toggle('wb-active', i === idx); });
-    if (targets[idx]) {
-      var grp = targets[idx].closest ? null : null;
-      var p = links[idx].parentElement;
-      if (p.classList.contains('wb-sub')) p.parentElement.classList.add('open');
-    }
+    var p = links[idx].parentElement;
+    if (p.classList.contains('wb-sub')) p.parentElement.classList.add('open');
     var act = sb.querySelector('.wb-active');
     if (act) act.scrollIntoView({ block: 'nearest' });
   }
