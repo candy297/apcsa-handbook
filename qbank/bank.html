@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>题库浏览 · APCSA 题库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html">
+      <span class="logo">AP</span>
+      <span>APCSA 题库<small>Computer Science A</small></span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">首页</a>
+      <a href="bank.html">题库浏览</a>
+      <a href="paper.html">组卷导出</a>
+      <a href="about.html">使用说明</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="btn btn-sm" href="admin.html" title="题库维护">维护</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="layout">
+
+    <!-- ============ 侧边筛选 ============ -->
+    <aside class="side">
+      <div class="grp">
+        <h4>题型</h4>
+        <label class="row"><input type="checkbox" data-f="type" value="MCQ"><span>选择题 MCQ</span><span class="cnt" id="c-MCQ"></span></label>
+        <label class="row"><input type="checkbox" data-f="type" value="FRQ"><span>编程题 FRQ</span><span class="cnt" id="c-FRQ"></span></label>
+      </div>
+
+      <div class="grp">
+        <h4>年份</h4>
+        <div id="yearBox"></div>
+      </div>
+
+      <div class="grp">
+        <h4>大纲知识点</h4>
+        <div id="topicBox"></div>
+      </div>
+
+      <div class="grp">
+        <h4>来源</h4>
+        <div id="sourceBox"></div>
+      </div>
+
+      <div class="grp">
+        <h4>其他</h4>
+        <label class="row"><input type="checkbox" id="onlyAns"><span>仅显示有答案 / 解析</span><span class="cnt" id="c-ans"></span></label>
+        <div class="side-tools" style="margin-top:10px">
+          <button class="btn btn-sm" id="btnReset">重置筛选</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ 主区 ============ -->
+    <main>
+      <div class="toolbar">
+        <div class="search"><input type="search" id="kw" placeholder="搜索题干 / 选项 / 解析关键词，例如 ArrayList、substring、recursion"></div>
+        <select class="select" id="sortBy">
+          <option value="default">排序：按来源与题号</option>
+          <option value="year">排序：年份新 → 旧</option>
+          <option value="topic">排序：Topic 编号</option>
+          <option value="unit">排序：Unit 顺序</option>
+        </select>
+        <button class="btn btn-sm" id="btnAll">全选当前结果</button>
+        <label class="row" style="margin:0;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)">
+          <input type="checkbox" id="showAns" style="accent-color:var(--primary);cursor:pointer;margin:0"><span>显示答案</span>
+        </label>
+        <span class="count-info">匹配 <b id="nMatch">0</b> 题</span>
+      </div>
+
+      <div id="activeChips" style="margin:-6px 0 14px"></div>
+      <div class="qlist" id="qlist"></div>
+      <div style="text-align:center;margin:22px 0">
+        <button class="btn" id="btnMore" hidden>加载更多（还有 <span id="nRest">0</span> 题）</button>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- 题车浮条 -->
+<div class="cart-bar" id="cartBar" hidden></div>
+
+<script src="data/topics.js"></script>
+<script src="data/questions.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var PAGE = 30;
+  var state = { type: [], unit: [], topic: [], year: [], source: [], onlyAns: false, kw: '', sort: 'default', shown: PAGE, showAns: false };
+
+  /* ---------- 初始化：从 URL 读取筛选 ---------- */
+  (function initFromUrl() {
+    var u = QB.qs('unit'), t = QB.qs('topic'), y = QB.qs('year'), ty = QB.qs('type'),
+        s = QB.qs('q'), k = QB.qs('kw'), ans = QB.qs('ans'), sa = QB.qs('show');
+    if (u) state.unit = u.split(',');
+    if (t) state.topic = t.split(',');
+    if (y) state.year = y.split(',');
+    if (ty) state.type = ty.split(',');
+    if (s) state.source = s.split('|');
+    if (k) state.kw = k;
+    if (ans === '1') state.onlyAns = true;
+    if (sa === '1') state.showAns = true;
+  })();
+
+  var S = QB.computeStats();
+
+  /* ---------- 侧边栏渲染 ---------- */
+  document.getElementById('c-MCQ').textContent = S.byType.MCQ || 0;
+  document.getElementById('c-FRQ').textContent = S.byType.FRQ || 0;
+  document.getElementById('c-ans').textContent = QB.DATA.meta.withAnswer || 0;
+
+  /* 年份 */
+  var years = Object.keys(S.byYear).sort(function (a, b) { return b - a; });
+  document.getElementById('yearBox').innerHTML = years.map(function (y) {
+    return '<label class="row"><input type="checkbox" data-f="year" value="' + y + '"' +
+      (state.year.indexOf(y) >= 0 ? ' checked' : '') + '><span>' + y + ' 年</span><span class="cnt">' + S.byYear[y] + '</span></label>';
+  }).join('') + '<label class="row"><input type="checkbox" data-f="year" value="__none__"' +
+      (state.year.indexOf('__none__') >= 0 ? ' checked' : '') +
+      '><span>未标注年份</span><span class="cnt">' + (S.total - years.reduce(function (a, y) { return a + S.byYear[y]; }, 0)) + '</span></label>';
+
+  /* Unit → Topic 树 */
+  document.getElementById('topicBox').innerHTML = QB.TOPICS.units.map(function (u) {
+    var un = S.byUnit[u.id] || 0;
+    var rows = u.topics.map(function (t) {
+      var n = S.byTopic[t.id] || 0;
+      return '<label class="row' + (n === 0 ? ' dim' : '') + '" title="' + QB.esc(t.name) + '">' +
+        '<input type="checkbox" data-f="topic" value="' + t.id + '"' +
+        (state.topic.indexOf(t.id) >= 0 ? ' checked' : '') + (n === 0 ? ' disabled' : '') + '>' +
+        '<span class="tid">' + t.id + '</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        QB.esc(t.nameCn) + '</span><span class="cnt">' + n + '</span></label>';
+    }).join('');
+    return '<div class="unit-head"><span class="dot" style="background:' + u.color + '"></span>' +
+      '<label class="row" style="margin:0;font-weight:700">' +
+      '<input type="checkbox" data-f="unit" value="' + u.id + '"' + (state.unit.indexOf(u.id) >= 0 ? ' checked' : '') + '>' +
+      '<span>' + u.code + ' ' + QB.esc(u.nameCn) + '</span><span class="cnt">' + un + '</span></label></div>' +
+      '<div class="topic">' + rows + '</div>';
+  }).join('');
+
+  /* 来源 */
+  var srcs = Object.keys(S.bySource).sort(function (a, b) { return S.bySource[b] - S.bySource[a]; });
+  document.getElementById('sourceBox').innerHTML = srcs.map(function (k) {
+    var v = encodeURIComponent(k);
+    return '<label class="row"><input type="checkbox" data-f="source" value="' + QB.esc(k) + '"' +
+      (state.source.indexOf(k) >= 0 ? ' checked' : '') + '><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' +
+      QB.esc(k) + '">' + QB.esc(k) + '</span><span class="cnt">' + S.bySource[k] + '</span></label>';
+  }).join('');
+
+  document.getElementById('kw').value = state.kw;
+  document.getElementById('onlyAns').checked = state.onlyAns;
+  document.getElementById('showAns').checked = state.showAns;
+  document.getElementById('sortBy').value = state.sort;
+
+  /* ---------- 筛选逻辑 ---------- */
+  function hasAns(q) {
+    return q.type === 'FRQ' ? !!(q.solution) : !!(q.answer || q.explanation);
+  }
+
+  function match(q) {
+    if (state.type.length && state.type.indexOf(q.type) < 0) return false;
+    if (state.unit.length && state.unit.indexOf(q.unit) < 0) return false;
+    if (state.topic.length && state.topic.indexOf(q.topic) < 0) return false;
+    if (state.year.length) {
+      var yv = q.year ? String(q.year) : '__none__';
+      if (state.year.indexOf(yv) < 0) return false;
+    }
+    if (state.source.length && state.source.indexOf(q.sourceLabel) < 0) return false;
+    if (state.onlyAns && !hasAns(q)) return false;
+    if (state.kw) {
+      var k = state.kw.toLowerCase();
+      var blob = (q.stem + ' ' + (q.prompt || '') + ' ' + (q.explanation || '') + ' ' + (q.solution || '') + ' ' +
+        (q.options || []).map(function (o) { return o.text; }).join(' ') + ' ' + (q.label || '') + ' ' + (q.topic || '')).toLowerCase();
+      if (blob.indexOf(k) < 0) return false;
+    }
+    return true;
+  }
+
+  var UNIT_ORDER = { U1: 1, U2: 2, U3: 3, U4: 4 };
+  function sortList(list) {
+    var s = state.sort;
+    if (s === 'year') list.sort(function (a, b) { return (b.year || 0) - (a.year || 0) || cmpDefault(a, b); });
+    else if (s === 'topic') list.sort(function (a, b) {
+      return String(a.topic || 'zz').localeCompare(String(b.topic || 'zz')) || cmpDefault(a, b);
+    });
+    else if (s === 'unit') list.sort(function (a, b) {
+      return (UNIT_ORDER[a.unit] || 9) - (UNIT_ORDER[b.unit] || 9) || cmpDefault(a, b);
+    });
+    else list.sort(cmpDefault);
+    return list;
+  }
+  var SOURCE_ORDER = ['AP Classroom 2026', '官方模考 Practice 1', '官方模考 Practice 2', '2026 亚太真题', 'CB 官方 FRQ'];
+  function cmpDefault(a, b) {
+    var ia = SOURCE_ORDER.indexOf(a.sourceLabel), ib = SOURCE_ORDER.indexOf(b.sourceLabel);
+    if (ia < 0) ia = 99; if (ib < 0) ib = 99;
+    if (ia !== ib) return ia - ib;
+    if (a.label !== b.label) return String(a.label).localeCompare(String(b.label));
+    return String(a.id).localeCompare(String(b.id));
+  }
+
+  /* ---------- 渲染列表 ---------- */
+  var qlist = document.getElementById('qlist');
+  QB.bindCards(qlist);
+  var current = [];
+
+  function render() {
+    current = sortList(QB.DATA.questions.filter(match));
+    document.getElementById('nMatch').textContent = current.length;
+
+    var page = current.slice(0, state.shown);
+    if (!page.length) {
+      qlist.innerHTML = '<div class="empty"><div class="big">⌕</div><p>没有符合条件的题目，试试放宽筛选条件。</p></div>';
+      document.getElementById('btnMore').hidden = true;
+      renderChips();
+      return;
+    }
+    qlist.innerHTML = page.map(function (q) { return QB.renderCard(q, { showAnswer: state.showAns }); }).join('');
+    var rest = current.length - page.length;
+    document.getElementById('btnMore').hidden = rest <= 0;
+    document.getElementById('nRest').textContent = rest;
+    renderChips();
+  }
+
+  function renderChips() {
+    var bits = [];
+    function add(field, val, label) {
+      bits.push('<span class="chip" style="cursor:pointer" data-f="' + field + '" data-v="' + QB.esc(val) + '">' +
+        QB.esc(label) + ' ✕</span>');
+    }
+    state.type.forEach(function (v) { add('type', v, v === 'MCQ' ? 'MCQ' : 'FRQ'); });
+    state.year.forEach(function (v) { add('year', v, v === '__none__' ? '未标注年份' : v + ' 年'); });
+    state.unit.forEach(function (v) { add('unit', v, QB.unitShort(v)); });
+    state.topic.forEach(function (v) { add('topic', v, 'Topic ' + v); });
+    state.source.forEach(function (v) { add('source', v, v); });
+    if (state.onlyAns) add('onlyAns', '1', '仅含答案');
+    var box = document.getElementById('activeChips');
+    box.innerHTML = bits.length ? '<span style="font-size:12.5px;color:var(--muted);margin-right:6px">当前筛选：</span>' + bits.join(' ') : '';
+    box.querySelectorAll('.chip').forEach(function (c) {
+      c.onclick = function () {
+        var f = c.getAttribute('data-f'), v = c.getAttribute('data-v');
+        if (f === 'onlyAns') { state.onlyAns = false; document.getElementById('onlyAns').checked = false; }
+        else { state[f] = state[f].filter(function (x) { return x !== v; }); }
+        state.shown = PAGE;
+        syncSidebar(); render();
+      };
+    });
+  }
+
+  function syncSidebar() {
+    document.querySelectorAll('[data-f]').forEach(function (el) {
+      var f = el.getAttribute('data-f'), v = el.value;
+      el.checked = state[f] && state[f].indexOf(v) >= 0;
+    });
+    document.getElementById('onlyAns').checked = state.onlyAns;
+  }
+
+  /* ---------- 事件 ---------- */
+  document.querySelector('.side').addEventListener('change', function (e) {
+    var el = e.target;
+    var f = el.getAttribute('data-f');
+    if (!f) return;
+    var v = el.value;
+    if (el.checked) { if (state[f].indexOf(v) < 0) state[f].push(v); }
+    else state[f] = state[f].filter(function (x) { return x !== v; });
+    state.shown = PAGE;
+    render();
+  });
+  document.getElementById('onlyAns').onchange = function () { state.onlyAns = this.checked; state.shown = PAGE; render(); };
+  document.getElementById('showAns').onchange = function () { state.showAns = this.checked; state.shown = PAGE; render(); };
+  window.wbAskShowAnswer = function () {
+    var cb = document.getElementById('showAns');
+    cb.checked = true; cb.dispatchEvent(new Event('change'));
+    QB.toast('已开启「显示答案」，正确选项会以绿色标注');
+  };
+  document.getElementById('sortBy').onchange = function () { state.sort = this.value; render(); };
+  var kwTimer;
+  document.getElementById('kw').oninput = function () {
+    var v = this.value;
+    clearTimeout(kwTimer);
+    kwTimer = setTimeout(function () { state.kw = v.trim(); state.shown = PAGE; render(); }, 220);
+  };
+  document.getElementById('btnMore').onclick = function () { state.shown += PAGE; render(); };
+  document.getElementById('btnReset').onclick = function () {
+    state = { type: [], unit: [], topic: [], year: [], source: [], onlyAns: false, kw: '', sort: 'default', shown: PAGE, showAns: false };
+    document.getElementById('kw').value = '';
+    document.getElementById('sortBy').value = 'default';
+    document.getElementById('showAns').checked = false;
+    syncSidebar(); render();
+  };
+  document.getElementById('btnAll').onclick = function () {
+    var ids = current.slice(0, state.shown).map(function (q) { return q.id; });
+    var cart = QB.getCart(), added = 0;
+    ids.forEach(function (id) { if (cart.indexOf(id) < 0) { cart.push(id); added++; } });
+    QB.setCart(cart);
+    document.querySelectorAll('.qcard').forEach(function (c) {
+      c.querySelector('.pick').checked = true;
+      c.classList.add('selected');
+    });
+    QB.toast('已将当前 ' + ids.length + ' 题加入题车' + (added !== ids.length ? '（新增 ' + added + '）' : ''));
+  };
+  window.wbAfterCartClear = function () { /* 复选框状态已在公共逻辑中重置 */ };
+
+  render();
+})();
+</script>
+</body>
+</html>

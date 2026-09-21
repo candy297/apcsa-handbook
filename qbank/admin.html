@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>题库维护 · APCSA 题库</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html">
+      <span class="logo">AP</span>
+      <span>APCSA 题库<small>Computer Science A</small></span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">首页</a>
+      <a href="bank.html">题库浏览</a>
+      <a href="paper.html">组卷导出</a>
+      <a href="about.html">使用说明</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="btn btn-sm" href="bank.html">← 返回题库</a>
+  </div>
+</header>
+
+<div class="wrap-narrow">
+  <h2 class="sec-title" style="margin-top:10px">题库维护</h2>
+  <p class="sec-sub">数据概览、质量检查与后续补充计划。</p>
+
+  <div class="stats" style="margin:0 0 18px;padding:0;grid-template-columns:repeat(4,1fr)">
+    <div class="stat"><div class="n" id="a-total">—</div><div class="l">题目总数</div></div>
+    <div class="stat"><div class="n" id="a-ans">—</div><div class="l">有答案</div></div>
+    <div class="stat"><div class="n" id="a-exp">—</div><div class="l">有解析 / 评分标准</div></div>
+    <div class="stat"><div class="n" id="a-off">—</div><div class="l">官方考点标注</div></div>
+  </div>
+
+  <div class="panel">
+    <h3>各题源明细</h3>
+    <p class="hint">按套卷统计题量与答案 / 解析完整度。缺答案的条目列在下方。</p>
+    <div id="srcTable"></div>
+  </div>
+
+  <div class="panel">
+    <h3>知识点覆盖度</h3>
+    <p class="hint">按 CED 的 4 个 Unit / 53 个 Topic 统计题量，薄弱 Topic 一目了然。</p>
+    <div id="topicCoverage"></div>
+  </div>
+
+  <div class="panel">
+    <h3>质量检查</h3>
+    <p class="hint">自动检测题干为空、选项不足 4 个、缺少答案等异常，便于逐条人工校订。</p>
+    <div id="qcOut"></div>
+  </div>
+
+  <div class="panel">
+    <h3>数据导出</h3>
+    <p class="hint">导出结构化 JSON（题库原始数据），可用于二次开发、导入其他平台或做数据分析。</p>
+    <button class="btn btn-primary" id="btnJson">导出 questions.json</button>
+    <button class="btn" id="btnCsv">导出题目清单 CSV</button>
+  </div>
+
+  <div class="panel">
+    <h3>后续补充计划</h3>
+    <ul>
+      <li>1999–2021 历年真题（约 22 套）—— 可程序化提取，待分批校对后并入。</li>
+      <li>扫描版试卷：2025 北美卷 MCQ、2024 中国区卷、2021 Practice Exam、亚太完整版 —— 需 OCR / 视觉识别后录入。</li>
+      <li>AP Classroom 2025 前题库（104 份 PDF，全部为文本型）—— 可按旧大纲 Unit 组织，并用映射表归入新 Unit。</li>
+      <li>Topic 标注的人工复核：把自动标注结果导出后逐条校订，可将准确率提升至接近 100%。</li>
+    </ul>
+  </div>
+</div>
+
+<footer class="site"><div class="in"><span>题库维护</span><span id="bi"></span></div></footer>
+
+<script src="data/topics.js"></script>
+<script src="data/questions.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var qs = QB.DATA.questions, M = QB.DATA.meta, S = QB.computeStats();
+  function hasAns(q) { return q.type === 'FRQ' ? !!q.solution : !!(q.answer || q.explanation); }
+  function hasExp(q) { return q.type === 'FRQ' ? !!q.solution : !!q.explanation; }
+
+  document.getElementById('a-total').textContent = qs.length;
+  document.getElementById('a-ans').textContent = qs.filter(hasAns).length;
+  document.getElementById('a-exp').textContent = qs.filter(hasExp).length;
+  document.getElementById('a-off').textContent = M.officialTagged || 0;
+  document.getElementById('bi').textContent = '数据构建于 ' + (M.generated || '—');
+
+  /* 题源明细 */
+  var bySrc = {};
+  qs.forEach(function (q) {
+    var k = q.label || q.sourceLabel || '未分类';
+    bySrc[k] = bySrc[k] || { n: 0, ans: 0, exp: 0, mcq: 0, frq: 0, noans: [] };
+    var o = bySrc[k];
+    o.n++; if (hasAns(q)) o.ans++; if (hasExp(q)) o.exp++;
+    if (q.type === 'FRQ') o.frq++; else o.mcq++;
+    if (!hasAns(q)) o.noans.push(q.id);
+  });
+  var keys = Object.keys(bySrc).sort(function (a, b) { return bySrc[b].n - bySrc[a].n; });
+  document.getElementById('srcTable').innerHTML =
+    '<table style="width:100%;border-collapse:collapse;font-size:13.5px">' +
+    '<thead><tr style="text-align:left;color:var(--muted);font-size:12.5px;border-bottom:1px solid var(--line)">' +
+    '<th style="padding:8px 6px">题源 / 套卷</th><th style="padding:8px 6px">题量</th><th style="padding:8px 6px">MCQ</th>' +
+    '<th style="padding:8px 6px">FRQ</th><th style="padding:8px 6px">有答案</th><th style="padding:8px 6px">有解析</th><th style="padding:8px 6px">完整度</th></tr></thead><tbody>' +
+    keys.map(function (k) {
+      var o = bySrc[k], r = Math.round(o.ans / o.n * 100);
+      var color = r >= 99 ? 'var(--ok)' : (r >= 80 ? 'var(--warn)' : '#b91c1c');
+      return '<tr style="border-bottom:1px solid var(--line-2)">' +
+        '<td style="padding:8px 6px">' + QB.esc(k) + '</td><td style="padding:8px 6px">' + o.n + '</td>' +
+        '<td style="padding:8px 6px">' + o.mcq + '</td><td style="padding:8px 6px">' + o.frq + '</td>' +
+        '<td style="padding:8px 6px">' + o.ans + '</td><td style="padding:8px 6px">' + o.exp + '</td>' +
+        '<td style="padding:8px 6px;color:' + color + ';font-weight:700">' + r + '%</td></tr>';
+    }).join('') + '</tbody></table>';
+
+  /* 知识点覆盖 */
+  document.getElementById('topicCoverage').innerHTML = QB.TOPICS.units.map(function (u) {
+    var rows = u.topics.map(function (t) {
+      var n = S.byTopic[t.id] || 0;
+      var pct = Math.min(100, Math.round(n / 40 * 100));
+      return '<div style="display:flex;align-items:center;gap:9px;font-size:13px;margin:4px 0">' +
+        '<span style="width:32px;color:var(--muted);font-variant-numeric:tabular-nums">' + t.id + '</span>' +
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + QB.esc(t.nameCn) + '">' + QB.esc(t.nameCn) + '</span>' +
+        '<span style="width:74px;height:6px;background:var(--line-2);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:' + pct + '%;background:' + u.color + '"></span></span>' +
+        '<span style="width:34px;text-align:right;font-variant-numeric:tabular-nums;color:' + (n ? 'var(--ink)' : 'var(--muted)') + '">' + n + '</span></div>';
+    }).join('');
+    return '<h4 style="margin:16px 0 6px;font-size:14px"><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + u.color + ';margin-right:7px"></span>' +
+      u.code + ' ' + QB.esc(u.nameCn) + ' <span style="color:var(--muted);font-weight:400;font-size:12.5px">（' + (S.byUnit[u.id] || 0) + ' 题）</span></h4>' + rows;
+  }).join('');
+
+  /* 质量检查 */
+  var issues = { stem: [], opt: [], ans: [] };
+  qs.forEach(function (q) {
+    var t = (q.type === 'FRQ' ? (q.prompt || '') : (q.stem || '')).trim();
+    if (t.length < 20) issues.stem.push(q);
+    if (q.type === 'MCQ' && (q.options || []).length !== 4) issues.opt.push(q);
+    if (!hasAns(q)) issues.ans.push(q);
+  });
+  function issList(arr, label, note) {
+    if (!arr.length) return '<p style="color:var(--ok);font-size:13.5px">✓ ' + label + '：无异常</p>';
+    return '<p style="margin:0 0 6px;font-size:13.5px"><b style="color:var(--warn)">' + label + '：' + arr.length + ' 条</b>' +
+      (note ? ' <span style="color:var(--muted)">' + note + '</span>' : '') + '</p>' +
+      '<div style="font-size:12.5px;color:var(--ink-2);line-height:2">' +
+      arr.slice(0, 40).map(function (q) { return '<a class="chip" href="bank.html?kw=' + encodeURIComponent((q.stem || q.prompt || '').slice(0, 18)) + '">' + QB.esc(q.label || '') + ' #' + QB.esc(String(q.id).split('-').pop()) + '</a>'; }).join(' ') +
+      (arr.length > 40 ? ' … 其余 ' + (arr.length - 40) + ' 条' : '') + '</div>';
+  }
+  document.getElementById('qcOut').innerHTML =
+    issList(issues.stem, '题干过短或为空', '可能是扫描件或双栏排版导致') +
+    issList(issues.opt, '选项数不等于 4', '多为表格型选项，需人工核对') +
+    issList(issues.ans, '缺少答案', '部分为官方未公开答案的试卷');
+
+  /* 导出 */
+  function dl(content, name, type) {
+    var blob = new Blob([content], { type: type || 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 400);
+  }
+  document.getElementById('btnJson').onclick = function () {
+    dl(JSON.stringify({ meta: M, questions: qs }, null, 1), 'apcsa-questions.json', 'application/json');
+    QB.toast('已导出 JSON');
+  };
+  document.getElementById('btnCsv').onclick = function () {
+    var head = ['id', 'type', 'year', 'unit', 'topic', 'topicTagSource', 'officialLO', 'answer', 'label', 'hadExplanation', 'stemBrief'];
+    var rows = qs.map(function (q) {
+      var f = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/\n/g, ' ').slice(0, 300) + '"'; };
+      return [q.id, q.type, q.year || '', q.unit || '', q.topic || '', q.topicTagSource, q.officialLO || '',
+        q.answer || '', q.label || '', q.explanation || q.solution ? '1' : '0',
+        (q.stem || q.prompt || '').slice(0, 160)].map(f).join(',');
+    });
+    dl('\ufeff' + head.join(',') + '\n' + rows.join('\n'), 'apcsa-question-list.csv', 'text/csv;charset=utf-8');
+    QB.toast('已导出 CSV');
+  };
+})();
+</script>
+</body>
+</html>

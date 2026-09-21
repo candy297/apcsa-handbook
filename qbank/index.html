@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APCSA 题库 · AP Computer Science A 智能组题平台</title>
+<meta name="description" content="AP Computer Science A 真题与 AP Classroom 题库，按 CED 知识点索引，支持老师自主组卷与 Word 导出。">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html">
+      <span class="logo">AP</span>
+      <span>APCSA 题库<small>Computer Science A</small></span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">首页</a>
+      <a href="bank.html">题库浏览</a>
+      <a href="paper.html">组卷导出</a>
+      <a href="about.html">使用说明</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="btn btn-primary btn-sm" href="bank.html">开始组题</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <h1>AP Computer Science A<br>题库与组卷平台</h1>
+    <p class="lead">汇集 <b>AP Classroom 官方 Progress Check / Topic Questions</b> 与 <b>2022–2026 历年真题</b>，
+      按 2025 版 CED 的 4 个 Unit、53 个 Topic 逐题标注考点。勾选成卷，一键导出 Word 试卷。</p>
+    <div class="cta">
+      <a class="btn btn-light" href="bank.html">进入题库浏览</a>
+      <a class="btn" href="bank.html?year=2026">按年份看真题</a>
+      <a class="btn" href="bank.html?unit=U4">按知识点组题</a>
+    </div>
+  </div>
+</section>
+
+<div class="stats" id="stats">
+  <div class="stat"><div class="n" id="s-total">—</div><div class="l">题目总数</div></div>
+  <div class="stat"><div class="n" id="s-mcq">—</div><div class="l">选择题 MCQ</div></div>
+  <div class="stat"><div class="n" id="s-frq">—</div><div class="l">编程题 FRQ</div></div>
+  <div class="stat"><div class="n" id="s-ans">—</div><div class="l">附带答案 / 解析</div></div>
+</div>
+
+<div class="wrap-narrow">
+
+  <h2 class="sec-title">按大纲知识点</h2>
+  <p class="sec-sub">2025 版 CED 把原有 10 个 Unit 合并为 4 个 Unit，考试权重见下表。点击任意 Unit 即可查看该章全部题目。</p>
+  <div class="unit-grid" id="unitGrid"></div>
+
+  <h2 class="sec-title">按年份 / 来源</h2>
+  <p class="sec-sub">历年真题与官方模拟题，可以整套抽取，也可以只挑某一年、某一套练习。</p>
+  <div class="cards" id="yearCards"></div>
+
+  <h2 class="sec-title">老师组题流程</h2>
+  <p class="sec-sub">三步完成一份试卷：浏览筛选 → 勾选题目 → 导出 Word。</p>
+  <div class="cards">
+    <div class="card">
+      <div class="ico">1</div>
+      <h3>筛选定位</h3>
+      <p>左侧栏按 <b>Unit / Topic</b>、<b>年份</b>、<b>题型</b>、<b>来源</b> 逐层筛选，也可以用关键词全文搜索题干、选项与解析。</p>
+    </div>
+    <a class="card" href="bank.html">
+      <div class="ico">2</div>
+      <h3>勾选入题车</h3>
+      <p>每道题左上角复选框加入题车，右下角实时显示已选数量。题车状态保存在本地浏览器，关闭页面也不丢失。</p>
+    </a>
+    <a class="card" href="paper.html">
+      <div class="ico">3</div>
+      <h3>导出试卷</h3>
+      <p>在组卷页调整题序、设置卷头与留白，一键导出 <b>.docx</b>（可直接编辑）或打印为 PDF。可选是否附带答案与解析。</p>
+    </a>
+  </div>
+
+  <h2 class="sec-title">数据说明</h2>
+  <div class="note">
+    <p style="margin:0 0 8px"><b>题源</b>：College Board 官方 Progress Check 与 Topic Questions（AP Classroom 2026 版）、官方模考 Practice 1 / 2、
+      2022–2026 历年真题（含 2026 亚太卷）。题目与解析版权归 College Board 所有，仅限课堂教学使用，请勿外传商用。</p>
+    <p style="margin:0 0 8px"><b>考点标注</b>：标注为「官方标注」的题目，其 Unit / Topic / Learning Objective 直接取自官方 Skill &amp; LO 对齐表；
+      其余题目由关键词自动归类到 CED Topic，可能存在少量偏差，组卷前建议快速浏览确认。</p>
+    <p style="margin:0"><b>暂未覆盖</b>：1999–2021 历年真题、部分扫描版试卷（如 2025 北美卷、2024 中国区卷）尚在整理中，后续版本会持续补充。</p>
+  </div>
+
+</div>
+
+<footer class="site">
+  <div class="in">
+    <span>APCSA 题库 · 供 AP Computer Science A 教学使用</span>
+    <span id="buildInfo"></span>
+  </div>
+</footer>
+
+<script src="data/topics.js"></script>
+<script src="data/questions.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var S = QB.computeStats();
+  var M = QB.DATA.meta;
+
+  document.getElementById('s-total').textContent = S.total;
+  document.getElementById('s-mcq').textContent = S.byType.MCQ || 0;
+  document.getElementById('s-frq').textContent = S.byType.FRQ || 0;
+  document.getElementById('s-ans').textContent = M.withAnswer || 0;
+  document.getElementById('buildInfo').textContent = '数据构建于 ' + (M.generated || '—') + ' · 共 ' + S.total + ' 题';
+
+  /* Unit 卡片 */
+  var ug = document.getElementById('unitGrid');
+  ug.innerHTML = QB.TOPICS.units.map(function (u) {
+    var n = S.byUnit[u.id] || 0;
+    var cov = u.topics.filter(function (t) { return S.byTopic[t.id]; }).length;
+    return '<a class="unit-card" href="bank.html?unit=' + u.id + '">' +
+      '<div class="bar" style="background:' + u.color + '"></div>' +
+      '<h3>' + u.code + ' · ' + QB.esc(u.nameCn) + '</h3>' +
+      '<p class="en">' + QB.esc(u.name) + '</p>' +
+      '<div class="meta">' +
+      '<span class="chip" style="background:' + u.color + '18;color:' + u.color + '">权重 ' + u.weight + '</span>' +
+      '<span>' + n + ' 题</span>' +
+      '<span>· ' + u.topics.length + ' 个 Topic' + (cov < u.topics.length ? '（已覆盖 ' + cov + '）' : '') + '</span>' +
+      '</div></a>';
+  }).join('');
+
+  /* 年份 / 来源卡片 */
+  var yc = document.getElementById('yearCards');
+  var years = Object.keys(S.byYear).sort(function (a, b) { return b - a; });
+  var html = '';
+  years.forEach(function (y) {
+    html += '<a class="card" href="bank.html?year=' + y + '">' +
+      '<h3><span class="ico">卷</span>' + y + ' 年真题</h3>' +
+      '<p>共 ' + S.byYear[y] + ' 题 · 点击查看该年度全部题目与解析</p></a>';
+  });
+  Object.keys(S.bySource).filter(function (k) { return !/^CB 官方 FRQ/.test(k); })
+    .sort(function (a, b) { return S.bySource[b] - S.bySource[a]; }).slice(0, 4).forEach(function (k) {
+      html += '<a class="card" href="bank.html?q=' + encodeURIComponent(k) + '">' +
+        '<h3><span class="ico">▤</span>' + QB.esc(k) + '</h3>' +
+        '<p>共 ' + S.bySource[k] + ' 题 · 成套练习</p></a>';
+    });
+  yc.innerHTML = html;
+})();
+</script>
+</body>
+</html>
