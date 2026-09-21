@@ -274,6 +274,18 @@ pre.code {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ---------- 原题表格 / 图片（FRQ） ---------- */
+.tblwrap { overflow-x: auto; margin: 10px 0; }
+.mdtable { border-collapse: collapse; font-size: 13px; line-height: 1.5; }
+.mdtable th, .mdtable td { border: 1px solid #c8ccd4; padding: 5px 10px; text-align: left; vertical-align: top; }
+.mdtable th { background: #eef1f5; font-weight: 600; }
+.mdtable tr:nth-child(even) td { background: #f8f9fb; }
+.figbox { margin: 10px 0; text-align: center; }
+.figbox img { max-width: 100%; height: auto; border: 1px solid #e2e5ea; border-radius: 6px; background: #fff; }
+.opt-img { max-width: 100%; max-height: 150px; display: block; margin-top: 2px; border: 1px solid #e2e5ea; border-radius: 4px; }
+.expl-rubric { font-size: 12.5px; }
+.expl-rubric .mdtable { font-size: 12px; }
+
 /* ---------- 打印 ---------- */
 #printRoot { display: none; }
 body.printing > *:not(#printRoot) { display: none !important; }

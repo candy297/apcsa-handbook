@@ -6,23 +6,63 @@
   'use strict';
 
   var CODE_LINE = /(;|\{|\}|^\s*\/\/|^\s*\*|^\s*(public|private|protected|static|void|int|double|boolean|char|String|if|for|while|do|return|else|class|new|final)\b)/;
+  var IMG_LINE = /^!\[\]\((data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+))\)$/;
   var MONO_FONT = 'Consolas';
   var CN_FONT = 'DengXian';
   var CODEFONT_FALLBACK = 'Courier New';
 
   function splitStem(text) {
-    /* 返回 [{type:'prose'|'code', text}] */
-    var out = [], buf = [], inCode = false;
+    /* 返回 [{type:'prose'|'code'|'code', text}]（向后兼容）*/
+    return splitSegments(text).filter(function (s) { return s.type !== 'table' && s.type !== 'image'; });
+  }
+
+  /* 文本 → [{type:'prose'|'code'|'table'|'image', text|b64}] */
+  function splitSegments(text) {
+    var out = [], prose = [], code = [], table = [];
+    function flushProse() {
+      if (prose.length) { out.push({ type: 'prose', text: prose.join('\n') }); prose = []; }
+    }
+    function flushCode() {
+      if (code.length) { out.push({ type: 'code', text: code.join('\n') }); code = []; }
+    }
+    function flushTable() {
+      if (table.length) { out.push({ type: 'table', text: table.join('\n') }); table = []; }
+    }
+    function flushAll() { flushProse(); flushCode(); flushTable(); }
     String(text || '').split('\n').forEach(function (ln) {
-      var isCode = CODE_LINE.test(ln) || /^\s{4,}/.test(ln);
-      if (isCode !== inCode) {
-        if (buf.length) out.push({ type: inCode ? 'code' : 'prose', text: buf.join('\n') });
-        buf = []; inCode = isCode;
+      var m = IMG_LINE.exec(ln.trim());
+      if (m) { flushAll(); out.push({ type: 'image', b64: m[2] }); return; }
+      var s = ln.trim();
+      if (s.charAt(0) === '|' && s.charAt(s.length - 1) === '|' && s.length > 2) {
+        flushProse(); flushCode(); table.push(s); return;
       }
-      buf.push(ln);
+      if (table.length) flushTable();
+      var isCode = CODE_LINE.test(ln) || /^\s{4,}/.test(ln);
+      if (isCode) { flushProse(); code.push(ln); }
+      else { flushCode(); prose.push(ln); }
     });
-    if (buf.length) out.push({ type: inCode ? 'code' : 'prose', text: buf.join('\n') });
+    flushAll();
     return out;
+  }
+
+  /* Markdown 表格文本 → 行数组（剔除分隔行） */
+  function mdTableRows(mdText) {
+    return mdText.split('\n').map(function (ln) {
+      return ln.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(function (c) { return c.trim(); });
+    }).filter(function (r) {
+      return !r.every(function (c) { return c === '' || /^:?-{2,}:?$/.test(c); });
+    });
+  }
+
+  /* PNG base64 → {w, h, bin}（读 IHDR） */
+  function pngSize(b64) {
+    try {
+      var bin = atob(b64);
+      if (bin.length < 24 || bin.charCodeAt(0) !== 0x89) return null;
+      var w = ((bin.charCodeAt(16) << 24) | (bin.charCodeAt(17) << 16) | (bin.charCodeAt(18) << 8) | bin.charCodeAt(19)) >>> 0;
+      var h = ((bin.charCodeAt(20) << 24) | (bin.charCodeAt(21) << 16) | (bin.charCodeAt(22) << 8) | bin.charCodeAt(23)) >>> 0;
+      return (w > 0 && h > 0) ? { w: w, h: h } : null;
+    } catch (e) { return null; }
   }
 
   function cfgFromUI() {
@@ -51,6 +91,55 @@
       return new P(Object.assign({ children: [new T({ text: text, font: CN_FONT, size: 21 })] }, o || {}));
     }
     function blank(n) { for (var i = 0; i < n; i++) kids.push(new P({ children: [new T({ text: '', size: 21 })] })); }
+
+    /* 混合片段（散文/代码/表格/图片）→ docx 元素 */
+    function pushSegments(text, codeSize) {
+      codeSize = codeSize || 19;
+      splitSegments(text).forEach(function (seg) {
+        if (seg.type === 'prose') {
+          seg.text.split('\n').forEach(function (ln) {
+            if (ln.trim()) kids.push(new P({ spacing: { after: 60, line: 300 }, children: [new T({ text: ln, size: 21, font: CN_FONT })] }));
+          });
+        } else if (seg.type === 'code') {
+          seg.text.split('\n').forEach(function (ln) {
+            kids.push(new P({
+              spacing: { after: 0 }, indent: { left: 280 },
+              children: [new T({ text: ln || ' ', font: MONO_FONT, size: codeSize })]
+            }));
+          });
+          kids.push(new P({ spacing: { after: 60 }, children: [new T({ text: '', size: 10 })] }));
+        } else if (seg.type === 'table') {
+          var rows = mdTableRows(seg.text);
+          if (rows.length) {
+            kids.push(new D.Table({
+              width: { size: 100, type: D.WidthType.PERCENTAGE },
+              rows: rows.map(function (r) {
+                return new D.TableRow({
+                  children: r.map(function (c) {
+                    return new D.TableCell({
+                      children: [new P({ children: [new T({ text: c, size: 18, font: CN_FONT })] })]
+                    });
+                  })
+                });
+              })
+            }));
+            kids.push(new P({ spacing: { after: 60 }, children: [new T({ text: '', size: 10 })] }));
+          }
+        } else if (seg.type === 'image') {
+          var dim = pngSize(seg.b64);
+          if (dim) {
+            var scale = Math.min(1, 520 / dim.w);
+            kids.push(new P({
+              alignment: A.CENTER, spacing: { before: 60, after: 80 },
+              children: [new D.ImageRun({
+                data: seg.b64,
+                transformation: { width: Math.round(dim.w * scale), height: Math.round(dim.h * scale) }
+              })]
+            }));
+          }
+        }
+      });
+    }
 
     /* 卷头 */
     kids.push(new P({ alignment: A.CENTER, spacing: { after: 60 }, children: [new T({ text: cfg.title, bold: true, size: 32, font: CN_FONT })] }));
@@ -86,34 +175,37 @@
 
       /* 题干 / 提示 */
       var bodyText = q.type === 'FRQ' ? (q.prompt || q.stem || '') : (q.stem || '');
-      splitStem(bodyText).forEach(function (seg) {
-        if (seg.type === 'code') {
-          seg.text.split('\n').forEach(function (ln) {
-            kids.push(new P({
-              spacing: { after: 0 }, indent: { left: 280 },
-              children: [new T({ text: ln || ' ', font: MONO_FONT, size: 19 })]
-            }));
-          });
-          kids.push(new P({ spacing: { after: 60 }, children: [new T({ text: '', size: 10 })] }));
-        } else {
-          seg.text.split('\n').forEach(function (ln) {
-            kids.push(new P({ spacing: { after: 60, line: 300 }, children: [new T({ text: ln, size: 21, font: CN_FONT })] }));
-          });
-        }
-      });
+      pushSegments(bodyText);
 
       /* 选项 */
       if (q.options && q.options.length) {
         q.options.forEach(function (o) {
           var isAns = String(q.answer) === String(o.label);
-          kids.push(new P({
-            spacing: { after: 40 }, indent: { left: 280 },
-            children: [new T({
-              text: '(' + o.label + ') ' + o.text.replace(/\n/g, ' '),
-              size: 21, font: CN_FONT,
-              bold: cfg.includeAnswer && isAns
-            })]
-          }));
+          if (o.image) {
+            var dim = pngSize(o.image);
+            if (dim) {
+              var scale = Math.min(1, 460 / dim.w);
+              kids.push(new P({
+                spacing: { after: 40 }, indent: { left: 280 },
+                children: [
+                  new T({ text: '(' + o.label + ') ', size: 21, font: CN_FONT, bold: cfg.includeAnswer && isAns }),
+                  new D.ImageRun({
+                    data: o.image,
+                    transformation: { width: Math.round(dim.w * scale), height: Math.round(dim.h * scale) }
+                  })
+                ]
+              }));
+            }
+          } else {
+            kids.push(new P({
+              spacing: { after: 40 }, indent: { left: 280 },
+              children: [new T({
+                text: '(' + o.label + ') ' + o.text.replace(/\n/g, ' '),
+                size: 21, font: CN_FONT,
+                bold: cfg.includeAnswer && isAns
+              })]
+            }));
+          }
         });
       }
 
@@ -121,10 +213,14 @@
       if (cfg.includeAnswer || cfg.includeExpl) {
         if (q.type === 'FRQ') {
           if (cfg.includeAnswer && q.solution) {
-            kids.push(new P({ spacing: { before: 100, after: 40 }, children: [new T({ text: '【评分标准 / 参考答案】', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
+            kids.push(new P({ spacing: { before: 100, after: 40 }, children: [new T({ text: '【参考答案程序（Canonical Solution）】', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
             q.solution.split('\n').forEach(function (ln) {
-              kids.push(new P({ spacing: { after: 20, line: 280 }, children: [new T({ text: ln, size: 19, font: CN_FONT })] }));
+              kids.push(new P({ spacing: { after: 20, line: 280 }, indent: { left: 280 }, children: [new T({ text: ln, size: 19, font: MONO_FONT })] }));
             });
+          }
+          if (cfg.includeAnswer && q.rubric) {
+            kids.push(new P({ spacing: { before: 120, after: 40 }, children: [new T({ text: '【官方评分标准（Scoring Guidelines）】', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
+            pushSegments(q.rubric, 18);
           }
         } else {
           if (cfg.includeAnswer) {
@@ -268,11 +364,18 @@
         (cfg.showTopic && q.topic ? '<span class="chip">Topic ' + q.topic + '</span>' : '') +
         (cfg.includeSource ? '<span class="chip">' + QB.esc(q.label || '') + '</span>' : '') + '</div></div>';
       html += '<div class="qbody">' + QB.formatBody(q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem);
+      if (q.stemImg) html += '<div class="figbox"><img src="' + q.stemImg + '" alt="题干图"></div>';
       if (q.options && q.options.length) {
-        html += '<div class="opts">' + q.options.map(function (o) { return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="tx">' + QB.esc(o.text) + '</span></div>'; }).join('') + '</div>';
+        html += '<div class="opts">' + q.options.map(function (o) {
+          if (o.image) return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="tx"><img class="opt-img" src="' + o.image + '" alt="选项"></span></div>';
+          return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="tx">' + QB.esc(o.text) + '</span></div>';
+        }).join('') + '</div>';
       }
       if (shown) {
-        if (q.type === 'FRQ' && q.solution) html += '<div class="answerbox"><div class="expl-label">评分标准 / 参考答案</div><div class="expl">' + QB.esc(q.solution) + '</div></div>';
+        if (q.type === 'FRQ') {
+          if (q.solution) html += '<div class="answerbox"><div class="expl-label">参考答案程序（Canonical Solution）</div><div class="expl">' + QB.formatBody(q.solution) + '</div></div>';
+          if (q.rubric) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.formatBody(q.rubric) + '</div></div>';
+        }
         else if (q.type === 'MCQ') html += '<div class="answerbox">' + (q.answer ? '<div class="ansline">答案：<b>' + q.answer + '</b></div>' : '') + (cfg.includeExpl && q.explanation ? '<div class="expl-label">解析</div><div class="expl">' + QB.esc(q.explanation) + '</div>' : '') + '</div>';
       } else {
         for (var k = 0; k < cfg.blankLines; k++) html += '<div style="height:22pt"></div>';
@@ -297,9 +400,13 @@
     var md = '# ' + cfg.title + '\n\n';
     qs.forEach(function (q, i) {
       md += '**' + (i + 1) + '.** ' + ((q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem) || '').replace(/\n/g, '  \n') + '\n\n';
-      (q.options || []).forEach(function (o) { md += '- (' + o.label + ') ' + o.text.replace(/\n/g, ' ') + '\n'; });
+      (q.options || []).forEach(function (o) {
+        md += '- (' + o.label + ') ' + (o.image ? '（图片选项，见网站）' : o.text.replace(/\n/g, ' ')) + '\n';
+      });
       if (cfg.includeAnswer && q.answer) md += '\n> 答案：' + q.answer + '\n';
       if (cfg.includeExpl && q.explanation) md += '> 解析：' + q.explanation.replace(/\n/g, ' ') + '\n';
+      if (cfg.includeAnswer && q.type === 'FRQ' && q.solution) md += '\n> 参考答案程序：\n> ```java\n' + q.solution.replace(/^/gm, '> ') + '\n> ```\n';
+      if (cfg.includeAnswer && q.type === 'FRQ' && q.rubric) md += '\n> 官方评分标准：\n' + q.rubric.replace(/^/gm, '> ') + '\n';
       md += '\n';
     });
     navigator.clipboard.writeText(md).then(function () { QB.toast('已复制 Markdown 到剪贴板'); },

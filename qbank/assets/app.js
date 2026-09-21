@@ -36,32 +36,70 @@
   }
 
   var CODE_LINE = /(;|\{|\}|^\s*\/\/|^\s*\*|^\s*(public|private|protected|static|void|int|double|boolean|char|String|if|for|while|do|return|else|class|new|final)\b)/;
+  var IMG_LINE = /^!\[\]\((data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+)\)$/;
 
-  /* 把「散文 + 代码」混合文本渲染为 HTML：连续代码行包进 <pre> */
+  /* Markdown 表格行组 → HTML 表格 */
+  function mdTable(rows) {
+    var cells = rows.map(function (ln) {
+      return ln.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|')
+        .map(function (c) { return c.trim(); });
+    });
+    cells = cells.filter(function (r) {
+      return !r.every(function (c) { return c === '' || /^:?-{2,}:?$/.test(c); });
+    });
+    if (!cells.length) return '';
+    var head = cells[0], h = '<div class="tblwrap"><table class="mdtable"><thead><tr>';
+    head.forEach(function (c) { h += '<th>' + esc(c) + '</th>'; });
+    h += '</tr></thead><tbody>';
+    cells.slice(1).forEach(function (r) {
+      h += '<tr>';
+      for (var i = 0; i < head.length; i++) h += '<td>' + esc(r[i] == null ? '' : r[i]) + '</td>';
+      h += '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+
+  /* 把「散文 + 代码 + 表格 + 图片」混合文本渲染为 HTML */
   function formatBody(text) {
     if (!text) return '';
     var lines = String(text).split('\n');
-    var html = '', buf = [], inCode = false;
+    var html = '', prose = [], code = [], table = [];
     function flushProse() {
-      if (!buf.length) return;
-      var t = buf.join('\n').trim();
+      if (!prose.length) return;
+      var t = prose.join('\n').trim();
       if (t) html += '<p class="stem">' + esc(t) + '</p>';
-      buf = [];
+      prose = [];
     }
     function flushCode() {
-      if (!buf.length) return;
-      html += '<pre class="code">' + esc(buf.join('\n')) + '</pre>';
-      buf = [];
+      if (!code.length) return;
+      html += '<pre class="code">' + esc(code.join('\n')) + '</pre>';
+      code = [];
     }
+    function flushTable() {
+      if (!table.length) return;
+      html += mdTable(table);
+      table = [];
+    }
+    function flushAll() { flushProse(); flushCode(); flushTable(); }
     lines.forEach(function (ln) {
-      var isCode = CODE_LINE.test(ln) || /^\s{4,}/.test(ln);
-      if (isCode !== inCode) {
-        inCode ? flushCode() : flushProse();
-        inCode = isCode;
+      var im = IMG_LINE.exec(ln.trim());
+      if (im) {
+        flushAll();
+        html += '<div class="figbox"><img src="' + im[1] + '" alt="原题图表"></div>';
+        return;
       }
-      buf.push(ln);
+      var s = ln.trim();
+      if (s.charAt(0) === '|' && s.charAt(s.length - 1) === '|' && s.length > 2) {
+        flushProse(); flushCode();
+        table.push(s);
+        return;
+      }
+      if (table.length) flushTable();
+      var isCode = CODE_LINE.test(ln) || /^\s{4,}/.test(ln);
+      if (isCode) { flushProse(); code.push(ln); }
+      else { flushCode(); prose.push(ln); }
     });
-    inCode ? flushCode() : flushProse();
+    flushAll();
     return html;
   }
 
@@ -124,27 +162,40 @@
       bodyHtml += formatBody(q.prompt || q.stem || '');
     } else {
       bodyHtml += formatBody(q.stem || '');
+      if (q.stemImg) bodyHtml += '<div class="figbox"><img src="' + q.stemImg + '" alt="题干图"></div>';
       if (q.options && q.options.length) {
         bodyHtml += '<div class="opts">';
         q.options.forEach(function (o) {
           var cls = 'opt' + (showAns && String(q.answer) === String(o.label) ? ' correct' : '');
-          bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span><span class="tx">' + esc(o.text) + '</span></div>';
+          if (o.image) {
+            bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span>' +
+              '<span class="tx"><img class="opt-img" src="' + o.image + '" alt="选项 ' + esc(o.label) + '"></span></div>';
+          } else {
+            bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span><span class="tx">' + esc(o.text) + '</span></div>';
+          }
         });
         bodyHtml += '</div>';
       }
     }
 
-    var hasAnsContent = q.type === 'FRQ' ? !!q.solution : !!(q.answer || q.explanation);
+    var hasAnsContent = q.type === 'FRQ' ? !!(q.solution || q.rubric) : !!(q.answer || q.explanation);
     var answerHtml = '';
     if (!showAns) {
       answerHtml = hasAnsContent
         ? '<div class="answerbox" style="border-top-style:dashed"><span class="src" style="color:var(--muted)">答案与解析已隐藏 —— 勾选右上角「显示答案」后查看</span></div>'
         : '';
     } else if (q.type === 'FRQ') {
+      var ansParts = [];
       if (q.solution) {
-        answerHtml = '<div class="answerbox wb-ans">' +
-          '<div class="expl-label">评分标准 / 参考答案（Scoring Guidelines）</div>' +
-          '<div class="expl">' + esc(q.solution) + '</div></div>';
+        ansParts.push('<div class="expl-label">参考答案程序（Canonical Solution）</div>' +
+          '<div class="expl">' + formatBody(q.solution) + '</div>');
+      }
+      if (q.rubric) {
+        ansParts.push('<div class="expl-label">官方评分标准（Scoring Guidelines）</div>' +
+          '<div class="expl expl-rubric">' + formatBody(q.rubric) + '</div>');
+      }
+      if (ansParts.length) {
+        answerHtml = '<div class="answerbox wb-ans">' + ansParts.join('') + '</div>';
       }
     } else if (hasAnsContent) {
       answerHtml = '<div class="answerbox wb-ans">' +
@@ -165,6 +216,7 @@
       '<div class="tags">' + tagBits.join('') + '</div>' +
       '</div>' +
       '<div class="qbody">' + bodyHtml + '</div>' +
+      (showAns ? answerHtml : '') +
       footHtml +
       '</article>';
   }
