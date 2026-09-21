@@ -325,3 +325,41 @@ body.printing #printRoot .qhead { margin-bottom: 6pt; }
   .cart-bar { left: 12px; right: 12px; bottom: 12px; flex-wrap: wrap; }
   .nav { display: none; }
 }
+
+/* ---------- 官方评分标准表格（Scoring Criteria / Decision Rules） ---------- */
+.expl-rubric { font-size: 12.5px; }
+.rublink { float: right; font-weight: 500; font-size: 11px; letter-spacing: 0; }
+.rubpart { margin: 8px 0 18px; }
+.rubpart:last-child { margin-bottom: 4px; }
+.rubpart-h {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 6px;
+}
+.rubpart-name .rubpart-h { font-size: 13px; }
+.rubtotal { font-weight: 700; font-size: 12px; color: var(--ink-2); }
+table.rubtable { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.55; }
+.rubtable th {
+  background: #cfe6fb; color: #17324d; font-weight: 700; text-align: left;
+  padding: 6px 10px; border: 1px solid #b5d7f5; font-size: 12.5px;
+}
+.rubtable td {
+  border: 1px solid #b5d7f5; padding: 8px 10px; vertical-align: top; background: #fff;
+}
+.rubtable tr:nth-child(even) td { background: #f7fbff; }
+.rubtable .c-n { width: 30px; text-align: center; font-weight: 700; white-space: nowrap; }
+.rubtable .c-crit { width: 36%; }
+.rubtable .c-pts { width: 62px; text-align: right; font-weight: 700; white-space: nowrap; }
+.rubtable .rgroup { margin: 0 0 8px; }
+.rubtable .rgroup:last-child { margin-bottom: 0; }
+.rubtable .rlead { margin-bottom: 2px; }
+.rubtable .rgroup ul { margin: 2px 0 0 15px; padding: 0; }
+.rubtable .rgroup li { margin: 1px 0; }
+.rubtable .rnote { margin: 3px 0; }
+.rubtable code {
+  font-family: var(--mono); font-size: 11.5px; background: #eef2f7;
+  border: 1px solid #dfe5ec; border-radius: 4px; padding: 0 4px;
+}
+@media print {
+  .rubtable th { background: #cfe6fb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rublink { display: none; }
+}

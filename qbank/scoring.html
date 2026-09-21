@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>统一评分标准 · APCSA 题库</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .sgsec { margin-bottom: 26px; }
+  .sgsec h3 { margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; }
+  .sgyear { font-size: 12px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 999px; padding: 1px 10px; }
+  .sgtext {
+    white-space: pre-wrap; font-size: 13.5px; line-height: 1.75; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 20px; margin-top: 10px;
+  }
+  .sgnote { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="index.html">
+      <span class="logo">AP</span>
+      <span>APCSA 题库<small>Computer Science A</small></span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">首页</a>
+      <a href="bank.html">题库浏览</a>
+      <a href="paper.html">组卷导出</a>
+      <a href="scoring.html">评分标准</a>
+      <a href="about.html">使用说明</a>
+    </nav>
+    <span class="spacer"></span>
+  </div>
+</header>
+
+<div class="wrap-narrow">
+  <h2 class="sec-title" style="margin-top:10px">FRQ 统一评分标准</h2>
+  <p class="sec-sub">
+    Applying the Scoring Criteria 与 2025 Digital Decision Rules —— 适用于每一道 FRQ 的通用判分规则，
+    不再重复出现在单题解析中。每道题的<b>逐项评分表</b>（Scoring Criteria / Decision Rules）
+    在题库的题目解析里查看。
+  </p>
+
+  <div class="panel" style="padding:14px 18px">
+    <b>怎么用？</b>　先按每道题的评分表逐项给分（question rubric 永远优先），
+    再用下面的 <b>Applying the Scoring Criteria</b> 处理扣分（penalty），
+    Bluebook 机考卷另需参考 <b>Digital Decision Rules</b> 解释输入瑕疵。
+    2026 年起生效的 Algorithm Points 与 General Interpretation Rules 附后。
+  </div>
+
+  <div id="secList"></div>
+</div>
+
+<footer class="site">
+  <div class="in"><span>APCSA 题库 · 统一评分标准</span><span id="bi"></span></div>
+</footer>
+
+<script src="data/scoring.js"></script>
+<script src="data/questions.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var S = window.QB_SCORING || { sections: [] };
+  var list = document.getElementById('secList');
+  var CN = { 'Applying the Scoring Criteria': '评分标准使用规则（含扣分表）',
+             '2025 Digital Decision Rules': '2025 数字化考试判定规则（Bluebook 机考适用）',
+             'General Interpretation Rules': '一般解释规则（拼写 / 缺词等瑕疵如何判）' };
+  if (!S.sections.length) {
+    list.innerHTML = '<div class="panel">评分标准数据尚未生成，请先运行构建脚本。</div>';
+  }
+  S.sections.forEach(function (sec) {
+    var div = document.createElement('div');
+    div.className = 'sgsec';
+    var cn = CN[sec.title] ? '　<span style="font-weight:500;color:var(--muted);font-size:13px">' + CN[sec.title] + '</span>' : '';
+    div.innerHTML = '<h3><span class="sgyear">' + sec.year + '</span><span>' + QB.esc(sec.title) + '</span>' + cn + '</h3>' +
+      '<div class="sgtext">' + QB.esc(sec.text) + '</div>';
+    list.appendChild(div);
+  });
+  var bi = document.getElementById('bi');
+  if (bi && window.QB_DATA && QB_DATA.meta) bi.textContent = '题目 ' + QB_DATA.meta.count + ' · 更新 ' + QB_DATA.meta.generated;
+})();
+</script>
+</body>
+</html>

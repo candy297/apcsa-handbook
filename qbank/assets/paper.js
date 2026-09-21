@@ -218,7 +218,53 @@
               kids.push(new P({ spacing: { after: 20, line: 280 }, indent: { left: 280 }, children: [new T({ text: ln, size: 19, font: MONO_FONT })] }));
             });
           }
-          if (cfg.includeAnswer && q.rubric) {
+          if (cfg.includeAnswer && q.rubricTable && q.rubricTable.length) {
+            /* 官方评分表格（与 CB Scoring Guidelines 版式一致） */
+            q.rubricTable.forEach(function (p) {
+              kids.push(new P({ spacing: { before: 120, after: 40 }, children: [new T({
+                text: '【官方评分标准】' + (p.part ? ' Part (' + p.part + ') ' : ' ') + (p.name || '') + (p.total ? '　' + p.total : ''),
+                bold: true, size: 20, color: '1D4ED8', font: CN_FONT
+              })] }));
+              var headRow = new D.TableRow({
+                tableHeader: true,
+                children: ['Scoring Criteria', 'Decision Rules', 'Points'].map(function (h) {
+                  return new D.TableCell({
+                    shading: { fill: 'CFE6FB' },
+                    children: [new P({ children: [new T({ text: h, bold: true, size: 18, font: CN_FONT })] })]
+                  });
+                })
+              });
+              var bodyRows = (p.rows || []).map(function (r) {
+                var ruleLines = [];
+                if (r.can && r.can.length) {
+                  ruleLines.push('Responses can still earn the point even if they');
+                  r.can.forEach(function (b) { ruleLines.push('• ' + b); });
+                }
+                if (r.wont && r.wont.length) {
+                  ruleLines.push('Responses will not earn the point if they');
+                  r.wont.forEach(function (b) { ruleLines.push('• ' + b); });
+                }
+                (r.notes || []).forEach(function (n) { ruleLines.push(n); });
+                if (!ruleLines.length) ruleLines.push('—');
+                var strip = function (s) { return String(s || '').replace(/`/g, ''); };
+                function cellP(text, bold) {
+                  return new P({ children: [new T({ text: text, size: 17, bold: !!bold, font: CN_FONT })] });
+                }
+                return new D.TableRow({
+                  children: [
+                    new D.TableCell({ children: [cellP((r.n ? r.n + '  ' : '') + strip(r.criteria))] }),
+                    new D.TableCell({ children: ruleLines.map(function (l) { return cellP(l); }) }),
+                    new D.TableCell({ children: [cellP(r.points || '', true)] })
+                  ]
+                });
+              });
+              kids.push(new D.Table({
+                width: { size: 100, type: D.WidthType.PERCENTAGE },
+                rows: [headRow].concat(bodyRows)
+              }));
+              kids.push(new P({ spacing: { after: 60 }, children: [new T({ text: '', size: 10 })] }));
+            });
+          } else if (cfg.includeAnswer && q.rubric) {
             kids.push(new P({ spacing: { before: 120, after: 40 }, children: [new T({ text: '【官方评分标准（Scoring Guidelines）】', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
             pushSegments(q.rubric, 18);
           }
@@ -374,7 +420,8 @@
       if (shown) {
         if (q.type === 'FRQ') {
           if (q.solution) html += '<div class="answerbox"><div class="expl-label">参考答案程序（Canonical Solution）</div><div class="expl">' + QB.formatBody(q.solution) + '</div></div>';
-          if (q.rubric) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.formatBody(q.rubric) + '</div></div>';
+          if (q.rubricTable && q.rubricTable.length) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.rubricTableHtml(q.rubricTable) + '</div></div>';
+          else if (q.rubric) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.formatBody(q.rubric) + '</div></div>';
         }
         else if (q.type === 'MCQ') html += '<div class="answerbox">' + (q.answer ? '<div class="ansline">答案：<b>' + q.answer + '</b></div>' : '') + (cfg.includeExpl && q.explanation ? '<div class="expl-label">解析</div><div class="expl">' + QB.esc(q.explanation) + '</div>' : '') + '</div>';
       } else {
@@ -406,7 +453,24 @@
       if (cfg.includeAnswer && q.answer) md += '\n> 答案：' + q.answer + '\n';
       if (cfg.includeExpl && q.explanation) md += '> 解析：' + q.explanation.replace(/\n/g, ' ') + '\n';
       if (cfg.includeAnswer && q.type === 'FRQ' && q.solution) md += '\n> 参考答案程序：\n> ```java\n' + q.solution.replace(/^/gm, '> ') + '\n> ```\n';
-      if (cfg.includeAnswer && q.type === 'FRQ' && q.rubric) md += '\n> 官方评分标准：\n' + q.rubric.replace(/^/gm, '> ') + '\n';
+      if (cfg.includeAnswer && q.type === 'FRQ' && q.rubricTable && q.rubricTable.length) {
+        md += '\n> 官方评分标准：\n>\n';
+        q.rubricTable.forEach(function (p) {
+          md += '> **' + (p.part ? '(' + p.part + ') ' : '') + (p.name || '') + (p.total ? '　' + p.total : '') + '**\n>\n';
+          md += '> | # | Scoring Criteria | Decision Rules | Points |\n> | --- | --- | --- | --- |\n';
+          (p.rows || []).forEach(function (r) {
+            var rules = [];
+            if (r.can && r.can.length) { rules.push('Responses can still earn the point even if they'); r.can.forEach(function (b) { rules.push('• ' + b); }); }
+            if (r.wont && r.wont.length) { rules.push('Responses will not earn the point if they'); r.wont.forEach(function (b) { rules.push('• ' + b); }); }
+            (r.notes || []).forEach(function (n) { rules.push(n); });
+            md += '> | ' + (r.n || '') + ' | ' + String(r.criteria || '').replace(/\|/g, '\\|').replace(/`/g, '') +
+              ' | ' + rules.join('<br>').replace(/\|/g, '\\|').replace(/`/g, '') + ' | ' + (r.points || '') + ' |\n';
+          });
+          md += '>\n';
+        });
+      } else if (cfg.includeAnswer && q.type === 'FRQ' && q.rubric) {
+        md += '\n> 官方评分标准：\n' + q.rubric.replace(/^/gm, '> ') + '\n';
+      }
       md += '\n';
     });
     navigator.clipboard.writeText(md).then(function () { QB.toast('已复制 Markdown 到剪贴板'); },

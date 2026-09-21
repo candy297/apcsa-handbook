@@ -103,6 +103,45 @@
     return html;
   }
 
+  /* ---------- 官方评分标准表格（Scoring Criteria / Decision Rules） ---------- */
+  function codeHtml(s) {
+    var e = esc(s);
+    return e.replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  function rubricTableHtml(parts) {
+    if (!parts || !parts.length) return '';
+    var h = '';
+    parts.forEach(function (p) {
+      h += '<div class="rubpart">';
+      h += '<div class="rubpart-h"><span class="rubpart-name">' +
+        (p.part ? '(' + esc(p.part) + ') ' : '') + esc(p.name || '') + '</span>' +
+        (p.total ? '<span class="rubtotal">' + esc(p.total) + '</span>' : '') + '</div>';
+      h += '<div class="tblwrap"><table class="rubtable"><thead><tr>' +
+        '<th class="c-n">#</th><th class="c-crit">Scoring Criteria</th>' +
+        '<th class="c-rules">Decision Rules</th><th class="c-pts">Points</th>' +
+        '</tr></thead><tbody>';
+      (p.rows || []).forEach(function (r) {
+        var rules = '';
+        function group(title, arr) {
+          if (!arr || !arr.length) return;
+          rules += '<div class="rgroup"><div class="rlead">' + title + '</div><ul>';
+          arr.forEach(function (b) { rules += '<li>' + codeHtml(b) + '</li>'; });
+          rules += '</ul></div>';
+        }
+        group('Responses <b>can</b> still earn the point even if they', r.can);
+        group('Responses <b>will not</b> earn the point if they', r.wont);
+        (r.notes || []).forEach(function (n) { rules += '<div class="rnote">' + codeHtml(n) + '</div>'; });
+        h += '<tr><td class="c-n">' + esc(r.n || '') + '</td>' +
+          '<td class="c-crit">' + (codeHtml(r.criteria || '') || '—') + '</td>' +
+          '<td class="c-rules">' + (rules || '—') + '</td>' +
+          '<td class="c-pts">' + esc(r.points || '') + '</td></tr>';
+      });
+      h += '</tbody></table></div></div>';
+    });
+    return h;
+  }
+
   /* ---------- 题车（localStorage） ---------- */
   var CART_KEY = 'apcsa_qbank_cart_v1';
   function getCart() {
@@ -190,8 +229,13 @@
         ansParts.push('<div class="expl-label">参考答案程序（Canonical Solution）</div>' +
           '<div class="expl">' + formatBody(q.solution) + '</div>');
       }
-      if (q.rubric) {
-        ansParts.push('<div class="expl-label">官方评分标准（Scoring Guidelines）</div>' +
+      if (q.rubricTable && q.rubricTable.length) {
+        ansParts.push('<div class="expl-label">官方评分标准（Scoring Guidelines）' +
+          '<a class="rublink" href="scoring.html">Applying the Scoring Criteria 与 Digital Decision Rules →</a></div>' +
+          '<div class="expl expl-rubric">' + rubricTableHtml(q.rubricTable) + '</div>');
+      } else if (q.rubric) {
+        ansParts.push('<div class="expl-label">官方评分标准（Scoring Guidelines）' +
+          '<a class="rublink" href="scoring.html">统一评分标准 →</a></div>' +
           '<div class="expl expl-rubric">' + formatBody(q.rubric) + '</div>');
       }
       if (ansParts.length) {
@@ -295,6 +339,7 @@
   window.QB = {
     DATA: DATA, TOPICS: TOPICS, TOPIC_INDEX: TOPIC_INDEX, UNIT_INDEX: UNIT_INDEX,
     esc: esc, qs: qs, formatBody: formatBody, renderCard: renderCard, bindCards: bindCards,
+    codeHtml: codeHtml, rubricTableHtml: rubricTableHtml,
     getCart: getCart, setCart: setCart, cartQuestions: cartQuestions, clearCart: clearCart,
     toggleCart: toggleCart, inCart: inCart, computeStats: computeStats, toast: toast,
     unitColor: unitColor, unitShort: unitShort, topicName: topicName
