@@ -38,6 +38,15 @@
   var CODE_LINE = /(;|\{|\}|^\s*\/\/|^\s*\*|^\s*(public|private|protected|static|void|int|double|boolean|char|String|if|for|while|do|return|else|class|new|final)\b)/;
   var IMG_LINE = /^!\[\]\((data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+)\)$/;
 
+  /* 多行选项是否为代码（渲染为等宽代码块样式，保留缩进） */
+  function optIsCode(t) {
+    if (!t || t.indexOf('\n') < 0) return false;
+    if (/[{}]/.test(t)) return true;
+    var lines = t.split('\n');
+    var semi = lines.filter(function (l) { return /;\s*$/.test(l.trim()); }).length;
+    return semi >= 2 || /^(public|private|protected|static|void|int|double|boolean|char|String|if|for|while|do|return|else|class|new)\b/.test(t.trim());
+  }
+
   /* Markdown 表格行组 → HTML 表格 */
   function mdTable(rows) {
     var cells = rows.map(function (ln) {
@@ -210,7 +219,8 @@
             bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span>' +
               '<span class="tx"><img class="opt-img" src="' + o.image + '" alt="选项 ' + esc(o.label) + '"></span></div>';
           } else {
-            bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span><span class="tx">' + esc(o.text) + '</span></div>';
+            var txCls = 'tx' + (optIsCode(o.text) ? ' tx-code' : '');
+            bodyHtml += '<div class="' + cls + '"><span class="lb">(' + esc(o.label) + ')</span><span class="' + txCls + '">' + esc(o.text) + '</span></div>';
           }
         });
         bodyHtml += '</div>';
@@ -338,7 +348,7 @@
   /* ---------- 导出 ---------- */
   window.QB = {
     DATA: DATA, TOPICS: TOPICS, TOPIC_INDEX: TOPIC_INDEX, UNIT_INDEX: UNIT_INDEX,
-    esc: esc, qs: qs, formatBody: formatBody, renderCard: renderCard, bindCards: bindCards,
+    esc: esc, qs: qs, formatBody: formatBody, optIsCode: optIsCode, renderCard: renderCard, bindCards: bindCards,
     codeHtml: codeHtml, rubricTableHtml: rubricTableHtml,
     getCart: getCart, setCart: setCart, cartQuestions: cartQuestions, clearCart: clearCart,
     toggleCart: toggleCart, inCart: inCart, computeStats: computeStats, toast: toast,

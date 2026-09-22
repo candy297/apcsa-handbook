@@ -196,6 +196,18 @@
                 ]
               }));
             }
+          } else if (QB.optIsCode(o.text)) {
+            /* 代码选项：标签行 + 等宽逐行输出（保留缩进换行） */
+            kids.push(new P({
+              spacing: { after: 20 }, indent: { left: 280 },
+              children: [new T({ text: '(' + o.label + ')', size: 21, font: CN_FONT, bold: cfg.includeAnswer && isAns })]
+            }));
+            o.text.split('\n').forEach(function (ln) {
+              kids.push(new P({
+                spacing: { after: 10, line: 276 }, indent: { left: 640 },
+                children: [new T({ text: ln, size: 19, font: MONO_FONT, bold: cfg.includeAnswer && isAns })]
+              }));
+            });
           } else {
             kids.push(new P({
               spacing: { after: 40 }, indent: { left: 280 },
@@ -414,7 +426,8 @@
       if (q.options && q.options.length) {
         html += '<div class="opts">' + q.options.map(function (o) {
           if (o.image) return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="tx"><img class="opt-img" src="' + o.image + '" alt="选项"></span></div>';
-          return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="tx">' + QB.esc(o.text) + '</span></div>';
+          var cls = 'tx' + (QB.optIsCode(o.text) ? ' tx-code' : '');
+          return '<div class="opt"><span class="lb">(' + o.label + ')</span><span class="' + cls + '">' + QB.esc(o.text) + '</span></div>';
         }).join('') + '</div>';
       }
       if (shown) {
@@ -448,7 +461,9 @@
     qs.forEach(function (q, i) {
       md += '**' + (i + 1) + '.** ' + ((q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem) || '').replace(/\n/g, '  \n') + '\n\n';
       (q.options || []).forEach(function (o) {
-        md += '- (' + o.label + ') ' + (o.image ? '（图片选项，见网站）' : o.text.replace(/\n/g, ' ')) + '\n';
+        if (o.image) { md += '- (' + o.label + ') （图片选项，见网站）\n'; }
+        else if (QB.optIsCode(o.text)) { md += '- (' + o.label + ')\n\n  ```java\n' + o.text.replace(/^/gm, '  ') + '\n  ```\n'; }
+        else { md += '- (' + o.label + ') ' + o.text.replace(/\n/g, ' ') + '\n'; }
       });
       if (cfg.includeAnswer && q.answer) md += '\n> 答案：' + q.answer + '\n';
       if (cfg.includeExpl && q.explanation) md += '> 解析：' + q.explanation.replace(/\n/g, ' ') + '\n';

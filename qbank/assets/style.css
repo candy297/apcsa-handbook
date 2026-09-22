@@ -363,3 +363,19 @@ table.rubtable { width: 100%; border-collapse: collapse; font-size: 12.5px; line
   .rubtable th { background: #cfe6fb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .rublink { display: none; }
 }
+
+/* ---------- 代码型 MCQ 选项（等宽 + 缩进保留） ---------- */
+.opt .tx-code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: #f6f8fa;
+  border: 1px solid #e5e9ef;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 2px 0;
+  flex: 1 1 auto;
+}
+.opt.correct .tx-code { background: #f0f9f4; border-color: #cdeada; }
+@media print {
+  .opt .tx-code { background: #f6f8fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
