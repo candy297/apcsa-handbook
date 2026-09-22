@@ -6,15 +6,52 @@
 <title>统一评分标准 · APCSA 题库</title>
 <link rel="stylesheet" href="assets/style.css">
 <style>
-  .sgsec { margin-bottom: 26px; }
-  .sgsec h3 { margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; }
-  .sgyear { font-size: 12px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 999px; padding: 1px 10px; }
-  .sgtext {
-    white-space: pre-wrap; font-size: 13.5px; line-height: 1.75; color: var(--ink);
+  .sgsec { margin: 0 0 30px; }
+  .sgsec h3 { margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .sgyear { font-size: 12px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 999px; padding: 1px 10px; white-space: nowrap; }
+  .sgtitle-cn { font-weight: 500; color: var(--muted); font-size: 13px; }
+
+  .sgbody {
     background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 16px 20px; margin-top: 10px;
+    padding: 14px 18px; margin-top: 10px;
   }
-  .sgnote { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+
+  /* 小标题（全宽，中英同行） */
+  .sg-h {
+    font-weight: 700; font-size: 13.5px; color: var(--ink);
+    margin: 16px 0 6px; padding: 5px 10px; background: #eef4fb; border-left: 3px solid var(--primary);
+    border-radius: 0 4px 4px 0;
+  }
+  .sg-h:first-child { margin-top: 0; }
+  .sg-h .cn { font-weight: 500; color: var(--ink-2); margin-left: 8px; }
+
+  /* 双栏行：左 EN 右 CN；窄屏自动堆叠 */
+  .sg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; padding: 7px 2px; }
+  .sg-row + .sg-row { border-top: 1px dashed #e8edf3; }
+  .sg-row .en { color: var(--ink); font-size: 13px; line-height: 1.65; }
+  .sg-row .cn { color: var(--ink-2); font-size: 13px; line-height: 1.65;
+                border-left: 1px solid #e3e9f0; padding-left: 22px; }
+  @media (max-width: 820px) {
+    .sg-row { grid-template-columns: 1fr; gap: 1px 0; }
+    .sg-row .cn { border-left: none; padding-left: 0; }
+    .sg-row .cn::before { content: "▸ "; color: var(--muted); }
+  }
+
+  /* 项目符号条目：• 与文字同行 */
+  .sg-li .en::before, .sg-li .cn::before { content: "•\00a0"; color: var(--primary); font-weight: 700; }
+  @media (max-width: 820px) { .sg-li .cn::before { content: "▸\00a0"; } }
+
+  /* 带字母编号的扣分条目（v)–z)） */
+  .sg-item .en::before, .sg-item .cn::before { content: none; }
+  .sg-item .lab { font-weight: 700; color: var(--primary); margin-right: 4px; }
+
+  /* 引导句 */
+  .sg-lead .en, .sg-lead .cn { font-weight: 700; }
+
+  .sg-note { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+  .sg-legend { display: inline-flex; gap: 14px; font-size: 12px; color: var(--muted); margin-left: 6px; }
+  .sg-legend .en-dot { color: var(--ink); }
+  .sg-legend .cn-dot { color: var(--ink-2); }
 </style>
 </head>
 <body>
@@ -37,11 +74,12 @@
 </header>
 
 <div class="wrap-narrow">
-  <h2 class="sec-title" style="margin-top:10px">FRQ 统一评分标准</h2>
+  <h2 class="sec-title" style="margin-top:10px">FRQ 统一评分标准<span style="font-size:14px;font-weight:500;color:var(--muted)">　Scoring Guidelines — General Rules</span></h2>
   <p class="sec-sub">
     Applying the Scoring Criteria 与 2025 Digital Decision Rules —— 适用于每一道 FRQ 的通用判分规则，
     不再重复出现在单题解析中。每道题的<b>逐项评分表</b>（Scoring Criteria / Decision Rules）
     在题库的题目解析里查看。
+    <span class="sg-legend"><span><span class="en-dot">■</span> 左：英文原文</span><span><span class="cn-dot">■</span> 右：中文译注</span></span>
   </p>
 
   <div class="panel" style="padding:14px 18px">
@@ -65,19 +103,32 @@
 (function () {
   var S = window.QB_SCORING || { sections: [] };
   var list = document.getElementById('secList');
-  var CN = { 'Applying the Scoring Criteria': '评分标准使用规则（含扣分表）',
-             '2025 Digital Decision Rules': '2025 数字化考试判定规则（Bluebook 机考适用）',
-             'General Interpretation Rules': '一般解释规则（拼写 / 缺词等瑕疵如何判）' };
   if (!S.sections.length) {
     list.innerHTML = '<div class="panel">评分标准数据尚未生成，请先运行构建脚本。</div>';
   }
   S.sections.forEach(function (sec) {
+    var html = '<div class="sgsec">' +
+      '<h3><span class="sgyear">' + sec.year + '</span><span>' + QB.esc(sec.title) + '</span>' +
+      (sec.titleCn ? '<span class="sgtitle-cn">' + QB.esc(sec.titleCn) + '</span>' : '') +
+      '</h3><div class="sgbody">';
+    (sec.blocks || []).forEach(function (b) {
+      if (b.t === 'h') {
+        html += '<div class="sg-h">' + QB.esc(b.en) +
+          (b.cn ? '<span class="cn">' + QB.esc(b.cn) + '</span>' : '') + '</div>';
+      } else if (b.t === 'item') {
+        html += '<div class="sg-row sg-item"><div class="en"><span class="lab">' +
+          QB.esc(b.n + ')') + '</span>' + QB.esc(b.en) + '</div>' +
+          '<div class="cn"><span class="lab">' + QB.esc(b.n + ')') + '</span>' + QB.esc(b.cn || '') + '</div></div>';
+      } else {
+        var cls = b.t === 'li' ? 'sg-li' : (b.t === 'lead' ? 'sg-lead' : '');
+        html += '<div class="sg-row ' + cls + '"><div class="en">' + QB.esc(b.en) +
+          '</div><div class="cn">' + QB.esc(b.cn || '') + '</div></div>';
+      }
+    });
+    html += '</div></div>';
     var div = document.createElement('div');
-    div.className = 'sgsec';
-    var cn = CN[sec.title] ? '　<span style="font-weight:500;color:var(--muted);font-size:13px">' + CN[sec.title] + '</span>' : '';
-    div.innerHTML = '<h3><span class="sgyear">' + sec.year + '</span><span>' + QB.esc(sec.title) + '</span>' + cn + '</h3>' +
-      '<div class="sgtext">' + QB.esc(sec.text) + '</div>';
-    list.appendChild(div);
+    div.innerHTML = html;
+    list.appendChild(div.firstChild);
   });
   var bi = document.getElementById('bi');
   if (bi && window.QB_DATA && QB_DATA.meta) bi.textContent = '题目 ' + QB_DATA.meta.count + ' · 更新 ' + QB_DATA.meta.generated;
