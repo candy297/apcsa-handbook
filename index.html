@@ -147,6 +147,92 @@ main { padding: 56px 0 24px; }
   align-self: flex-start;
 }
 
+/* ---------- Scoring & tools ---------- */
+.score-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px 26px;
+}
+.panel h3 { font-size: 17px; margin-bottom: 14px; }
+.panel h3 .en-tag {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-left: 8px;
+}
+table.conv {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+table.conv th {
+  font-size: 12.5px;
+  letter-spacing: 1px;
+  color: var(--ink-soft);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--line);
+}
+table.conv th:last-child { text-align: center; }
+table.conv td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+table.conv tr:last-child td { border-bottom: none; }
+table.conv td.sc {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  width: 90px;
+}
+table.conv td.sc.dim { color: var(--ink-soft); font-size: 16px; }
+.note {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+ol.steps {
+  margin: 0 0 4px 18px;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+ol.steps b { color: var(--ink); }
+ol.steps em {
+  font-style: normal;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  color: var(--accent);
+  font-weight: 600;
+}
+.card.qref { flex-direction: row; align-items: center; gap: 18px; }
+.card.qref .icon {
+  width: 46px; height: 46px;
+  border-radius: 8px;
+  background: #b3322e;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700; font-size: 15px;
+  flex-shrink: 0;
+}
+.card.qref b { display: block; font-size: 16px; margin-bottom: 3px; }
+.card.qref span { font-size: 13px; color: var(--ink-soft); }
+@media (max-width: 820px) {
+  .score-grid { grid-template-columns: 1fr; }
+}
+
 /* ---------- Features ---------- */
 .features {
   list-style: none;
@@ -237,6 +323,43 @@ footer {
       <div class="weight">MCQ 权重 30–40%（最高）</div>
     </a>
   </div>
+
+  <h2 class="section-title" style="margin-top:56px;">国际考计分与换算 <small>依据 College Board 官方计分表</small></h2>
+  <div class="score-grid">
+    <div class="panel">
+      <h3>AP 成绩换算表 <span class="en-tag">Composite Score → 1–5</span></h3>
+      <table class="conv">
+        <thead>
+          <tr><th>综合分（满分 100）</th><th>AP 成绩</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>84 – 100</td><td class="sc">5</td></tr>
+          <tr><td>68 – 83</td><td class="sc">4</td></tr>
+          <tr><td>45 – 67</td><td class="sc">3</td></tr>
+          <tr><td>低于 45</td><td class="sc dim">1–2</td></tr>
+        </tbody>
+      </table>
+      <p class="note">官方计分表（CSA_Practice_Scoring_Worksheet）仅公布 5 / 4 / 3 三档分数线；低于 45 分归入 1–2 分，官方未再细分。</p>
+    </div>
+    <div class="panel">
+      <h3>综合分是怎么算出来的 <span class="en-tag">Scoring Formula</span></h3>
+      <ol class="steps">
+        <li><b>Section I · 选择题</b>：答对题数（满分 42）<em>× 1.3095</em> = Section I 分数（不四舍五入）</li>
+        <li><b>Section II · 大题</b>：每题原始分（Q1 满分 7 / Q2 满分 7 / Q3 满分 5 / Q4 满分 6）各自 <em>× 1.8000</em> 后相加 = Section II 分数（不四舍五入）</li>
+        <li><b>Composite 综合分</b>：Section I + Section II = 综合分（满分 100，四舍五入取整），再对照左侧换算表得出 1–5 分</li>
+      </ol>
+      <p class="note">分数段基于历年 AP CSA 考试数据估算；新版考试的官方分数分布将在 2025–2026 学年考试结束后公布（© 2025 College Board）。</p>
+    </div>
+  </div>
+
+  <a class="card qref" href="assets/ap-computer-science-a-java-quick-reference-2025.pdf" target="_blank" rel="noopener" style="margin-top:22px;">
+    <div class="icon">PDF</div>
+    <div>
+      <b>Java Quick Reference（2025 版）· 考试官方速查表</b>
+      <span>College Board 官方 2 页参考：考试中允许直接调阅的类与方法一览（String / Integer / Double / Math / ArrayList 等），Bluebook 考试应用内置同款</span>
+    </div>
+    <div class="weight" style="margin:0 0 0 auto;">查看 PDF →</div>
+  </a>
 
   <h2 class="section-title" style="margin-top:56px;">手册特色</h2>
   <ul class="features">
