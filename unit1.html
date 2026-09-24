@@ -469,6 +469,79 @@
 }
 section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
 </style>
+
+<style id="wb-interactive-style">
+/* ===== 交互练习（WorkBuddy 注入） ===== */
+li.wb-opt {
+  list-style: none;
+  padding: 9px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+li.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+button.wb-opt {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px; font-weight: 700;
+  min-width: 46px; height: 40px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+button.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+.wb-opt.wb-correct { border-color: #2e7d32 !important; background: #e8f5e9 !important; }
+.wb-opt.wb-wrong { border-color: #b3322e !important; background: #fdeceb !important; }
+.wb-card { display: flex; align-items: center; gap: 10px; margin: 14px 0 2px; flex-wrap: wrap; }
+.wb-card-label { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin-right: 4px; }
+.wb-feedback { display: none; margin: 10px 0 4px; font-size: 14px; font-weight: 700; }
+.wb-ans-panel {
+  display: none;
+  margin: 14px 0;
+  padding: 14px 18px;
+  background: var(--accent-soft, #f7eef0);
+  border-left: 4px solid var(--accent, #8b2332);
+  border-radius: 0 8px 8px 0;
+}
+.wb-ans-panel.wb-show { display: block; }
+.wb-frq-input { margin: 18px 0; }
+.wb-hint { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin: 0 0 8px 0 !important; }
+.wb-frq-textarea {
+  display: block;
+  width: 100%; min-height: 150px; resize: vertical;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13.5px; line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  box-sizing: border-box;
+}
+.wb-frq-textarea:focus { outline: none; border-color: var(--accent, #8b2332); }
+.wb-reveal-btn {
+  display: inline-block; margin-top: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 9px 22px;
+  border: none; border-radius: 999px;
+  background: var(--accent, #8b2332);
+  color: #fff; cursor: pointer;
+}
+.wb-reveal-btn:hover { opacity: .88; }
+.wb-frq-answer-wrap { display: none; }
+.wb-frq-answer-wrap.wb-show { display: block; }
+@media print {
+  .wb-frq-input, .wb-feedback { display: none !important; }
+  .wb-ans-panel, .wb-frq-answer-wrap { display: block !important; }
+}
+</style>
+
 </head>
 <body>
 <nav id="wb-sidebar">
@@ -985,7 +1058,7 @@ t.setColor("Green");   // 运行时 NullPointerException</code></pre>
   <h3 id="section-4-1">4.1 MCQ 真题精选与解析</h3>
   <p>本节 15 道 MCQ 覆盖 A、B、C、D、E 五大板块的高频考点：整除与 cast、随机数区间、构造器调用、String 方法、static/实例方法、void 与非 void 方法签名、equals/compareTo 等。建议限时训练（15 题控制在 20 分钟内）。</p>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="B">
     <p class="q-meta"><span class="q-tag">MCQ-1</span>CED 官方样题 · 考点：B4 强制转换</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>double q = 15.0;
@@ -995,36 +1068,36 @@ double x = (int) (q / r);
 double y = q / r;
 System.out.println(x + " " + y);</code></pre>
     <p class="q-stem">执行该代码段后打印的结果是什么？</p>
-    <ul class="q-options">
-      <li>(A) 7.0 7.0</li>
-      <li>(B) 7.0 7.5</li>
-      <li>(C) 7.5 7.0</li>
-      <li>(D) 7.5 7.5</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 7.0 7.0</li>
+      <li class="wb-opt" data-letter="B">(B) 7.0 7.5</li>
+      <li class="wb-opt" data-letter="C">(C) 7.5 7.0</li>
+      <li class="wb-opt" data-letter="D">(D) 7.5 7.5</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>q / r</code>：double 与 int 相除 → 15.0 / 2 = 7.5。<code>x</code>：<code>(int)(7.5)</code> 截断为 7，再存入 double 得 7.0。<code>y</code>：无 cast，直接 7.5。输出 <code>7.0 7.5</code>。答案：<span class="q-answer">B</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="B">
     <p class="q-meta"><span class="q-tag">MCQ-2</span>CED 官方样题 · 考点：D2 随机数区间</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>int x = ((int) (Math.random() * 10)) + 5;
 int y = ((int) (Math.random() * 5)) + 10;
 System.out.println(x + " " + y);</code></pre>
     <p class="q-stem">执行该代码段后，以下哪项<strong>可能</strong>被打印？</p>
-    <ul class="q-options">
-      <li>(A) 8 15</li>
-      <li>(B) 9 12</li>
-      <li>(C) 10 7</li>
-      <li>(D) 15 11</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 8 15</li>
+      <li class="wb-opt" data-letter="B">(B) 9 12</li>
+      <li class="wb-opt" data-letter="C">(C) 10 7</li>
+      <li class="wb-opt" data-letter="D">(D) 15 11</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>x</code> 的取值范围：<code>(int)([0,10)) + 5</code> = [5, 14]；<code>y</code> 的范围：<code>(int)([0,5)) + 10</code> = [10, 14]。逐项检查：(A) y=15 越界；(C) y=7 越界；(D) x=15 越界；(B) x=9、y=12 都在范围内。答案：<span class="q-answer">B</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="B">
     <p class="q-meta"><span class="q-tag">MCQ-3</span>CED 官方样题 · 考点：E2 构造器调用</p>
     <p class="q-stem"><strong>考虑以下 Date 类。</strong></p>
 <pre class="code-block"><code>public class Date
@@ -1039,38 +1112,38 @@ System.out.println(x + " " + y);</code></pre>
         Other methods are not shown. */
 }</code></pre>
     <p class="q-stem">在 Date 以外的类中，以下哪段代码能正确创建一个 Date 对象的实例？</p>
-    <ul class="q-options">
-      <li>(A) <code>Date birthday = new Date("September", "5th");</code></li>
-      <li>(B) <code>Date birthday = new Date("September", 5);</code></li>
-      <li>(C) <code>Date birthday = new Date("September 5");</code></li>
-      <li>(D) <code>Date birthday = new Date();</code><br>
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) <code>Date birthday = new Date("September", "5th");</code></li>
+      <li class="wb-opt" data-letter="B">(B) <code>Date birthday = new Date("September", 5);</code></li>
+      <li class="wb-opt" data-letter="C">(C) <code>Date birthday = new Date("September 5");</code></li>
+      <li class="wb-opt" data-letter="D">(D) <code>Date birthday = new Date();</code><br>
           <code>birthday.month = "September";</code><br>
           <code>birthday.day = 5;</code></li>
-    </ul>
-    <div class="q-analysis">
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：类中唯一的构造器签名是 <code>Date(String, int)</code>，实参必须"个数 2、类型依次 String、int"。(A) 第二个实参是 String；(C) 只有一个 String 参数；(D) 无参构造器不存在，且从类外直接访问 private 属性非法。答案：<span class="q-answer">B</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="A">
     <p class="q-meta"><span class="q-tag">MCQ-4</span>CED 官方样题 · 考点：E4 String 方法</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>String str1 = "LMNOP";
 String str2 = str1.substring(3);
 str2 += str1.substring(2, 3);</code></pre>
     <p class="q-stem">执行该代码段后 str2 的值是什么？</p>
-    <ul class="q-options">
-      <li>(A) "OPN"</li>
-      <li>(B) "OPNO"</li>
-      <li>(C) "NOPM"</li>
-      <li>(D) "NOPMN"</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) "OPN"</li>
+      <li class="wb-opt" data-letter="B">(B) "OPNO"</li>
+      <li class="wb-opt" data-letter="C">(C) "NOPM"</li>
+      <li class="wb-opt" data-letter="D">(D) "NOPMN"</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>str1.substring(3)</code> 从下标 3 取到末尾 → "OP"。<code>str1.substring(2, 3)</code> 含头不含尾，只有下标 2 一个字符 → "N"。拼接：<code>"OP" + "N"</code> = "OPN"。答案：<span class="q-answer">A</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="C">
     <p class="q-meta"><span class="q-tag">MCQ-5</span>Progress Check 官方题 · 考点：B2 运算优先级</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>int a = 1;
@@ -1079,62 +1152,62 @@ int c = 3;
 int d = 4;
 double x = a + b * c % d;</code></pre>
     <p class="q-stem">代码段执行后 x 的值是多少？</p>
-    <ul class="q-options">
-      <li>(A) 1.0　(B) 2.5　(C) 3.0　(D) 7.0　(E) 9.0</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 1.0　(B) 2.5　(C) 3.0　(D) 7.0　(E) 9.0</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>*</code> 与 <code>%</code> 同级，从左到右：<code>b*c=6</code> → <code>6%d=2</code> → <code>a+2=3</code>。int 结果 3 自动拓宽存入 double，x = 3.0。答案：<span class="q-answer">C</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="D">
     <p class="q-meta"><span class="q-tag">MCQ-6</span>Progress Check 官方题 · 考点：B2 整数除法</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>int x = 10;
 int y = 20;
 System.out.print(y + x / y);</code></pre>
     <p class="q-stem">打印结果是什么？</p>
-    <ul class="q-options">
-      <li>(A) 1　(B) 1.5　(C) 3　(D) 20　(E) 20.5</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 1　(B) 1.5　(C) 3　(D) 20　(E) 20.5</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：先算 <code>x / y</code>：int 除 int → <code>10 / 20 = 0</code>（截断）。再算 <code>y + 0 = 20</code>。注意不是从左到右先算 <code>y + x</code>。答案：<span class="q-answer">D</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="D">
     <p class="q-meta"><span class="q-tag">MCQ-7</span>Progress Check 官方题 · 考点：B2 整数除法与取余</p>
     <p class="q-stem"><strong>以下哪些算术表达式的值为 1？</strong></p>
 <pre class="code-block"><code>I.   2 / 5 % 3
 II.  2 / (5 % 3)
 III. 2 / 5 + 1</code></pre>
-    <ul class="q-options">
-      <li>(A) 只有 I　(B) 只有 II　(C) I 和 II　(D) II 和 III　(E) I、II 和 III</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 只有 I　(B) 只有 II　(C) I 和 II　(D) II 和 III　(E) I、II 和 III</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：I：<code>2/5=0</code>，<code>0%3=0</code>，不是 1。II：<code>5%3=2</code>，<code>2/2=1</code> ✔。III：<code>2/5=0</code>，<code>0+1=1</code> ✔。答案：<span class="q-answer">D</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="C">
     <p class="q-meta"><span class="q-tag">MCQ-8</span>Progress Check 官方题 · 考点：B4/B5 复合赋值</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>double avg = 15 + 20;
 avg /= 2;</code></pre>
     <p class="q-stem">以下哪项最好地描述了代码段的行为？</p>
-    <ul class="q-options">
-      <li>(A) 将 17 存入 avg，因为 17 是 35 除以 2 整数除法的结果</li>
-      <li>(B) 将 18 存入 avg，因为 18 是 35 除以 2 整数除法的结果</li>
-      <li>(C) 将 17.5 存入 avg，因为 17.5 是 35.0 除以 2 浮点除法的结果</li>
-      <li>(D) 代码不编译，因为 int 值不能加到 double 变量</li>
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 将 17 存入 avg，因为 17 是 35 除以 2 整数除法的结果</li>
+      <li class="wb-opt" data-letter="B">(B) 将 18 存入 avg，因为 18 是 35 除以 2 整数除法的结果</li>
+      <li class="wb-opt" data-letter="C">(C) 将 17.5 存入 avg，因为 17.5 是 35.0 除以 2 浮点除法的结果</li>
+      <li class="wb-opt" data-letter="D">(D) 代码不编译，因为 int 值不能加到 double 变量</li>
       <li>(E) 代码不编译，因为 double 不能除以 int</li>
-    </ul>
-    <div class="q-analysis">
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>15 + 20</code> 赋给 <code>double avg</code> 时自动拓宽为 35.0；<code>avg /= 2</code> 即 <code>35.0 / 2</code>，浮点除法得 17.5。答案：<span class="q-answer">C</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="D">
     <p class="q-meta"><span class="q-tag">MCQ-9</span>Progress Check 官方题 · 考点：B4 截断与四舍五入技巧</p>
     <p class="q-stem"><strong>考虑以下代码段。</strong></p>
 <pre class="code-block"><code>double p = 10.6;
@@ -1142,15 +1215,15 @@ double n = -0.2;
 System.out.println((int) (p + 0.5));
 System.out.print((int) (n - 0.5));</code></pre>
     <p class="q-stem">打印结果是什么？</p>
-    <ul class="q-options">
-      <li>(A) 10 换行 -1　(B) 10 换行 0　(C) 11 换行 -1　(D) 11 换行 0　(E) 11 换行 1</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 10 换行 -1　(B) 10 换行 0　(C) 11 换行 -1　(D) 11 换行 0　(E) 11 换行 1</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：第一行：<code>p+0.5 = 11.1</code>，<code>(int)11.1</code> 截断 → 11。第二行：<code>n-0.5 = -0.7</code>，<strong>向零截断</strong> → 0，不是 -1。答案：<span class="q-answer">D</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="C">
     <p class="q-meta"><span class="q-tag">MCQ-10</span>Progress Check 官方题 · 考点：B4 整数除法排错</p>
     <p class="q-stem"><strong>以下代码段想显示 0.5。</strong></p>
 <pre class="code-block"><code>int num1 = 5;
@@ -1158,19 +1231,19 @@ int num2 = 10;
 double ans = num1 / num2;
 System.out.print(ans);</code></pre>
     <p class="q-stem">以下哪项最好地描述了代码段中的错误（如果有）？</p>
-    <ul class="q-options">
-      <li>(A) 没有错误，代码按预期工作</li>
-      <li>(B) 应该把表达式 num1 / num2 整体 cast 为 double</li>
-      <li>(C) 应该把 num1 或 num2 其中一个 cast 为 double</li>
-      <li>(D) 应该把 ans 声明为 int</li>
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 没有错误，代码按预期工作</li>
+      <li class="wb-opt" data-letter="B">(B) 应该把表达式 num1 / num2 整体 cast 为 double</li>
+      <li class="wb-opt" data-letter="C">(C) 应该把 num1 或 num2 其中一个 cast 为 double</li>
+      <li class="wb-opt" data-letter="D">(D) 应该把 ans 声明为 int</li>
       <li>(E) 应该把 num1 和 num2 初始化为 5.0 和 10.0</li>
-    </ul>
-    <div class="q-analysis">
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>num1 / num2</code> 两侧都是 int，先算出 0，再存入 double 得 0.0。(B) <code>(double)(num1/num2)</code> cast 太晚，无用。(C) cast 任一操作数即可让除法按 double 进行。答案：<span class="q-answer">C</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="D">
     <p class="q-meta"><span class="q-tag">MCQ-11</span>Progress Check 官方题 · 考点：E1 对象与引用</p>
     <p class="q-stem"><strong>考虑以下类声明。</strong></p>
 <pre class="code-block"><code>public class Thing
@@ -1182,19 +1255,19 @@ System.out.print(ans);</code></pre>
     { color = setColor; }
 }</code></pre>
     <p class="q-stem">在 Thing 以外的类中，以下哪段代码会创建一个值为 <strong>null</strong> 的 Thing 类型引用？</p>
-    <ul class="q-options">
-      <li>(A) <code>Thing someThing = new Thing("Green");</code></li>
-      <li>(B) <code>Thing someThing = new Thing("");</code></li>
-      <li>(C) <code>Thing someThing = new Thing();</code></li>
-      <li>(D) <code>Thing someThing;</code></li>
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) <code>Thing someThing = new Thing("Green");</code></li>
+      <li class="wb-opt" data-letter="B">(B) <code>Thing someThing = new Thing("");</code></li>
+      <li class="wb-opt" data-letter="C">(C) <code>Thing someThing = new Thing();</code></li>
+      <li class="wb-opt" data-letter="D">(D) <code>Thing someThing;</code></li>
       <li>(E) <code>Thing("Green");</code></li>
-    </ul>
-    <div class="q-analysis">
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：只声明不初始化的引用变量默认为 null。(A)(C) 用构造器创建了对象；(B) 空串不是 null；(E) 缺少变量声明和 <code>new</code>，语法错误。答案：<span class="q-answer">D</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="B">
     <p class="q-meta"><span class="q-tag">MCQ-12</span>Progress Check 官方题 · 考点：E3 实例方法调用</p>
     <p class="q-stem"><strong>考虑以下类。</strong></p>
 <pre class="code-block"><code>public class MagicNumber
@@ -1215,33 +1288,33 @@ II.  MagicNumber n1 = new MagicNumber();
      n1.displayNumber();
 III. n2.add_2();
      n2.displayNumber();</code></pre>
-    <ul class="q-options">
-      <li>(A) 只有 I　(B) 只有 II　(C) 只有 III　(D) II 和 III　(E) 都不能编译</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 只有 I　(B) 只有 II　(C) 只有 III　(D) II 和 III　(E) 都不能编译</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：<code>add_2</code> 和 <code>displayNumber</code> 是<strong>实例方法</strong>（无 static），必须用对象名调用。I 用类名调实例方法，编译错误；II 先 new 对象再调用，正确；III 中 n2 从未声明，编译错误。答案：<span class="q-answer">B</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="C">
     <p class="q-meta"><span class="q-tag">MCQ-13</span>Progress Check 官方题 · 考点：C3 方法签名与类型兼容</p>
     <p class="q-stem"><strong>考虑以下方法。</strong></p>
 <pre class="code-block"><code>public double secret(int x, double y)
 { return x / 2.0; }</code></pre>
     <p class="q-stem">在与 secret 同一个类的方法中，以下哪行代码能<strong>编译通过</strong>？</p>
-    <ul class="q-options">
-      <li>(A) <code>int result = secret(4, 4);</code></li>
-      <li>(B) <code>int result = secret(4, 4.0);</code></li>
-      <li>(C) <code>double result = secret(4, 4.0);</code></li>
-      <li>(D) <code>double result = secret(4.0, 4);</code></li>
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) <code>int result = secret(4, 4);</code></li>
+      <li class="wb-opt" data-letter="B">(B) <code>int result = secret(4, 4.0);</code></li>
+      <li class="wb-opt" data-letter="C">(C) <code>double result = secret(4, 4.0);</code></li>
+      <li class="wb-opt" data-letter="D">(D) <code>double result = secret(4.0, 4);</code></li>
       <li>(E) <code>double result = secret(4.0, 4.0);</code></li>
-    </ul>
-    <div class="q-analysis">
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：形参 <code>(int, double)</code>：第一个实参必须是 int 兼容，第二个是 double（int 可自动拓宽）。调用侧没有问题的是 (A)(B)(C)，但返回类型是 double——(A)(B) 把 double 赋给 int 变量，编译错误。(D)(E) 第一个实参 4.0 是 double，不能自动变 int。答案：<span class="q-answer">C</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="C">
     <p class="q-meta"><span class="q-tag">MCQ-14</span>Progress Check 官方题 · 考点：C3 void 方法与实参传递</p>
     <p class="q-stem"><strong>考虑以下方法。</strong></p>
 <pre class="code-block"><code>public void printSomething(int num, boolean val)
@@ -1253,15 +1326,15 @@ III. n2.add_2();
     <p class="q-stem">在与 printSomething 同一个类的方法中执行以下代码段，打印结果是什么？</p>
 <pre class="code-block"><code>printSomething(1, true);
 printSomething(2, true);</code></pre>
-    <ul class="q-options">
-      <li>(A) 0true1true　(B) 1true2true　(C) true0true1　(D) true1true0　(E) true1true2</li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) 0true1true　(B) 1true2true　(C) true0true1　(D) true1true0　(E) true1true2</li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：每次调用 <code>num</code> 是实参的<strong>副本</strong>（call by value）。第一次：num=1 减 1 得 0，先打印 val 再打印 num → "true0"；第二次同理 → "true1"。拼接为 "true0true1"。答案：<span class="q-answer">C</span></p>
     </div>
   </div>
 
-  <div class="q-block">
+  <div class="q-block wb-mcq" data-answer="E">
     <p class="q-meta"><span class="q-tag">MCQ-15</span>Progress Check 官方题 · 考点：C3 非 void 方法返回值的使用</p>
     <p class="q-stem"><strong>考虑以下方法，它把华氏温度转换为摄氏温度。</strong></p>
 <pre class="code-block"><code>public double fahrenheitToCelsius(double f)
@@ -1270,14 +1343,14 @@ printSomething(2, true);</code></pre>
     return c;
 }</code></pre>
     <p class="q-stem">在与 fahrenheitToCelsius 同一个类的方法中，以下哪段代码能打印 32 华氏度对应的摄氏温度？</p>
-    <ul class="q-options">
-      <li>(A) <code>double f = 32.0;</code> <code>fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
-      <li>(B) <code>double f = 32.0;</code> <code>f = fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
-      <li>(C) <code>double f = 32.0;</code> <code>fahrenheitToCelsius(f);</code> <code>System.out.println(f);</code></li>
-      <li>(D) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius();</code> <code>System.out.println(c);</code></li>
-      <li>(E) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius(f);</code> <code>System.out.println(c);</code></li>
-    </ul>
-    <div class="q-analysis">
+    <ul class="q-options"><li class="wb-opt" data-letter="A">(A) <code>double f = 32.0;</code> <code>fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
+      <li class="wb-opt" data-letter="B">(B) <code>double f = 32.0;</code> <code>f = fahrenheitToCelsius();</code> <code>System.out.println(f);</code></li>
+      <li class="wb-opt" data-letter="C">(C) <code>double f = 32.0;</code> <code>fahrenheitToCelsius(f);</code> <code>System.out.println(f);</code></li>
+      <li class="wb-opt" data-letter="D">(D) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius();</code> <code>System.out.println(c);</code></li>
+      <li class="wb-opt" data-letter="E">(E) <code>double f = 32.0;</code> <code>double c = fahrenheitToCelsius(f);</code> <code>System.out.println(c);</code></li>
+    </ul><p class="wb-feedback"></p>
+
+    <div class="q-analysis wb-ans-panel">
       <p><strong>解析</strong>：方法需要<strong>一个 double 实参</strong>且返回值要<strong>接住</strong>。(A)(D) 无实参调用，编译错误；(B) 无实参；(C) 调用正确但返回值被丢弃，打印的仍是 32.0（华氏）。(E) 实参正确、返回值存入 c 再打印。答案：<span class="q-answer">E</span></p>
     </div>
   </div>
@@ -1404,6 +1477,12 @@ printSomething(2, true);</code></pre>
       </tbody>
     </table>
 
+    <div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
     <p class="frq-section-title">官方参考解答：</p>
     <div class="solution-block">
 <pre class="code-block"><code>// (a)
@@ -1445,6 +1524,7 @@ public int dogWalkShift(int startHour, int endHour)
       </ul>
     </div>
   </div>
+</div>
 
   <!-- FRQ-2 2024 Feeder -->
   <div class="frq-block">
@@ -1518,6 +1598,12 @@ public int dogWalkShift(int startHour, int endHour)
       <li><code>currentFood</code> 为 0，调用 <code>simulateManyDays(5, 10)</code>，直接返回 0。</li>
     </ul>
 
+    <div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
     <p class="frq-section-title">官方参考解答：</p>
     <div class="solution-block">
 <pre class="code-block"><code>// (a)
@@ -1567,6 +1653,7 @@ public int simulateManyDays(int numBirds, int numDays)
       </ul>
     </div>
   </div>
+</div>
 
   <!-- FRQ-3 2023 AppointmentBook -->
   <div class="frq-block">
@@ -1686,6 +1773,12 @@ public int simulateManyDays(int numBirds, int numDays)
     <p class="frq-section-title">(b)</p>
     <p>编写 <code>makeAppointment</code> 方法：从 <code>startPeriod</code> 到 <code>endPeriod</code>（含）依次查找最早的、长度为 <code>duration</code> 的空闲块。若找到，调用 <code>reserveBlock</code> 标记该块为已预约并返回 <code>true</code>；否则返回 <code>false</code>。</p>
 
+    <div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
     <p class="frq-section-title">官方参考解答：</p>
     <div class="solution-block">
 <pre class="code-block"><code>// (a)
@@ -1736,6 +1829,7 @@ public boolean makeAppointment(int startPeriod, int endPeriod,
       </ul>
     </div>
   </div>
+</div>
 
   <!-- FRQ-4 2022 Game -->
   <div class="frq-block">
@@ -1835,6 +1929,12 @@ public boolean makeAppointment(int startPeriod, int endPeriod,
     <p class="frq-section-title">(b)</p>
     <p>编写 <code>playManyTimes</code> 方法：模拟 <code>num</code> 局游戏，返回最高得分。游戏通过调用 <code>play()</code> 模拟；每次调用 <code>play()</code> 后可通过 <code>getScore()</code> 获取该局得分。</p>
 
+    <div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
     <p class="frq-section-title">官方参考解答：</p>
     <div class="solution-block">
 <pre class="code-block"><code>// (a)
@@ -1886,6 +1986,7 @@ public int playManyTimes(int num)
       </ul>
     </div>
   </div>
+</div>
 
   <!-- FRQ-5 2021 WordMatch -->
   <div class="frq-block">
@@ -2005,6 +2106,12 @@ public int playManyTimes(int num)
       <li><code>scoreGuess("con")</code> = 9，<code>scoreGuess("cat")</code> = 9，返回 <code>"con"</code>（字典序更大）。</li>
     </ul>
 
+    <div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
     <p class="frq-section-title">官方参考解答：</p>
     <div class="solution-block">
 <pre class="code-block"><code>// (a)
@@ -2051,6 +2158,7 @@ public String findBetterGuess(String guess1, String guess2)
       </ul>
     </div>
   </div>
+</div>
 
   <!-- ============================================
        五、备考策略与复习清单
@@ -2171,5 +2279,50 @@ public String findBetterGuess(String guess1, String guess2)
   spy();
 })();
 </script>
+
+<script id="wb-interactive-script">
+(function () {
+  'use strict';
+  document.addEventListener('click', function (e) {
+    var opt = e.target.closest ? e.target.closest('.wb-opt') : null;
+    if (opt) {
+      var box = opt.closest('.wb-mcq');
+      if (!box) return;
+      var ans = box.getAttribute('data-answer');
+      var pick = opt.getAttribute('data-letter');
+      var all = box.querySelectorAll('.wb-opt');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('wb-correct', 'wb-wrong');
+      if (pick === ans) {
+        opt.classList.add('wb-correct');
+      } else {
+        opt.classList.add('wb-wrong');
+        for (var j = 0; j < all.length; j++) {
+          if (all[j].getAttribute('data-letter') === ans) all[j].classList.add('wb-correct');
+        }
+      }
+      var fb = box.querySelector('.wb-feedback');
+      if (fb) {
+        fb.style.display = 'block';
+        fb.textContent = pick === ans
+          ? '✅ 回答正确，答案是 ' + ans + '。解析如下：'
+          : '❌ 你选了 ' + pick + '，正确答案是 ' + ans + '。解析如下：';
+      }
+      var panel = box.querySelector('.wb-ans-panel');
+      if (panel) panel.classList.add('wb-show');
+      return;
+    }
+    var btn = e.target.closest ? e.target.closest('.wb-reveal-btn') : null;
+    if (btn) {
+      var input = btn.closest('.wb-frq-input');
+      var wrap = input ? input.nextElementSibling : null;
+      if (wrap && wrap.classList.contains('wb-frq-answer-wrap')) {
+        var showing = wrap.classList.toggle('wb-show');
+        btn.textContent = showing ? '隐藏参考解答与评分标准' : '查看参考解答与评分标准';
+      }
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

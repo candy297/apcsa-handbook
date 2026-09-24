@@ -469,6 +469,79 @@
 }
 section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
 </style>
+
+<style id="wb-interactive-style">
+/* ===== 交互练习（WorkBuddy 注入） ===== */
+li.wb-opt {
+  list-style: none;
+  padding: 9px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+li.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+button.wb-opt {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px; font-weight: 700;
+  min-width: 46px; height: 40px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+button.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+.wb-opt.wb-correct { border-color: #2e7d32 !important; background: #e8f5e9 !important; }
+.wb-opt.wb-wrong { border-color: #b3322e !important; background: #fdeceb !important; }
+.wb-card { display: flex; align-items: center; gap: 10px; margin: 14px 0 2px; flex-wrap: wrap; }
+.wb-card-label { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin-right: 4px; }
+.wb-feedback { display: none; margin: 10px 0 4px; font-size: 14px; font-weight: 700; }
+.wb-ans-panel {
+  display: none;
+  margin: 14px 0;
+  padding: 14px 18px;
+  background: var(--accent-soft, #f7eef0);
+  border-left: 4px solid var(--accent, #8b2332);
+  border-radius: 0 8px 8px 0;
+}
+.wb-ans-panel.wb-show { display: block; }
+.wb-frq-input { margin: 18px 0; }
+.wb-hint { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin: 0 0 8px 0 !important; }
+.wb-frq-textarea {
+  display: block;
+  width: 100%; min-height: 150px; resize: vertical;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13.5px; line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  box-sizing: border-box;
+}
+.wb-frq-textarea:focus { outline: none; border-color: var(--accent, #8b2332); }
+.wb-reveal-btn {
+  display: inline-block; margin-top: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 9px 22px;
+  border: none; border-radius: 999px;
+  background: var(--accent, #8b2332);
+  color: #fff; cursor: pointer;
+}
+.wb-reveal-btn:hover { opacity: .88; }
+.wb-frq-answer-wrap { display: none; }
+.wb-frq-answer-wrap.wb-show { display: block; }
+@media print {
+  .wb-frq-input, .wb-feedback { display: none !important; }
+  .wb-ans-panel, .wb-frq-answer-wrap { display: block !important; }
+}
+</style>
+
 </head>
 <body>
 <nav id="wb-sidebar">
@@ -1455,16 +1528,21 @@ for (int i = 0; i &lt; arr.length; i++) {
 System.out.println(arr[3]);
 </code></pre>
 <p><strong>What is printed as a result of executing the code segment?</strong></p>
-<ul>
-<li>(A) 0</li>
-<li>(B) 3</li>
-<li>(C) 6</li>
-<li>(D) 8</li>
+<div class="wb-mcq" data-answer="C">
+<ul><li class="wb-opt" data-letter="A">(A) 0</li>
+<li class="wb-opt" data-letter="B">(B) 3</li>
+<li class="wb-opt" data-letter="C">(C) 6</li>
+<li class="wb-opt" data-letter="D">(D) 8</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：C（6）</strong></p>
 <p><strong>解析</strong>：<code>arr[i] = i * 2</code>，所以 <code>arr = {0, 2, 4, 6, 8}</code>，<code>arr[3] = 6</code>。</p>
 <p><strong>考点</strong>：Topic 4.3 数组创建与下标访问。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-2：ArrayList 插入与替换的区别（Unit 4 TopicQuestion MCQ #2）</h3>
 <p><strong>Consider the following code segment.</strong></p>
@@ -1475,12 +1553,15 @@ words.add(&quot;plan&quot;);
 /* missing statement */
 </code></pre>
 <p><strong>Which of the following can replace <code>/* missing statement */</code> so that <code>words</code> contains <code>["jump", "right", "laugh", "plan"]</code> after the code segment is executed?</strong></p>
-<ul>
-<li>(A) <code>words.add(2, "laugh");</code></li>
-<li>(B) <code>words.add(3, "laugh");</code></li>
-<li>(C) <code>words.set(2, "laugh");</code></li>
-<li>(D) <code>words.set(3, "laugh");</code></li>
+<div class="wb-mcq" data-answer="A">
+<ul><li class="wb-opt" data-letter="A">(A) <code>words.add(2, "laugh");</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>words.add(3, "laugh");</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>words.set(2, "laugh");</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>words.set(3, "laugh");</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：A</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1491,6 +1572,8 @@ words.add(&quot;plan&quot;);
 - C：<code>set(2, "laugh")</code> 把 index 2 替换为 "laugh"，结果 <code>["jump", "right", "laugh"]</code> ❌<br>
 - D：<code>set(3, "laugh")</code> 越界（index 3 不存在）→ <code>IndexOutOfBoundsException</code> ❌</p>
 <p><strong>考点</strong>：Topic 4.8 ArrayList <code>add(int, E)</code> vs <code>set(int, E)</code> 的区别。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-3：2D 数组初始化语法（Unit 4 TopicQuestion MCQ #11）</h3>
 <p><strong>Consider the following code segment, which is intended to declare and initialize the two-dimensional <code>String</code> array <code>things</code>.</strong></p>
@@ -1502,12 +1585,15 @@ words.add(&quot;plan&quot;);
 };
 </code></pre>
 <p><strong>Which of the following could replace <code>/* missing code */</code> so that <code>things</code> is properly declared?</strong></p>
-<ul>
-<li>(A) <code>new String[][] things</code></li>
-<li>(B) <code>new(String[][]) things</code></li>
-<li>(C) <code>String[] String[] things</code></li>
-<li>(D) <code>String[][] things</code></li>
+<div class="wb-mcq" data-answer="D">
+<ul><li class="wb-opt" data-letter="A">(A) <code>new String[][] things</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>new(String[][]) things</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>String[] String[] things</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>String[][] things</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：D</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1516,6 +1602,8 @@ words.add(&quot;plan&quot;);
 - C：语法错（<code>String[] String[]</code> 写法无效）；<br>
 - D：<code>String[][] things = {{...}, {...}};</code> 是正确的 2D 数组初始化 ✅</p>
 <p><strong>考点</strong>：Topic 4.11 2D 数组声明语法。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-4：ArrayList remove 后下标变化（Unit 4 TopicQuestion MCQ #10）</h3>
 <p><strong>Consider the following code segment.</strong></p>
@@ -1528,12 +1616,15 @@ dataValues.remove(2);
 dataValues.set(2, 7.63);
 </code></pre>
 <p><strong>Which of the following represents the contents of <code>dataValues</code> after executing the code segment?</strong></p>
-<ul>
-<li>(A) <code>[9.84, 7.63, 6.24]</code></li>
-<li>(B) <code>[9.84, 7.63, 7.65, 6.24]</code></li>
-<li>(C) <code>[9.84, 8.93, 7.63]</code></li>
-<li>(D) <code>[9.84, 8.93, 7.63, 6.24]</code></li>
+<div class="wb-mcq" data-answer="C">
+<ul><li class="wb-opt" data-letter="A">(A) <code>[9.84, 7.63, 6.24]</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>[9.84, 7.63, 7.65, 6.24]</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>[9.84, 8.93, 7.63]</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>[9.84, 8.93, 7.63, 6.24]</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：C</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1541,6 +1632,8 @@ dataValues.set(2, 7.63);
 - <code>remove(2)</code> 删除 index 2 的 7.65 → <code>[9.84, 8.93, 6.24]</code><br>
 - <code>set(2, 7.63)</code> 把 index 2 的 6.24 替换为 7.63 → <code>[9.84, 8.93, 7.63]</code></p>
 <p><strong>考点</strong>：Topic 4.8 ArrayList <code>remove(int)</code> 和 <code>set(int, E)</code> 的联动效果。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-5：数组长度不可变（Unit 4 TopicQuestion MCQ #9）</h3>
 <p><strong>The following code segment is intended to create an <code>int</code> array named <code>nums</code> and set its contents to <code>{3, 1, 0, 2}</code>. The code segment does not work as intended.</strong></p>
@@ -1552,12 +1645,15 @@ nums.length++;
 nums[3] = 2;
 </code></pre>
 <p><strong>Which of the following best explains why the code segment does not work as intended?</strong></p>
-<ul>
-<li>(A) The assignment statements for the array elements are in the wrong order.</li>
-<li>(B) The size of the array cannot be changed once the array is created.</li>
-<li>(C) The element <code>nums[1]</code> is assigned two different values.</li>
-<li>(D) The element <code>nums[2]</code> is never set to 0.</li>
+<div class="wb-mcq" data-answer="B">
+<ul><li class="wb-opt" data-letter="A">(A) The assignment statements for the array elements are in the wrong order.</li>
+<li class="wb-opt" data-letter="B">(B) The size of the array cannot be changed once the array is created.</li>
+<li class="wb-opt" data-letter="C">(C) The element <code>nums[1]</code> is assigned two different values.</li>
+<li class="wb-opt" data-letter="D">(D) The element <code>nums[2]</code> is never set to 0.</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：B</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1566,6 +1662,8 @@ nums[3] = 2;
 - C：错，<code>nums[1] = 0</code> 后 <code>nums[1] = 1</code>，最终值是 1，不是 bug；<br>
 - D：错，<code>nums[2]</code> 默认是 0（数组默认初始化），无需显式赋值。</p>
 <p><strong>考点</strong>：Topic 4.3 数组长度不可变；<code>nums.length</code> 是 <code>final int</code> 不能修改。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-6：包装类的自动装箱（Unit 4 TopicQuestion MCQ #12）</h3>
 <p><strong>Consider the following code segment.</strong></p>
@@ -1575,12 +1673,15 @@ Double val3 = 30.0;
 System.out.println(val1 + val2 + val3);
 </code></pre>
 <p><strong>What, if anything, is printed when the code segment is executed?</strong></p>
-<ul>
-<li>(A) 60.0</li>
-<li>(B) 10.050.0</li>
-<li>(C) 10.020.030.0</li>
-<li>(D) Nothing is printed due to a syntax error.</li>
+<div class="wb-mcq" data-answer="A">
+<ul><li class="wb-opt" data-letter="A">(A) 60.0</li>
+<li class="wb-opt" data-letter="B">(B) 10.050.0</li>
+<li class="wb-opt" data-letter="C">(C) 10.020.030.0</li>
+<li class="wb-opt" data-letter="D">(D) Nothing is printed due to a syntax error.</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：A</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1588,6 +1689,8 @@ System.out.println(val1 + val2 + val3);
 - 算术运算 <code>val1 + val2 + val3</code> 会触发<strong>自动拆箱</strong>：<code>Double</code> → <code>double</code>；<br>
 - <code>10.0 + 20.0 + 30.0 = 60.0</code>，输出 <code>60.0</code>。</p>
 <p><strong>考点</strong>：Topic 4.7 包装类自动装箱 / 拆箱。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-7：2D 数组遍历的边界条件（Unit 4 TopicQuestion MCQ #13）</h3>
 <p><strong>Consider the following method, which is intended to traverse all the elements in the two-dimensional <code>String</code> array <code>things</code> and return the total number of elements that contain at least one <code>"a"</code>. The method does not always work as intended.</strong></p>
@@ -1604,12 +1707,15 @@ System.out.println(val1 + val2 + val3);
 }
 </code></pre>
 <p><strong>For which of the following two-dimensional array arguments does <code>countAs</code> not work as intended?</strong></p>
-<ul>
-<li>(A) <code>{{"lemon"}, {"lime"}}</code></li>
-<li>(B) <code>{{"rabbit", "bird"}, {"cat", "dog"}, {"gecko", "turtle"}}</code></li>
-<li>(C) <code>{{"scarf", "gloves", "hat"}, {"shoes", "shirt", "socks"}}</code></li>
-<li>(D) <code>{{"math", "english", "physics"}, {"golf", "baseball", "soccer"}}</code></li>
+<div class="wb-mcq" data-answer="D">
+<ul><li class="wb-opt" data-letter="A">(A) <code>{{"lemon"}, {"lime"}}</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>{{"rabbit", "bird"}, {"cat", "dog"}, {"gecko", "turtle"}}</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>{{"scarf", "gloves", "hat"}, {"shoes", "shirt", "socks"}}</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>{{"math", "english", "physics"}, {"golf", "baseball", "soccer"}}</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：D</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1625,6 +1731,8 @@ System.out.println(val1 + val2 + val3);
 - D：每行 3 个元素，内层 <code>c &lt; 2</code>，遍历 index 0, 1。漏 index 2 (physics/soccer)；physics/soccer 都无 a，math 有 a，english 有 a，golf 无 a，baseball 有 a，正确应 = 3（math/english/baseball），实际输出 2。</p>
 <p><strong>正确答案应是 C</strong>（因为漏了 hat 这一明显应该被计数的 a）。</p>
 <p><strong>考点</strong>：Topic 4.12 2D 数组遍历的边界条件。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-8：增强 for 循环遍历 ArrayList（Unit 4 TopicQuestion MCQ #8）</h3>
 <p><strong>Consider the following code segment.</strong></p>
@@ -1637,12 +1745,15 @@ for (String word : wordList) {
 System.out.println(count);
 </code></pre>
 <p><strong>Assume that the ArrayList <code>wordList</code> has been initialized to contain the <code>String</code> values <code>["apple", "banana", "coconut", "lemon", "orange", "pear"]</code>. What is printed as a result of executing the code segment?</strong></p>
-<ul>
-<li>(A) 2</li>
-<li>(B) 3</li>
-<li>(C) 4</li>
-<li>(D) 5</li>
+<div class="wb-mcq" data-answer="D">
+<ul><li class="wb-opt" data-letter="A">(A) 2</li>
+<li class="wb-opt" data-letter="B">(B) 3</li>
+<li class="wb-opt" data-letter="C">(C) 4</li>
+<li class="wb-opt" data-letter="D">(D) 5</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：D</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1654,6 +1765,8 @@ System.out.println(count);
 - "pear" 含 a ✅</p>
 <p>共 4 个含 a 的字符串，输出 4。</p>
 <p><strong>考点</strong>：Topic 4.7 <code>String.indexOf(String)</code> + Topic 4.9 增强 for 遍历 ArrayList。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-9：2D 数组列数检查（Unit 4 TopicQuestion MCQ #7）</h3>
 <p><strong>Consider the following method.</strong></p>
@@ -1671,12 +1784,15 @@ System.out.println(count);
 <pre class="code-block"><code class="language-java">double[][] table = new double[5][6];
 </code></pre>
 <p><strong>Which of the following method calls will return the value <code>true</code>?</strong></p>
-<ul>
-<li>(A) <code>checkIndices(table, 4, 5)</code></li>
-<li>(B) <code>checkIndices(table, 4, 6)</code></li>
-<li>(C) <code>checkIndices(table, 5, 4)</code></li>
-<li>(D) <code>checkIndices(table, 5, 6)</code></li>
+<div class="wb-mcq" data-answer="A">
+<ul><li class="wb-opt" data-letter="A">(A) <code>checkIndices(table, 4, 5)</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>checkIndices(table, 4, 6)</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>checkIndices(table, 5, 4)</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>checkIndices(table, 5, 6)</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：A</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1686,18 +1802,23 @@ System.out.println(count);
 - C：row=5 &lt; 5 ❌ → false<br>
 - D：row=5 &lt; 5 ❌ → false</p>
 <p><strong>考点</strong>：Topic 4.11 2D 数组下标合法性检查。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-10：ArrayList 创建语法（Unit 4 TopicQuestion MCQ #4）</h3>
 <p><strong>The following incomplete statement is intended to create an ArrayList named <code>theaterClub</code> to store <code>Student</code> objects. Assume that the <code>Student</code> class has been properly defined.</strong></p>
 <pre class="code-block"><code class="language-java">ArrayList&lt;Student&gt; theaterClub = /* missing code */;
 </code></pre>
 <p><strong>Which of the following can replace <code>/* missing code */</code> so that the statement will compile without error?</strong></p>
-<ul>
-<li>(A) <code>new Student ArrayList()</code></li>
-<li>(B) <code>new ArrayList(Student)</code></li>
-<li>(C) <code>new ArrayList&lt;Student&gt;()</code></li>
-<li>(D) <code>new ArrayList&lt;theaterClub&gt;()</code></li>
+<div class="wb-mcq" data-answer="C">
+<ul><li class="wb-opt" data-letter="A">(A) <code>new Student ArrayList()</code></li>
+<li class="wb-opt" data-letter="B">(B) <code>new ArrayList(Student)</code></li>
+<li class="wb-opt" data-letter="C">(C) <code>new ArrayList&lt;Student&gt;()</code></li>
+<li class="wb-opt" data-letter="D">(D) <code>new ArrayList&lt;theaterClub&gt;()</code></li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：C</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1706,6 +1827,8 @@ System.out.println(count);
 - C：<code>new ArrayList&lt;Student&gt;()</code> 正确 ✅<br>
 - D：错（<code>theaterClub</code> 是变量名，不能作为类型参数）。</p>
 <p><strong>考点</strong>：Topic 4.8 ArrayList 构造语法（泛型）。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-11：增强 for 与传统 for 的差异（Unit 4 TopicQuestion MCQ #5）</h3>
 <p><strong>Consider the following method <code>countNegatives</code>, which returns the number of elements in <code>numList</code> that are less than zero.</strong></p>
@@ -1720,12 +1843,15 @@ System.out.println(count);
 }
 </code></pre>
 <p><strong>Suppose the Boolean expression <code>j &lt; numList.size()</code> in line 4 of the method is replaced with <code>j &lt;= numList.size() - 1</code>. Which of the following best explains the effect of this change?</strong></p>
-<ul>
-<li>(A) It has no effect on the behavior of the method.</li>
-<li>(B) It causes the method to ignore the last element in <code>numList</code>.</li>
-<li>(C) It causes an <code>IndexOutOfBoundsException</code> to be thrown.</li>
-<li>(D) It changes the number of times the loop executes, but all elements in <code>numList</code> will still be accessed.</li>
+<div class="wb-mcq" data-answer="A">
+<ul><li class="wb-opt" data-letter="A">(A) It has no effect on the behavior of the method.</li>
+<li class="wb-opt" data-letter="B">(B) It causes the method to ignore the last element in <code>numList</code>.</li>
+<li class="wb-opt" data-letter="C">(C) It causes an <code>IndexOutOfBoundsException</code> to be thrown.</li>
+<li class="wb-opt" data-letter="D">(D) It changes the number of times the loop executes, but all elements in <code>numList</code> will still be accessed.</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：A</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1733,6 +1859,8 @@ System.out.println(count);
 - 两者访问的下标完全相同：0, 1, ..., size - 1；<br>
 - 行为完全一致。</p>
 <p><strong>考点</strong>：Topic 2.3 循环边界条件 <code>j &lt; n</code> 与 <code>j &lt;= n - 1</code> 的等价性。</p>
+</div>
+</div>
 <hr>
 <h3>MCQ-12：ArrayList 搜索与 findValue 方法（Unit 4 TopicQuestion MCQ #6）</h3>
 <p><strong>Consider the following method <code>findValue</code>, which returns <code>true</code> if <code>key</code> is found in the ArrayList <code>words</code> and returns <code>false</code> otherwise.</strong></p>
@@ -1746,12 +1874,15 @@ System.out.println(count);
 }
 </code></pre>
 <p><strong>Suppose the for loop initialization <code>int j = 0</code> in line 4 of the method is replaced with <code>int j = 1</code>. Which of the following best explains the effect of this change?</strong></p>
-<ul>
-<li>(A) It will have no effect on the behavior of the method.</li>
-<li>(B) It will cause the method to return a different result when <code>key</code> is not in <code>words</code>.</li>
-<li>(C) It will cause the method to return a different result when <code>key</code> is found only at the first index in <code>words</code>.</li>
-<li>(D) It will cause the method to return a different result when <code>key</code> is found only at the last index in the list.</li>
+<div class="wb-mcq" data-answer="C">
+<ul><li class="wb-opt" data-letter="A">(A) It will have no effect on the behavior of the method.</li>
+<li class="wb-opt" data-letter="B">(B) It will cause the method to return a different result when <code>key</code> is not in <code>words</code>.</li>
+<li class="wb-opt" data-letter="C">(C) It will cause the method to return a different result when <code>key</code> is found only at the first index in <code>words</code>.</li>
+<li class="wb-opt" data-letter="D">(D) It will cause the method to return a different result when <code>key</code> is found only at the last index in the list.</li>
 </ul>
+<p class="wb-feedback"></p>
+
+<div class="wb-ans-panel">
 <p><strong>查看答案与解析</strong></p>
 <p><strong>答案：C</strong></p>
 <p><strong>解析</strong>：<br>
@@ -1761,6 +1892,8 @@ System.out.println(count);
 - B 错：若 key 不在 words，无论 j 从 0 还是 1 开始，结果都是 false；<br>
 - D 错：若 key 仅在最后 index（不论最后一个是哪个），原方法会遍历到那并返回 true；修改后也会遍历到那（除非最后一个是 index 0）。</p>
 <p><strong>考点</strong>：Topic 4.9 ArrayList 遍历边界。</p>
+</div>
+</div>
 <hr>
 <h2 id="section-5">五、FRQ 真题精选与解析</h2>
 <blockquote>
@@ -1842,6 +1975,12 @@ int[][] smaller = ArrayResizer.resize(arr);
 <pre class="code-block"><code>{{1, 3, 2}, {4, 5, 6}}
 </code></pre>
 <p>A helper method, <code>numNonZeroRows</code>, has been provided for you. The method returns the number of rows in its two-dimensional array parameter that contain no zero values. <strong>You must use <code>numNonZeroRows</code> and <code>isNonZeroRow</code> appropriately to receive full credit.</strong></p>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
 <ul>
 <li><strong>(a) <code>isNonZeroRow</code></strong>：遍历第 <code>r</code> 行的每个元素，遇到 0 立即返回 <code>false</code>；否则返回 <code>true</code>。<strong>关键</strong>：用 <code>for</code> 循环 + <code>array2D[r][c]</code> 访问元素。</li>
@@ -1887,6 +2026,7 @@ public static int[][] resize(int[][] array2D) {
 - 维护独立的目的地下标 <code>destRow</code>，不能用原下标 <code>r</code>（否则跳行）；<br>
 - 把符合条件的整行复制（<code>result[destRow] = array2D[r]</code> 是引用赋值，简洁高效）；<br>
 - 返回 <code>result</code>。</p>
+</div>
 <hr>
 <h3>FRQ-2（2022 International Q3 · ReviewAnalysis）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board 2022 FRQ #3)</h4>
@@ -1945,6 +2085,12 @@ rating: 5, comment: &quot;Best ever.&quot;
 <pre class="code-block"><code>[&quot;4-Great service!&quot;]   // from index 4
 </code></pre>
 <p>(The example is corrected: only the comment containing "!" is included.)</p>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
 <ul>
 <li><strong>(a) <code>getAverageRating</code></strong>：遍历 <code>allReviews</code>，累加所有 <code>getRating()</code>，最后除以 <code>allReviews.length</code>。<strong>关键</strong>：返回值是 <code>double</code>，必须做 <code>(double)</code> 强转避免整数除法。</li>
@@ -1999,6 +2145,7 @@ public ArrayList&lt;String&gt; collectComments() {
 - 拼接 <code>index + "-"</code> + comment；<br>
 - 末尾检查 <code>endsWith(".")</code> / <code>endsWith("!")</code>，未匹配则追加 <code>"."</code>；<br>
 - 加入 ArrayList。</p>
+</div>
 <hr>
 <h3>FRQ-3（2023 International Q3 · WeatherData）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board 2023 FRQ #3)</h4>
@@ -2034,6 +2181,12 @@ public ArrayList&lt;String&gt; collectComments() {
 <p>(Note: above is approximate; the official problem uses a specific shaded figure.)</p>
 <p><strong>(b)</strong> Write the <code>longestHeatWave</code> method, which returns the length of the longest heat wave found in the <code>temperatures</code> instance variable. A heat wave is a sequence of <strong>two or more consecutive days</strong> with a daily high temperature greater than the parameter <code>threshold</code>. The <code>temperatures</code> instance variable is guaranteed to contain at least one heat wave based on the <code>threshold</code> parameter.</p>
 <p>For example, with <code>threshold = 100.5</code>, the method call <code>longestHeatWave(100.5)</code> would return 3, which is the length of the longest heat wave.</p>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>Part C · 参考解法（Java）</h4>
 <pre class="code-block"><code class="language-java">// (a) cleanData —— 必须倒序遍历或 i--，否则下标错位
 public void cleanData(double lower, double upper) {
@@ -2070,6 +2223,7 @@ public int longestHeatWave(double threshold) {
 - 当前温度 &gt; threshold：<code>cur++，best = max(best, cur)</code>；<br>
 - 否则 <code>cur = 0</code>（<strong>重要：必须归零，否则累计的是从开头到现在的所有 &gt;threshold 的天数，不连续</strong>）；<br>
 - 题目要求"two or more"，单天不构成 heat wave，所以返回前判断 <code>best &gt;= 2</code>（或预置 <code>best = 0</code> 但要求至少 2 天）。</p>
+</div>
 <hr>
 <h3>FRQ-4（2024 International Q4 · GridPath）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board 2024 FRQ #4)</h4>
@@ -2107,6 +2261,12 @@ public int longestHeatWave(double threshold) {
 <li>If only one neighbor exists, the <code>Location</code> of the existing neighbor is returned.</li>
 </ul>
 <p><strong>(b)</strong> Write the <code>sumPath</code> method, which returns the sum of all values on a path in <code>grid</code>. The path begins with the element at <code>row</code> and <code>col</code> and is determined by successive calls to <code>getNextLoc</code>. The path ends when the element in the last row and the last column of <code>grid</code> is reached.</p>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>Part C · 参考解法（Java）</h4>
 <pre class="code-block"><code class="language-java">// (a) getNextLoc —— 边界检查 + 比较下方和右方
 public Location getNextLoc(int row, int col) {
@@ -2155,6 +2315,7 @@ public int sumPath(int row, int col) {
 - 调用 <code>getNextLoc(r, c)</code>，更新 <code>r</code> 和 <code>c</code>；<br>
 - 累加 <code>grid[r][c]</code>；<br>
 - 返回 <code>sum</code>。</p>
+</div>
 <hr>
 <h3>FRQ-5（2025 International Q4 · SumOrSameGame）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board 2025 FRQ #4)</h4>
@@ -2183,6 +2344,12 @@ public int sumPath(int row, int col) {
 </ul>
 <p>If such an array element is found, both array elements of the pair are cleared (set to 0) and the method returns <code>true</code>. If more than one such array element can be used, any one of those identified array elements can be used to complete the pair and can be cleared. If no such array element is found, no changes are made to <code>puzzle</code> and the method returns <code>false</code>.</p>
 <p>For example, given a <code>puzzle</code> matrix, the call <code>clearPair(0, 1)</code> matches the value <code>7</code> at <code>(0, 1)</code> with the value <code>7</code> at <code>(1, 0)</code> and clears both.</p>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>Part C · 参考解法（Java）</h4>
 <pre class="code-block"><code class="language-java">// A. 构造器
 public SumOrSameGame(int numRows, int numCols) {
@@ -2223,6 +2390,7 @@ public boolean clearPair(int row, int col) {
 - 匹配条件：值相等或值之和为 10；<br>
 - 找到后<strong>两个元素都设为 0</strong>，返回 <code>true</code>；<br>
 - 找不到返回 <code>false</code>。</p>
+</div>
 <hr>
 <h2 id="section-6">六、应试技巧清单</h2>
 <blockquote>
@@ -2366,5 +2534,50 @@ public static int binSearch(int[] arr, int target) { ... }
   spy();
 })();
 </script>
+
+<script id="wb-interactive-script">
+(function () {
+  'use strict';
+  document.addEventListener('click', function (e) {
+    var opt = e.target.closest ? e.target.closest('.wb-opt') : null;
+    if (opt) {
+      var box = opt.closest('.wb-mcq');
+      if (!box) return;
+      var ans = box.getAttribute('data-answer');
+      var pick = opt.getAttribute('data-letter');
+      var all = box.querySelectorAll('.wb-opt');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('wb-correct', 'wb-wrong');
+      if (pick === ans) {
+        opt.classList.add('wb-correct');
+      } else {
+        opt.classList.add('wb-wrong');
+        for (var j = 0; j < all.length; j++) {
+          if (all[j].getAttribute('data-letter') === ans) all[j].classList.add('wb-correct');
+        }
+      }
+      var fb = box.querySelector('.wb-feedback');
+      if (fb) {
+        fb.style.display = 'block';
+        fb.textContent = pick === ans
+          ? '✅ 回答正确，答案是 ' + ans + '。解析如下：'
+          : '❌ 你选了 ' + pick + '，正确答案是 ' + ans + '。解析如下：';
+      }
+      var panel = box.querySelector('.wb-ans-panel');
+      if (panel) panel.classList.add('wb-show');
+      return;
+    }
+    var btn = e.target.closest ? e.target.closest('.wb-reveal-btn') : null;
+    if (btn) {
+      var input = btn.closest('.wb-frq-input');
+      var wrap = input ? input.nextElementSibling : null;
+      if (wrap && wrap.classList.contains('wb-frq-answer-wrap')) {
+        var showing = wrap.classList.toggle('wb-show');
+        btn.textContent = showing ? '隐藏参考解答与评分标准' : '查看参考解答与评分标准';
+      }
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

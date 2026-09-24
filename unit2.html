@@ -469,6 +469,79 @@
 }
 section[id], h2[id], h3[id], div[id] { scroll-margin-top: 16px; }
 </style>
+
+<style id="wb-interactive-style">
+/* ===== 交互练习（WorkBuddy 注入） ===== */
+li.wb-opt {
+  list-style: none;
+  padding: 9px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+li.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+button.wb-opt {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px; font-weight: 700;
+  min-width: 46px; height: 40px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+button.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+.wb-opt.wb-correct { border-color: #2e7d32 !important; background: #e8f5e9 !important; }
+.wb-opt.wb-wrong { border-color: #b3322e !important; background: #fdeceb !important; }
+.wb-card { display: flex; align-items: center; gap: 10px; margin: 14px 0 2px; flex-wrap: wrap; }
+.wb-card-label { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin-right: 4px; }
+.wb-feedback { display: none; margin: 10px 0 4px; font-size: 14px; font-weight: 700; }
+.wb-ans-panel {
+  display: none;
+  margin: 14px 0;
+  padding: 14px 18px;
+  background: var(--accent-soft, #f7eef0);
+  border-left: 4px solid var(--accent, #8b2332);
+  border-radius: 0 8px 8px 0;
+}
+.wb-ans-panel.wb-show { display: block; }
+.wb-frq-input { margin: 18px 0; }
+.wb-hint { font-size: 13.5px; color: var(--ink-soft, #4a5568); margin: 0 0 8px 0 !important; }
+.wb-frq-textarea {
+  display: block;
+  width: 100%; min-height: 150px; resize: vertical;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13.5px; line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--ink, #1a2533);
+  box-sizing: border-box;
+}
+.wb-frq-textarea:focus { outline: none; border-color: var(--accent, #8b2332); }
+.wb-reveal-btn {
+  display: inline-block; margin-top: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 9px 22px;
+  border: none; border-radius: 999px;
+  background: var(--accent, #8b2332);
+  color: #fff; cursor: pointer;
+}
+.wb-reveal-btn:hover { opacity: .88; }
+.wb-frq-answer-wrap { display: none; }
+.wb-frq-answer-wrap.wb-show { display: block; }
+@media print {
+  .wb-frq-input, .wb-feedback { display: none !important; }
+  .wb-ans-panel, .wb-frq-answer-wrap { display: block !important; }
+}
+</style>
+
 </head>
 <body>
 <nav id="wb-sidebar">
@@ -1036,9 +1109,15 @@ boolean b2 = /* missing expression */;
 (C) true  || ((5 % 2) == 1)
 (D) true  &amp;&amp; ((5 % 2) == 1)
 </code></pre>
+<div class="wb-mcq" data-answer="A">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：<code>5 % 2 == 0</code> 是 false，所以 <code>b1 = true &amp;&amp; false = false</code>。要找 <code>b2 = false</code> 的表达式。利用短路求值，<code>false || ...</code> 是 false（不论右边）；<code>false &amp;&amp; ...</code> 是 false；<code>true || ...</code> 是 true；<code>true &amp;&amp; ...</code> 是 (5%2==1) = true。只有 (A) 必为 false。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：考察 <code>&amp;&amp;</code> / <code>||</code> 短路求值。<code>false || X</code> 永远是 false，无需关心 X 的值；<code>true &amp;&amp; X</code> 的值取决于 X。(B) 中 <code>false &amp;&amp; true == false</code> 也是 false，但是若 X 不是 <code>(5%2)==1</code> 时结果仍为 false，<strong>不唯一确定</strong>。题目要求"b2 与 b1 始终相同"，必须保证<strong>无论 X 怎么变</strong>，b2 都是 false——只有 (A) <code>false || X</code> 满足。</p>
+<p><strong>解析</strong>：考察 <code>&amp;&amp;</code> / <code>||</code> 短路求值。<code>false || X</code> 永远是 false，无需关心 X 的值；<code>true &amp;&amp; X</code> 的值取决于 X。(B) 中 <code>false &amp;&amp; true == false</code> 也是 false，但是若 X 不是 <code>(5%2)==1</code> 时结果仍为 false，<strong>不唯一确定</strong>。题目要求"b2 与 b1 始终相同"，必须保证<strong>无论 X 怎么变</strong>，b2 都是 false——只有 (A) <code>false || X</code> 满足。</p></div>
+</div>
+
 <h3>MCQ-2（混合条件运算符优先级）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following code segment.
@@ -1066,13 +1145,19 @@ if (true || true &amp;&amp; false)
 (C) FirstThird
 (D) SecondThird
 </code></pre>
+<div class="wb-mcq" data-answer="B">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：先算 <code>&amp;&amp;</code>，后算 <code>||</code>：</p>
 <ul>
 <li>外层 <code>if (false &amp;&amp; true || false)</code>：先算 <code>false &amp;&amp; true == false</code>，再 <code>false || false == false</code>。整个外层 if 跳过，<strong>内部两个 print 都不执行</strong>。</li>
 <li>第二个 <code>if (true || true &amp;&amp; false)</code>：先 <code>true &amp;&amp; false == false</code>，再 <code>true || false == true</code>。进入 if，打印 <code>Third</code>。</li>
 </ul>
 <p><strong>答案：B</strong></p>
-<p><strong>解析</strong>：优先级 <code>!</code> &gt; <code>算</code> &gt; <code>比</code> &gt; <code>&amp;&amp;</code> &gt; <code>||</code>。题目的迷惑点在于把 <code>||</code> 写在 <code>&amp;&amp;</code> 前，但运算仍按优先级进行。</p>
+<p><strong>解析</strong>：优先级 <code>!</code> &gt; <code>算</code> &gt; <code>比</code> &gt; <code>&amp;&amp;</code> &gt; <code>||</code>。题目的迷惑点在于把 <code>||</code> 写在 <code>&amp;&amp;</code> 前，但运算仍按优先级进行。</p></div>
+</div>
+
 <h3>MCQ-3（for 循环 + 字符串反向遍历）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following method.
@@ -1094,6 +1179,10 @@ public static String changeStr(String str)
 (C) &quot;531&quot;
 (D) &quot;543&quot;
 </code></pre>
+<div class="wb-mcq" data-answer="B">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：<code>str.length() = 5</code>。</p>
 <ul>
 <li>初始化 <code>i = 4</code>：取 <code>str.substring(4, 5) = "5"</code>，<code>result = "5"</code>，<code>i = 4 - 2 = 2</code>。</li>
@@ -1102,7 +1191,9 @@ public static String changeStr(String str)
 </ul>
 <p>最终返回 <code>"53"</code>。</p>
 <p><strong>答案：B</strong></p>
-<p><strong>解析</strong>：关键在于 <code>&gt;=</code> 边界与 <code>i -= 2</code> 的步长。手算三步循环即可：i 依次为 4、2、0；只有 4 和 2 满足 <code>i &gt;= str.length()/2</code>，所以 result 拼接两个字符。</p>
+<p><strong>解析</strong>：关键在于 <code>&gt;=</code> 边界与 <code>i -= 2</code> 的步长。手算三步循环即可：i 依次为 4、2、0；只有 4 和 2 满足 <code>i &gt;= str.length()/2</code>，所以 result 拼接两个字符。</p></div>
+</div>
+
 <h3>MCQ-4（独立 if 链 vs if-else if 链行为差异）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following code segments, which are each intended to convert grades
@@ -1159,6 +1250,10 @@ System.out.println(points);
 (C) Both code segments print the same value for all possible values of grade.
 (D) The two code segments print different values for all possible values of grade.
 </code></pre>
+<div class="wb-mcq" data-answer="A">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：分段 1 是标准 <code>else if</code> 链；分段 2 是 4 个独立 <code>if</code>，<strong>全部判断、全部执行</strong>。</p>
 <ul>
 <li><code>grade = 95</code>：</li>
@@ -1176,7 +1271,9 @@ System.out.println(points);
 </ul>
 <p>所以<strong>两种结构在 grade&lt;70 时结果一致</strong>，其他情况下不一致。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：考察独立 if 与 if-else 链的行为差异。最容易出错的是"独立 if 一定会输出最大的匹配条件"——错的，因为最后会<strong>被后面的 if 覆盖</strong>。</p>
+<p><strong>解析</strong>：考察独立 if 与 if-else 链的行为差异。最容易出错的是"独立 if 一定会输出最大的匹配条件"——错的，因为最后会<strong>被后面的 if 覆盖</strong>。</p></div>
+</div>
+
 <h3>MCQ-5（De Morgan / 表达式真值表）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>In the following Boolean expressions, x and y are properly declared and initialized
@@ -1196,6 +1293,10 @@ Expression B
 (C) Expression A and Expression B evaluate to the same value only when x and y have the same value.
 (D) Expression A and Expression B evaluate to the same value only when x and y have different values.
 </code></pre>
+<div class="wb-mcq" data-answer="D">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：列出真值表：</p>
 <table class="three-line-table">
 <thead>
@@ -1238,7 +1339,9 @@ Expression B
 <li>当 x、y <strong>不同时</strong>：两种组合都是 A=F, B=F，相等。</li>
 </ul>
 <p><strong>答案：D</strong></p>
-<p><strong>解析</strong>：考察真值表与 De Morgan 定律（<code>!x &amp;&amp; !y</code> ≡ <code>!(x || y)</code>）。本表达式与 <code>x &amp;&amp; y</code> <strong>互为否定但不总是反义</strong>——只在 (x, y) 一致时一致。</p>
+<p><strong>解析</strong>：考察真值表与 De Morgan 定律（<code>!x &amp;&amp; !y</code> ≡ <code>!(x || y)</code>）。本表达式与 <code>x &amp;&amp; y</code> <strong>互为否定但不总是反义</strong>——只在 (x, y) 一致时一致。</p></div>
+</div>
+
 <h3>MCQ-6（while 循环输出追踪）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following code segment.
@@ -1262,6 +1365,10 @@ System.out.println(count);
 (C) 5
 (D) 7
 </code></pre>
+<div class="wb-mcq" data-answer="A">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：while 循环 <code>num</code> 从 1 到 5，统计偶数出现次数：</p>
 <ul>
 <li><code>num=1</code>：奇数，count 不变；num++ → 2</li>
@@ -1273,7 +1380,9 @@ System.out.println(count);
 </ul>
 <p>最终 <code>count = 2</code>。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：典型 while + 计数 MCQ。务必手算每一轮 num 与 count 的值，不要跳步。</p>
+<p><strong>解析</strong>：典型 while + 计数 MCQ。务必手算每一轮 num 与 count 的值，不要跳步。</p></div>
+</div>
+
 <h3>MCQ-7（整数除法 + 双重嵌套循环计数）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following code segment.
@@ -1295,6 +1404,10 @@ System.out.println(count);
 (C) 10
 (D) 16
 </code></pre>
+<div class="wb-mcq" data-answer="C">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：外层 i = 0,1,2,3；内层 j 从 i 到 3（不含 4）：</p>
 <ul>
 <li>i=0：j = 0,1,2,3，共 4 次</li>
@@ -1304,7 +1417,9 @@ System.out.println(count);
 </ul>
 <p>总和 = 4 + 3 + 2 + 1 = 10。</p>
 <p><strong>答案：C</strong></p>
-<p><strong>解析</strong>：内层起始条件随外层变化时，总次数不再是简单 <code>m × n</code>。这类题常考"递减次数"——列清单是最稳的方式。</p>
+<p><strong>解析</strong>：内层起始条件随外层变化时，总次数不再是简单 <code>m × n</code>。这类题常考"递减次数"——列清单是最稳的方式。</p></div>
+</div>
+
 <h3>MCQ-8（String 比较 + 判别陷阱）</h3>
 <p><strong>英文原题</strong>：</p>
 <pre class="code-block"><code>Consider the following code segment.
@@ -1323,6 +1438,10 @@ boolean r = (a == c);
 (C) p is false, q is true,  r is false
 (D) p is true,  q is false, r is false
 </code></pre>
+<div class="wb-mcq" data-answer="B">
+<div class="wb-card"><span class="wb-card-label">点击选择你的答案：</span><button class="wb-opt" type="button" data-letter="A">A</button><button class="wb-opt" type="button" data-letter="B">B</button><button class="wb-opt" type="button" data-letter="C">C</button><button class="wb-opt" type="button" data-letter="D">D</button></div>
+<p class="wb-feedback"></p>
+<div class="wb-ans-panel">
 <p><strong>中文解读</strong>：</p>
 <ul>
 <li><code>a</code> 与 <code>b</code> 是用 <code>new String(...)</code> 创建的<strong>两个不同对象</strong>，内容相同但<strong>不是同一对象</strong>。</li>
@@ -1334,7 +1453,9 @@ boolean r = (a == c);
 <p><strong>答案：B</strong></p>
 <p><strong>解析</strong>：考察 <code>==</code> 与 <code>.equals()</code> 在 String 上的差异，以及引用赋值的语义。这是 Unit 1 + Unit 2 联合考点，<strong>全文最高频出错题之一</strong>。</p>
 <blockquote>
-<p><strong>MCQ 限时训练建议</strong>：以上 10 题计时 25 分钟完成，平均 2.5 分钟/题。新版考纲的 MCQ 1–4 选项很少出现"明显送分"，必须<strong>手算</strong>才能拿稳分。</p>
+<p><strong>MCQ 限时训练建议</strong>：以上 10 题计时 25 分钟完成，平均 2.5 分钟/题。新版考纲的 MCQ 1–4 选项很少出现"明显送分"，必须<strong>手算</strong>才能拿稳分。</p></div>
+</div>
+
 </blockquote>
 <h2 id="section-5">五、FRQ 真题精选与解析</h2>
 <p>本章精选 <strong>5 道完整真题</strong>，全部来自 AP Classroom 官方 Unit 2 Selection and Iteration Progress Check 题目（College Board 2025 新版 CED 配套题库，与 2026 国际考同源）。FRQ-1 来自 Part A（4 段合一），FRQ-2 至 FRQ-5 来自 Part B（4 题各取一段）。每题均给出官方英文原题与中文思路、参考解法、评分要点，方便对照练习。</p>
@@ -1382,6 +1503,12 @@ Value of beadSequence    Meets Rule 1   Meets Rule 2   Meets Rule 3   Printed Ou
    lengthGood, correctColors, and startEndGood to receive full credit, regardless
    of what you wrote for parts A, B, and C.
 </code></pre>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
 <p>Part A 一道题含 4 个子问题，考点全部是 Unit 2 标准选择结构：</p>
 <ul>
@@ -1421,6 +1548,7 @@ if (lengthGood &amp;&amp; correctColors &amp;&amp; startEndGood) {
 <li>(3) 1 分：未处理空字符串可能要扣 0.5。</li>
 <li>(4) 1 分：必须使用前三个变量——若新写一遍条件直接判三规则，<strong>此项不得分</strong>。</li>
 </ul>
+</div>
 <h3>FRQ-2（AP Classroom Unit 2 FRQ Part B · colWidth 字符串填充）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board Unit 2 Progress Check FRQ Part B, Question 1)</h4>
 <pre class="code-block"><code>This question involves processing strings of text.
@@ -1454,6 +1582,12 @@ Value of colWidth   Value of text   Printed Output
 Write a code segment to print the intended output. Your implementation must
 meet all specifications and conform to the examples shown in the table.
 </code></pre>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
 <p>分两种情形：length &gt; colWidth 直接打印；否则用点填充到 colWidth 字符。</p>
 <p>点的总数量 = colWidth - text.length()，左右分布：左侧 <code>left = total/2</code>，右侧 <code>right = total - left</code>。</p>
@@ -1479,6 +1613,7 @@ meet all specifications and conform to the examples shown in the table.
 <li>用循环或 <code>String.repeat</code> 都能得分（考纲允许 <code>String.repeat</code>）。</li>
 <li>使用 <code>|</code> 包裹内容 1 分。</li>
 </ul>
+</div>
 <h3>FRQ-3（AP Classroom Unit 2 FRQ Part B · 最长公共前缀）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board Unit 2 Progress Check FRQ Part B, Question 2)</h4>
 <pre class="code-block"><code>2. A code segment, which you will write, should print the length of the longest
@@ -1497,6 +1632,12 @@ Value of text     Value of otherText   Printed Output   Explanation
 Write a code segment to print the intended output. Your implementation must
 meet all specifications and conform to the examples shown in the table.
 </code></pre>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
 <p>从长到短依次检查 <code>text.substring(0, k)</code> 是否在 <code>otherText</code> 中，一旦命中立即输出 k。<strong>关键技巧</strong>：用 <code>otherText.indexOf(prefix) &gt;= 0</code> 检查子串。</p>
 <h4>参考解法</h4>
@@ -1517,6 +1658,7 @@ System.out.println(answer);
 <li>从长到短遍历前缀，找到即设置 <code>found</code>（或等价布尔变量）提前结束 1 分。</li>
 <li>若用从短到长、需要每命中更新 answer，可以等价得分，但代码略长。</li>
 </ul>
+</div>
 <h3>FRQ-4（AP Classroom Unit 2 FRQ Part B · 个位数恰好出现 1 次）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board Unit 2 Progress Check FRQ Part B, Question 3)</h4>
 <pre class="code-block"><code>This question involves writing two code segments that use information about
@@ -1547,6 +1689,12 @@ song in the company's catalog.
 Write a code segment to print the intended output. Your implementation must
 conform to the examples.
 </code></pre>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
 <p>先取个位数 <code>int ones = downloads % 10;</code>，再统计去掉个位后其余位中等于 ones 的个数。</p>
 <ul>
@@ -1573,6 +1721,7 @@ if (otherCount == 1) {
 <li>用 <code>/ 10</code> 循环剥离剩余位 1 分。</li>
 <li>准确比对计数 == 1 输出 1 分。</li>
 </ul>
+</div>
 <h3>FRQ-5（AP Classroom Unit 2 FRQ Part B · songInfo 提取）</h3>
 <h4 class="frq-section-title">Part A · Official English Wording (from College Board Unit 2 Progress Check FRQ Part B, Question 4)</h4>
 <pre class="code-block"><code>4. A code segment, which you will write, should process the string songInfo
@@ -1587,6 +1736,12 @@ if (otherCount == 1) {
 Write a code segment to print the intended output. Your implementation must
 conform to the examples.
 </code></pre>
+<div class="wb-frq-input">
+  <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
+  <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
+  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+</div>
+<div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
 <p>字符串形如 "artist-album-title"，有<strong>两个</strong>连字符。要切三段：</p>
 <ol>
@@ -1610,6 +1765,7 @@ System.out.println(title + &quot; by &quot; + artist);
 <li>拼成 <code>"title by artist"</code> 顺序正确 1 分。</li>
 <li>不必提取 album（题目不要），但若写出可酌情。</li>
 </ul>
+</div>
 <h2 id="section-6">六、应试技巧清单</h2>
 <blockquote>
 <p>本节汇总 Unit 2 在 MCQ 与 FRQ 中的高分策略。</p>
@@ -1843,5 +1999,50 @@ System.out.println(title + &quot; by &quot; + artist);
   spy();
 })();
 </script>
+
+<script id="wb-interactive-script">
+(function () {
+  'use strict';
+  document.addEventListener('click', function (e) {
+    var opt = e.target.closest ? e.target.closest('.wb-opt') : null;
+    if (opt) {
+      var box = opt.closest('.wb-mcq');
+      if (!box) return;
+      var ans = box.getAttribute('data-answer');
+      var pick = opt.getAttribute('data-letter');
+      var all = box.querySelectorAll('.wb-opt');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('wb-correct', 'wb-wrong');
+      if (pick === ans) {
+        opt.classList.add('wb-correct');
+      } else {
+        opt.classList.add('wb-wrong');
+        for (var j = 0; j < all.length; j++) {
+          if (all[j].getAttribute('data-letter') === ans) all[j].classList.add('wb-correct');
+        }
+      }
+      var fb = box.querySelector('.wb-feedback');
+      if (fb) {
+        fb.style.display = 'block';
+        fb.textContent = pick === ans
+          ? '✅ 回答正确，答案是 ' + ans + '。解析如下：'
+          : '❌ 你选了 ' + pick + '，正确答案是 ' + ans + '。解析如下：';
+      }
+      var panel = box.querySelector('.wb-ans-panel');
+      if (panel) panel.classList.add('wb-show');
+      return;
+    }
+    var btn = e.target.closest ? e.target.closest('.wb-reveal-btn') : null;
+    if (btn) {
+      var input = btn.closest('.wb-frq-input');
+      var wrap = input ? input.nextElementSibling : null;
+      if (wrap && wrap.classList.contains('wb-frq-answer-wrap')) {
+        var showing = wrap.classList.toggle('wb-show');
+        btn.textContent = showing ? '隐藏参考解答与评分标准' : '查看参考解答与评分标准';
+      }
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
