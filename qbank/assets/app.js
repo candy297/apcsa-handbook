@@ -227,7 +227,9 @@
       }
     }
 
-    var hasAnsContent = q.type === 'FRQ' ? !!(q.solution || q.rubric) : !!(q.answer || q.explanation);
+    var hasAnsContent = q.type === 'FRQ'
+      ? !!(q.solution || q.rubric || (q.solutionImgs && q.solutionImgs.length))
+      : !!(q.answer || q.explanation || q.explanationZh);
     var answerHtml = '';
     if (!showAns) {
       answerHtml = hasAnsContent
@@ -238,6 +240,13 @@
       if (q.solution) {
         ansParts.push('<div class="expl-label">参考答案程序（Canonical Solution）</div>' +
           '<div class="expl">' + formatBody(q.solution) + '</div>');
+      }
+      if (q.solutionImgs && q.solutionImgs.length) {
+        ansParts.push('<div class="expl-label"' + (q.solution ? ' style="margin-top:10px"' : '') +
+          '>参考答案程序（Canonical Solution）</div>' +
+          '<div class="expl">' + q.solutionImgs.map(function (u) {
+            return '<img class="sol-img" alt="Canonical Solution" src="' + u + '">';
+          }).join('') + '</div>');
       }
       if (q.rubricTable && q.rubricTable.length) {
         ansParts.push('<div class="expl-label">官方评分标准（Scoring Guidelines）' +
@@ -252,9 +261,18 @@
         answerHtml = '<div class="answerbox wb-ans">' + ansParts.join('') + '</div>';
       }
     } else if (hasAnsContent) {
+      var explHtml = '';
+      if (q.explanationZh) {
+        explHtml += '<div class="expl-label">解析</div><div class="expl">' + esc(q.explanationZh) + '</div>';
+      }
+      if (q.explanation) {
+        explHtml += '<div class="expl-label' + (q.explanationZh ? ' expl-en-label' : '') + '">官方解析原文' +
+          (q.explanationZh ? '<span class="expl-en-hint">（English）</span>' : '') + '</div>' +
+          '<div class="expl' + (q.explanationZh ? ' expl-en' : '') + '">' + esc(q.explanation) + '</div>';
+      }
       answerHtml = '<div class="answerbox wb-ans">' +
         (q.answer ? '<div class="ansline">答案：<b>' + esc(q.answer) + '</b></div>' : '<div class="ansline" style="color:var(--warn)">本题答案暂缺（可参考原卷）</div>') +
-        (q.explanation ? '<div class="expl-label">解析</div><div class="expl">' + esc(q.explanation) + '</div>' : '') +
+        explHtml +
         '</div>';
     }
 

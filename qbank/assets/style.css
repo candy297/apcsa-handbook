@@ -222,7 +222,12 @@ pre.code {
 .answerbox .ansline { font-size: 14px; margin-bottom: 7px; }
 .answerbox .ansline b { color: var(--ok); font-size: 15px; }
 .expl { font-size: 13.8px; color: var(--ink-2); white-space: pre-wrap; word-break: break-word; }
+.expl .sol-img { display: block; max-width: min(560px, 100%); width: auto; margin: 6px 0;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 .expl-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; margin-bottom: 4px; }
+.expl-label.expl-en-label { margin-top: 10px; display: flex; align-items: baseline; gap: 6px; }
+.expl-en-hint { font-weight: 500; letter-spacing: 0; color: var(--muted); }
+.expl.expl-en { font-size: 12.8px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
 .qcard .qfoot { display: flex; gap: 8px; align-items: center; margin-top: 10px; padding-left: 28px; flex-wrap: wrap; }
 .qcard .src { font-size: 12px; color: var(--muted); }
 .toggle { background: none; border: 0; color: var(--primary); cursor: pointer; font-size: 13.5px; font-weight: 600; padding: 2px 0; font-family: inherit; }

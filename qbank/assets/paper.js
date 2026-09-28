@@ -230,6 +230,12 @@
               kids.push(new P({ spacing: { after: 20, line: 280 }, indent: { left: 280 }, children: [new T({ text: ln, size: 19, font: MONO_FONT })] }));
             });
           }
+          if (cfg.includeAnswer && q.solutionImgs && q.solutionImgs.length) {
+            if (!q.solution) {
+              kids.push(new P({ spacing: { before: 100, after: 40 }, children: [new T({ text: '【参考答案程序（Canonical Solution）】', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
+            }
+            kids.push(new P({ spacing: { after: 40 }, indent: { left: 280 }, children: [new T({ text: '（本题参考答案为官方图片版，共 ' + q.solutionImgs.length + ' 张，请访问网页版查看）', size: 18, color: '6B7280', font: CN_FONT })] }));
+          }
           if (cfg.includeAnswer && q.rubricTable && q.rubricTable.length) {
             /* 官方评分表格（与 CB Scoring Guidelines 版式一致） */
             q.rubricTable.forEach(function (p) {
@@ -287,10 +293,16 @@
               children: [new T({ text: '答案：' + (q.answer || '（略）'), bold: true, size: 21, color: '059669', font: CN_FONT })]
             }));
           }
-          if (cfg.includeExpl && q.explanation) {
+          if (cfg.includeExpl && (q.explanationZh || q.explanation)) {
             kids.push(new P({ spacing: { after: 20 }, children: [new T({ text: '解析：', bold: true, size: 20, color: '1D4ED8', font: CN_FONT })] }));
-            q.explanation.split('\n').forEach(function (ln) {
+            (q.explanationZh || '').split('\n').forEach(function (ln) {
               kids.push(new P({ spacing: { after: 20, line: 280 }, children: [new T({ text: ln, size: 19, font: CN_FONT })] }));
+            });
+            if (q.explanationZh && q.explanation) {
+              kids.push(new P({ spacing: { before: 40, after: 20 }, children: [new T({ text: '官方解析原文（English）：', bold: true, size: 18, color: '6B7280', font: CN_FONT })] }));
+            }
+            (q.explanation && q.explanationZh ? q.explanation : '').split('\n').forEach(function (ln) {
+              kids.push(new P({ spacing: { after: 20, line: 280 }, children: [new T({ text: ln, size: 18, color: '6B7280', font: CN_FONT })] }));
             });
           }
         }
@@ -433,10 +445,24 @@
       if (shown) {
         if (q.type === 'FRQ') {
           if (q.solution) html += '<div class="answerbox"><div class="expl-label">参考答案程序（Canonical Solution）</div><div class="expl">' + QB.formatBody(q.solution) + '</div></div>';
+          if (q.solutionImgs && q.solutionImgs.length) {
+            html += '<div class="answerbox">' + (q.solution ? '' : '<div class="expl-label">参考答案程序（Canonical Solution）</div>') +
+              '<div class="expl">' + q.solutionImgs.map(function (u) {
+                return '<img style="max-width:560px;width:100%;border:1px solid #d1d5db;border-radius:6px;margin:6px 0;display:block" alt="Canonical Solution" src="' + u + '">';
+              }).join('') + '</div></div>';
+          }
           if (q.rubricTable && q.rubricTable.length) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.rubricTableHtml(q.rubricTable) + '</div></div>';
           else if (q.rubric) html += '<div class="answerbox"><div class="expl-label">官方评分标准（Scoring Guidelines）</div><div class="expl expl-rubric">' + QB.formatBody(q.rubric) + '</div></div>';
         }
-        else if (q.type === 'MCQ') html += '<div class="answerbox">' + (q.answer ? '<div class="ansline">答案：<b>' + q.answer + '</b></div>' : '') + (cfg.includeExpl && q.explanation ? '<div class="expl-label">解析</div><div class="expl">' + QB.esc(q.explanation) + '</div>' : '') + '</div>';
+        else if (q.type === 'MCQ') {
+          var explHtml = '';
+          if (cfg.includeExpl && (q.explanationZh || q.explanation)) {
+            if (q.explanationZh) explHtml += '<div class="expl-label">解析</div><div class="expl">' + QB.esc(q.explanationZh) + '</div>';
+            if (q.explanationZh && q.explanation) explHtml += '<div class="expl-label" style="margin-top:8px">官方解析原文（English）</div>';
+            if (q.explanation && (!q.explanationZh || cfg.includeExplEn !== false)) explHtml += '<div class="expl" style="color:#6B7280;font-size:12.5px">' + QB.esc(q.explanation) + '</div>';
+          }
+          html += '<div class="answerbox">' + (q.answer ? '<div class="ansline">答案：<b>' + q.answer + '</b></div>' : '') + explHtml + '</div>';
+        }
       } else {
         for (var k = 0; k < cfg.blankLines; k++) html += '<div style="height:22pt"></div>';
       }
@@ -466,8 +492,14 @@
         else { md += '- (' + o.label + ') ' + o.text.replace(/\n/g, ' ') + '\n'; }
       });
       if (cfg.includeAnswer && q.answer) md += '\n> 答案：' + q.answer + '\n';
-      if (cfg.includeExpl && q.explanation) md += '> 解析：' + q.explanation.replace(/\n/g, ' ') + '\n';
+      if (cfg.includeExpl && (q.explanationZh || q.explanation)) {
+        if (q.explanationZh) md += '> 解析：' + q.explanationZh.replace(/\n/g, ' ') + '\n';
+        if (q.explanationZh && q.explanation) md += '> 官方解析原文：' + q.explanation.replace(/\n/g, ' ') + '\n';
+      }
       if (cfg.includeAnswer && q.type === 'FRQ' && q.solution) md += '\n> 参考答案程序：\n> ```java\n' + q.solution.replace(/^/gm, '> ') + '\n> ```\n';
+      if (cfg.includeAnswer && q.type === 'FRQ' && q.solutionImgs && q.solutionImgs.length) {
+        md += '\n> 参考答案程序：官方图片版（' + q.solutionImgs.length + ' 张，见网页版）\n';
+      }
       if (cfg.includeAnswer && q.type === 'FRQ' && q.rubricTable && q.rubricTable.length) {
         md += '\n> 官方评分标准：\n>\n';
         q.rubricTable.forEach(function (p) {
