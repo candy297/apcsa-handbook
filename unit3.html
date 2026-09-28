@@ -543,8 +543,23 @@ button.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--ac
 .wb-reveal-btn:hover { opacity: .88; }
 .wb-frq-answer-wrap { display: none; }
 .wb-frq-answer-wrap.wb-show { display: block; }
+/* 重做该题按钮 */
+.wb-redo-btn {
+  display: inline-block; margin-top: 10px; margin-left: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13.5px; font-weight: 700;
+  padding: 8px 18px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 999px;
+  background: var(--card, #fff);
+  color: var(--ink-soft, #4a5568);
+  cursor: pointer;
+  transition: border-color .12s ease, color .12s ease, background .12s ease;
+}
+.wb-redo-btn:hover { border-color: var(--accent, #8b2332); color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+.wb-redo-row { margin: 12px 0 0; }
 @media print {
-  .wb-frq-input, .wb-feedback { display: none !important; }
+  .wb-frq-input, .wb-feedback, .wb-redo-btn, .wb-redo-row { display: none !important; }
   .wb-ans-panel, .wb-frq-answer-wrap { display: block !important; }
 }
 </style>
@@ -1055,7 +1070,8 @@ public int getScore() { /* implementation not shown */ }
 - C 错：实例变量是 <code>public</code>，破坏了封装。<br>
 - D 错：实例变量是 <code>public</code>，破坏了封装；只是 <code>getScore</code> 改成 <code>public</code> 不够。<br>
 - B 对：实例变量 <code>private</code>、构造器 <code>public</code>、方法 <code>public</code>，全部符合"信息隐藏 + 接口暴露"的最佳实践。</p>
-<p><strong>考点</strong>：Topic 3.3 类结构、Topic 3.4 构造器、Topic 3.8 Scope and Access。</p></div>
+<p><strong>考点</strong>：Topic 3.3 类结构、Topic 3.4 构造器、Topic 3.8 Scope and Access。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-2（TopicQuestion #2：static 变量与多次创建对象）</h3>
@@ -1089,7 +1105,8 @@ public int getScore() { /* implementation not shown */ }
 - B 错：<code>maxWord</code> 只在 <code>word.length() &gt; maxWord.length()</code> 时才被更新，并非每次创建都改变。<br>
 - C 错：可能存在两个对象 <code>word</code> 长度都等于 <code>maxWord</code> 长度（仅在更新条件<strong>不成立</strong>时，这两个对象并存）。<br>
 - D 错：<code>maxWord</code> 没有 <code>final</code> 修饰符，可被多次重新赋值。</p>
-<p><strong>考点</strong>：Topic 3.7 类变量（<code>static</code>）。</p></div>
+<p><strong>考点</strong>：Topic 3.7 类变量（<code>static</code>）。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-3（TopicQuestion #3：方法内访问实例变量）</h3>
@@ -1118,7 +1135,8 @@ public int getScore() { /* implementation not shown */ }
 <div class="wb-ans-panel">
 <p><strong>答案：D</strong></p>
 <p><strong>详解</strong>：方法 <code>getPopulation</code> 中 <code>p</code> 不是局部变量也不是参数——类中只有构造器使用了 <code>p</code> 作为参数名，<code>getPopulation</code> 内并没有 <code>p</code> 可用。正确写法是 <code>return population;</code>（返回实例变量 <code>population</code>）。</p>
-<p><strong>考点</strong>：Topic 3.5 方法编写 + 实例变量访问。</p></div>
+<p><strong>考点</strong>：Topic 3.5 方法编写 + 实例变量访问。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-4（TopicQuestion #4：实例变量 vs 参数命名）</h3>
@@ -1160,7 +1178,8 @@ private Car(String myMake, String myModel) { /* implementation not shown */ }
 - B 错：<code>public String</code> + 私有构造器 (外部无法 <code>new Car(...)</code>)——逻辑矛盾。<br>
 - C 对：实例变量 <code>private</code>，构造器 <code>public</code>，符合需求。<br>
 - D 错：构造器私有，外部无法 <code>new Car(...)</code>。</p>
-<p><strong>考点</strong>：访问修饰符（Topic 3.8）。</p></div>
+<p><strong>考点</strong>：访问修饰符（Topic 3.8）。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-5（MCQ Part B #2：返回对象的字符串表示）</h3>
@@ -1205,7 +1224,8 @@ System.out.println(p2.getPoint());
 - B 错：方法返回 <code>String</code>，内部不能用 <code>System.out.println</code>。<br>
 - C 错：返回的是字符串字面量 <code>"(x, y)"</code>，不是变量值。<br>
 - D 对：<code>return "(" + x + ", " + y + ")";</code> 返回 <code>"(" + 3 + ", " + -2 + ")" = "(3, -2)"</code>。</p>
-<p><strong>考点</strong>：方法签名 + String 拼接（Topic 3.5、Topic 1.15）。</p></div>
+<p><strong>考点</strong>：方法签名 + String 拼接（Topic 3.5、Topic 1.15）。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-6（MCQ Part B #4：String 不可变性 + 参数传递）</h3>
@@ -1239,7 +1259,8 @@ String str2 = mystery(str1, 3);
 </blockquote>
 <p><strong>更正答案：D</strong></p>
 <p><strong>详解</strong>：<code>String</code> 是不可变对象——在方法内部 <code>message = message.substring(x)</code> 只是让 <code>message</code> 指向<strong>新对象</strong>，外部 <code>str1</code> 仍指向原对象 <code>"abcde"</code>；<code>str2</code> 拿到的是 <code>"de"</code>，两者不相等，所以 <strong><code>str1</code> 未被修改 / <code>str1</code> 与 <code>str2</code> 值不同</strong>。</p>
-<p><strong>考点</strong>：Topic 3.6 引用传递 + String 不可变（Topic 1.15）。</p></div>
+<p><strong>考点</strong>：Topic 3.6 引用传递 + String 不可变（Topic 1.15）。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-7（MCQ Part B #7：static 变量与方法反复修改）</h3>
@@ -1291,7 +1312,8 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 4. <code>fire.targetLocation()</code>：<code>"blaze".indexOf("a") = 2</code>；返回 <code>2</code> 后 <code>target</code> 改为 <code>"z"</code>；<br>
 5. <code>animal.targetLocation()</code>：<code>"zebra".indexOf("z") = 0</code>；返回 <code>0</code>。</p>
 <p>输出 <code>-1 2 0</code>。等等，<strong>C 选项是 <code>-1 2 0</code></strong>——核对完毕：C 正确。</p>
-<p><strong>考点</strong>：Topic 3.7 static 共享变量 + Topic 1.15 String.indexOf。</p></div>
+<p><strong>考点</strong>：Topic 3.7 static 共享变量 + Topic 1.15 String.indexOf。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-8（MCQ Part B #8：static 方法不能直接访问实例变量）</h3>
@@ -1328,7 +1350,8 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 - A、B 错：缺 <code>static</code>，外部不能用 <code>Widget.doSomething()</code> 访问（必须 <code>Widget w = new Widget(); w.doSomething();</code>）。<br>
 - C 错：<code>static</code> 方法不能直接访问非 <code>static</code> 实例变量 <code>number</code>（编译错误）。<br>
 - D 对：<code>static</code> 方法能直接访问同类的 <code>static</code> 变量 <code>word</code>，<code>word.length()</code> 返回 <code>int</code>，与返回值类型一致。</p>
-<p><strong>考点</strong>：Topic 3.7 static 字段与方法访问规则。</p></div>
+<p><strong>考点</strong>：Topic 3.7 static 字段与方法访问规则。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <hr>
@@ -1434,7 +1457,10 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
@@ -1644,7 +1670,10 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
@@ -1835,7 +1864,10 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
@@ -2021,7 +2053,10 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>Part B · 中文思路与考点</h4>
@@ -2189,21 +2224,71 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
 <script id="wb-interactive-script">
 (function () {
   'use strict';
+
+  /* ---------- 重做：把一道题恢复到未作答的初始状态 ---------- */
+  function resetMcq(box) {
+    if (!box) { return; }
+    var opts = box.querySelectorAll('.wb-opt');
+    for (var i = 0; i < opts.length; i++) {
+      opts[i].classList.remove('wb-correct', 'wb-wrong');
+    }
+    var fb = box.querySelector('.wb-feedback');
+    if (fb) {
+      fb.style.display = '';
+      fb.textContent = '';
+    }
+    var panel = box.querySelector('.wb-ans-panel');
+    if (panel) { panel.classList.remove('wb-show'); }
+  }
+
+  function resetFrq(input) {
+    if (!input) { return; }
+    var ta = input.querySelector('.wb-frq-textarea');
+    if (ta) { ta.value = ''; }
+    var btn = input.querySelector('.wb-reveal-btn');
+    var wrap = input.nextElementSibling;
+    if (wrap && wrap.classList.contains('wb-frq-answer-wrap')) {
+      wrap.classList.remove('wb-show');
+    }
+    if (btn) { btn.textContent = '查看参考解答与评分标准'; }
+  }
+
   document.addEventListener('click', function (e) {
-    var opt = e.target.closest ? e.target.closest('.wb-opt') : null;
+    if (!e.target.closest) { return; }
+
+    /* ---------- 重做该题 ---------- */
+    var redo = e.target.closest('.wb-redo-btn');
+    if (redo) {
+      var rbox = redo.closest('.wb-mcq');
+      if (rbox) { resetMcq(rbox); return; }
+      var rinput = redo.closest('.wb-frq-input');
+      if (rinput) { resetFrq(rinput); return; }
+      var rwrap = redo.closest('.wb-frq-answer-wrap');
+      if (rwrap && rwrap.previousElementSibling) {
+        resetFrq(rwrap.previousElementSibling);
+      }
+      return;
+    }
+
+    /* ---------- MCQ 选项作答 ---------- */
+    var opt = e.target.closest('.wb-opt');
     if (opt) {
       var box = opt.closest('.wb-mcq');
-      if (!box) return;
+      if (!box) { return; }
       var ans = box.getAttribute('data-answer');
       var pick = opt.getAttribute('data-letter');
       var all = box.querySelectorAll('.wb-opt');
-      for (var i = 0; i < all.length; i++) all[i].classList.remove('wb-correct', 'wb-wrong');
+      for (var i = 0; i < all.length; i++) {
+        all[i].classList.remove('wb-correct', 'wb-wrong');
+      }
       if (pick === ans) {
         opt.classList.add('wb-correct');
       } else {
         opt.classList.add('wb-wrong');
         for (var j = 0; j < all.length; j++) {
-          if (all[j].getAttribute('data-letter') === ans) all[j].classList.add('wb-correct');
+          if (all[j].getAttribute('data-letter') === ans) {
+            all[j].classList.add('wb-correct');
+          }
         }
       }
       var fb = box.querySelector('.wb-feedback');
@@ -2214,10 +2299,12 @@ System.out.println(musicLoc + &quot; &quot; + fireLoc + &quot; &quot; + animalLo
           : '❌ 你选了 ' + pick + '，正确答案是 ' + ans + '。解析如下：';
       }
       var panel = box.querySelector('.wb-ans-panel');
-      if (panel) panel.classList.add('wb-show');
+      if (panel) { panel.classList.add('wb-show'); }
       return;
     }
-    var btn = e.target.closest ? e.target.closest('.wb-reveal-btn') : null;
+
+    /* ---------- FRQ 展开/收起参考解答 ---------- */
+    var btn = e.target.closest('.wb-reveal-btn');
     if (btn) {
       var input = btn.closest('.wb-frq-input');
       var wrap = input ? input.nextElementSibling : null;

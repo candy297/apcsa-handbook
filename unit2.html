@@ -543,8 +543,23 @@ button.wb-opt:hover { border-color: var(--accent, #8b2332); background: var(--ac
 .wb-reveal-btn:hover { opacity: .88; }
 .wb-frq-answer-wrap { display: none; }
 .wb-frq-answer-wrap.wb-show { display: block; }
+/* 重做该题按钮 */
+.wb-redo-btn {
+  display: inline-block; margin-top: 10px; margin-left: 10px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13.5px; font-weight: 700;
+  padding: 8px 18px;
+  border: 1px solid var(--line, #d9dee5);
+  border-radius: 999px;
+  background: var(--card, #fff);
+  color: var(--ink-soft, #4a5568);
+  cursor: pointer;
+  transition: border-color .12s ease, color .12s ease, background .12s ease;
+}
+.wb-redo-btn:hover { border-color: var(--accent, #8b2332); color: var(--accent, #8b2332); background: var(--accent-soft, #f7eef0); }
+.wb-redo-row { margin: 12px 0 0; }
 @media print {
-  .wb-frq-input, .wb-feedback { display: none !important; }
+  .wb-frq-input, .wb-feedback, .wb-redo-btn, .wb-redo-row { display: none !important; }
   .wb-ans-panel, .wb-frq-answer-wrap { display: block !important; }
 }
 </style>
@@ -1122,7 +1137,8 @@ boolean b2 = /* missing expression */;
 <div class="wb-ans-panel">
 <p><strong>中文解读</strong>：<code>5 % 2 == 0</code> 是 false，所以 <code>b1 = true &amp;&amp; false = false</code>。要找 <code>b2 = false</code> 的表达式。利用短路求值，<code>false || ...</code> 是 false（不论右边）；<code>false &amp;&amp; ...</code> 是 false；<code>true || ...</code> 是 true；<code>true &amp;&amp; ...</code> 是 (5%2==1) = true。只有 (A) 必为 false。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：考察 <code>&amp;&amp;</code> / <code>||</code> 短路求值。<code>false || X</code> 永远是 false，无需关心 X 的值；<code>true &amp;&amp; X</code> 的值取决于 X。(B) 中 <code>false &amp;&amp; true == false</code> 也是 false，但是若 X 不是 <code>(5%2)==1</code> 时结果仍为 false，<strong>不唯一确定</strong>。题目要求"b2 与 b1 始终相同"，必须保证<strong>无论 X 怎么变</strong>，b2 都是 false——只有 (A) <code>false || X</code> 满足。</p></div>
+<p><strong>解析</strong>：考察 <code>&amp;&amp;</code> / <code>||</code> 短路求值。<code>false || X</code> 永远是 false，无需关心 X 的值；<code>true &amp;&amp; X</code> 的值取决于 X。(B) 中 <code>false &amp;&amp; true == false</code> 也是 false，但是若 X 不是 <code>(5%2)==1</code> 时结果仍为 false，<strong>不唯一确定</strong>。题目要求"b2 与 b1 始终相同"，必须保证<strong>无论 X 怎么变</strong>，b2 都是 false——只有 (A) <code>false || X</code> 满足。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-2（混合条件运算符优先级）</h3>
@@ -1162,7 +1178,8 @@ if (true || true &amp;&amp; false)
 <li>第二个 <code>if (true || true &amp;&amp; false)</code>：先 <code>true &amp;&amp; false == false</code>，再 <code>true || false == true</code>。进入 if，打印 <code>Third</code>。</li>
 </ul>
 <p><strong>答案：B</strong></p>
-<p><strong>解析</strong>：优先级 <code>!</code> &gt; <code>算</code> &gt; <code>比</code> &gt; <code>&amp;&amp;</code> &gt; <code>||</code>。题目的迷惑点在于把 <code>||</code> 写在 <code>&amp;&amp;</code> 前，但运算仍按优先级进行。</p></div>
+<p><strong>解析</strong>：优先级 <code>!</code> &gt; <code>算</code> &gt; <code>比</code> &gt; <code>&amp;&amp;</code> &gt; <code>||</code>。题目的迷惑点在于把 <code>||</code> 写在 <code>&amp;&amp;</code> 前，但运算仍按优先级进行。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-3（for 循环 + 字符串反向遍历）</h3>
@@ -1198,7 +1215,8 @@ public static String changeStr(String str)
 </ul>
 <p>最终返回 <code>"53"</code>。</p>
 <p><strong>答案：B</strong></p>
-<p><strong>解析</strong>：关键在于 <code>&gt;=</code> 边界与 <code>i -= 2</code> 的步长。手算三步循环即可：i 依次为 4、2、0；只有 4 和 2 满足 <code>i &gt;= str.length()/2</code>，所以 result 拼接两个字符。</p></div>
+<p><strong>解析</strong>：关键在于 <code>&gt;=</code> 边界与 <code>i -= 2</code> 的步长。手算三步循环即可：i 依次为 4、2、0；只有 4 和 2 满足 <code>i &gt;= str.length()/2</code>，所以 result 拼接两个字符。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-4（独立 if 链 vs if-else if 链行为差异）</h3>
@@ -1278,7 +1296,8 @@ System.out.println(points);
 </ul>
 <p>所以<strong>两种结构在 grade&lt;70 时结果一致</strong>，其他情况下不一致。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：考察独立 if 与 if-else 链的行为差异。最容易出错的是"独立 if 一定会输出最大的匹配条件"——错的，因为最后会<strong>被后面的 if 覆盖</strong>。</p></div>
+<p><strong>解析</strong>：考察独立 if 与 if-else 链的行为差异。最容易出错的是"独立 if 一定会输出最大的匹配条件"——错的，因为最后会<strong>被后面的 if 覆盖</strong>。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-5（De Morgan / 表达式真值表）</h3>
@@ -1346,7 +1365,8 @@ Expression B
 <li>当 x、y <strong>不同时</strong>：两种组合都是 A=F, B=F，相等。</li>
 </ul>
 <p><strong>答案：D</strong></p>
-<p><strong>解析</strong>：考察真值表与 De Morgan 定律（<code>!x &amp;&amp; !y</code> ≡ <code>!(x || y)</code>）。本表达式与 <code>x &amp;&amp; y</code> <strong>互为否定但不总是反义</strong>——只在 (x, y) 一致时一致。</p></div>
+<p><strong>解析</strong>：考察真值表与 De Morgan 定律（<code>!x &amp;&amp; !y</code> ≡ <code>!(x || y)</code>）。本表达式与 <code>x &amp;&amp; y</code> <strong>互为否定但不总是反义</strong>——只在 (x, y) 一致时一致。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-6（while 循环输出追踪）</h3>
@@ -1387,7 +1407,8 @@ System.out.println(count);
 </ul>
 <p>最终 <code>count = 2</code>。</p>
 <p><strong>答案：A</strong></p>
-<p><strong>解析</strong>：典型 while + 计数 MCQ。务必手算每一轮 num 与 count 的值，不要跳步。</p></div>
+<p><strong>解析</strong>：典型 while + 计数 MCQ。务必手算每一轮 num 与 count 的值，不要跳步。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-7（整数除法 + 双重嵌套循环计数）</h3>
@@ -1424,7 +1445,8 @@ System.out.println(count);
 </ul>
 <p>总和 = 4 + 3 + 2 + 1 = 10。</p>
 <p><strong>答案：C</strong></p>
-<p><strong>解析</strong>：内层起始条件随外层变化时，总次数不再是简单 <code>m × n</code>。这类题常考"递减次数"——列清单是最稳的方式。</p></div>
+<p><strong>解析</strong>：内层起始条件随外层变化时，总次数不再是简单 <code>m × n</code>。这类题常考"递减次数"——列清单是最稳的方式。</p><div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
+</div>
 </div>
 
 <h3>MCQ-8（String 比较 + 判别陷阱）</h3>
@@ -1459,6 +1481,7 @@ boolean r = (a == c);
 </ul>
 <p><strong>答案：B</strong></p>
 <p><strong>解析</strong>：考察 <code>==</code> 与 <code>.equals()</code> 在 String 上的差异，以及引用赋值的语义。这是 Unit 1 + Unit 2 联合考点，<strong>全文最高频出错题之一</strong>。</p>
+<div class="wb-redo-row"><button class="wb-redo-btn" type="button">↺ 重做该题</button></div>
 <blockquote>
 <p><strong>MCQ 限时训练建议</strong>：以上 10 题计时 25 分钟完成，平均 2.5 分钟/题。新版考纲的 MCQ 1–4 选项很少出现"明显送分"，必须<strong>手算</strong>才能拿稳分。</p></div>
 </div>
@@ -1513,7 +1536,10 @@ Value of beadSequence    Meets Rule 1   Meets Rule 2   Meets Rule 3   Printed Ou
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
@@ -1521,7 +1547,7 @@ Value of beadSequence    Meets Rule 1   Meets Rule 2   Meets Rule 3   Printed Ou
 <ul>
 <li>(1) 长度条件：5 ≤ length ≤ 10。</li>
 <li>(2) 至少一个 'B' 和至少一个 'W'：必须分别检查两个字符，或用循环扫描。</li>
-<li>(3) 首尾字符相同：<code>.charAt(0)</code> 与 <code>.charAt(length - 1)</code> 比较，注意非空字符串的前提。</li>
+<li>(3) 首尾字符相同：<code>.substring(0, 1)</code> 与 <code>.substring(length - 1, length)</code> 比较，注意非空字符串的前提。</li>
 <li>(4) 三个 boolean 与运算后输出。</li>
 </ul>
 <h4>参考解法</h4>
@@ -1531,7 +1557,7 @@ boolean lengthGood = beadSequence.length() &gt;= 5 &amp;&amp; beadSequence.lengt
 // (2) 至少一个 B 和一个 W
 boolean hasB = false, hasW = false;
 for (int i = 0; i &lt; beadSequence.length(); i++) {
-    char c = beadSequence.charAt(i);
+    char c = beadSequence.substring(i, i + 1);
     if (c == 'B') hasB = true;
     if (c == 'W') hasW = true;
 }
@@ -1539,7 +1565,7 @@ boolean correctColors = hasB &amp;&amp; hasW;
 
 // (3) 首尾同色（要求 beadSequence 非空）
 boolean startEndGood = beadSequence.length() &gt; 0
-        &amp;&amp; beadSequence.charAt(0) == beadSequence.charAt(beadSequence.length() - 1);
+        &amp;&amp; beadSequence.substring(0, 1).equals(beadSequence.substring(beadSequence.length() - 1, beadSequence.length()));
 
 // (4) 合并
 if (lengthGood &amp;&amp; correctColors &amp;&amp; startEndGood) {
@@ -1592,7 +1618,10 @@ meet all specifications and conform to the examples shown in the table.
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
@@ -1642,7 +1671,10 @@ meet all specifications and conform to the examples shown in the table.
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
@@ -1699,7 +1731,10 @@ conform to the examples.
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
@@ -1746,7 +1781,10 @@ conform to the examples.
 <div class="wb-frq-input">
   <p class="wb-hint">✍️ 建议先限时独立作答：可直接在下方输入框打草稿，或手写完成后对照参考解答。</p>
   <textarea class="wb-frq-textarea" spellcheck="false" placeholder="在此输入你的作答（Java 代码或思路）……"></textarea>
-  <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+  <div class="wb-redo-row">
+    <button class="wb-reveal-btn" type="button">查看参考解答与评分标准</button>
+    <button class="wb-redo-btn" type="button">↺ 重做该题</button>
+  </div>
 </div>
 <div class="wb-frq-answer-wrap">
 <h4>中文思路</h4>
@@ -2010,21 +2048,71 @@ System.out.println(title + &quot; by &quot; + artist);
 <script id="wb-interactive-script">
 (function () {
   'use strict';
+
+  /* ---------- 重做：把一道题恢复到未作答的初始状态 ---------- */
+  function resetMcq(box) {
+    if (!box) { return; }
+    var opts = box.querySelectorAll('.wb-opt');
+    for (var i = 0; i < opts.length; i++) {
+      opts[i].classList.remove('wb-correct', 'wb-wrong');
+    }
+    var fb = box.querySelector('.wb-feedback');
+    if (fb) {
+      fb.style.display = '';
+      fb.textContent = '';
+    }
+    var panel = box.querySelector('.wb-ans-panel');
+    if (panel) { panel.classList.remove('wb-show'); }
+  }
+
+  function resetFrq(input) {
+    if (!input) { return; }
+    var ta = input.querySelector('.wb-frq-textarea');
+    if (ta) { ta.value = ''; }
+    var btn = input.querySelector('.wb-reveal-btn');
+    var wrap = input.nextElementSibling;
+    if (wrap && wrap.classList.contains('wb-frq-answer-wrap')) {
+      wrap.classList.remove('wb-show');
+    }
+    if (btn) { btn.textContent = '查看参考解答与评分标准'; }
+  }
+
   document.addEventListener('click', function (e) {
-    var opt = e.target.closest ? e.target.closest('.wb-opt') : null;
+    if (!e.target.closest) { return; }
+
+    /* ---------- 重做该题 ---------- */
+    var redo = e.target.closest('.wb-redo-btn');
+    if (redo) {
+      var rbox = redo.closest('.wb-mcq');
+      if (rbox) { resetMcq(rbox); return; }
+      var rinput = redo.closest('.wb-frq-input');
+      if (rinput) { resetFrq(rinput); return; }
+      var rwrap = redo.closest('.wb-frq-answer-wrap');
+      if (rwrap && rwrap.previousElementSibling) {
+        resetFrq(rwrap.previousElementSibling);
+      }
+      return;
+    }
+
+    /* ---------- MCQ 选项作答 ---------- */
+    var opt = e.target.closest('.wb-opt');
     if (opt) {
       var box = opt.closest('.wb-mcq');
-      if (!box) return;
+      if (!box) { return; }
       var ans = box.getAttribute('data-answer');
       var pick = opt.getAttribute('data-letter');
       var all = box.querySelectorAll('.wb-opt');
-      for (var i = 0; i < all.length; i++) all[i].classList.remove('wb-correct', 'wb-wrong');
+      for (var i = 0; i < all.length; i++) {
+        all[i].classList.remove('wb-correct', 'wb-wrong');
+      }
       if (pick === ans) {
         opt.classList.add('wb-correct');
       } else {
         opt.classList.add('wb-wrong');
         for (var j = 0; j < all.length; j++) {
-          if (all[j].getAttribute('data-letter') === ans) all[j].classList.add('wb-correct');
+          if (all[j].getAttribute('data-letter') === ans) {
+            all[j].classList.add('wb-correct');
+          }
         }
       }
       var fb = box.querySelector('.wb-feedback');
@@ -2035,10 +2123,12 @@ System.out.println(title + &quot; by &quot; + artist);
           : '❌ 你选了 ' + pick + '，正确答案是 ' + ans + '。解析如下：';
       }
       var panel = box.querySelector('.wb-ans-panel');
-      if (panel) panel.classList.add('wb-show');
+      if (panel) { panel.classList.add('wb-show'); }
       return;
     }
-    var btn = e.target.closest ? e.target.closest('.wb-reveal-btn') : null;
+
+    /* ---------- FRQ 展开/收起参考解答 ---------- */
+    var btn = e.target.closest('.wb-reveal-btn');
     if (btn) {
       var input = btn.closest('.wb-frq-input');
       var wrap = input ? input.nextElementSibling : null;
