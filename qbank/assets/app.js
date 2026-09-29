@@ -207,7 +207,16 @@
 
     var bodyHtml = '';
     if (q.type === 'FRQ') {
-      bodyHtml += formatBody(q.prompt || q.stem || '');
+      if (q.promptImgs && q.promptImgs.length) {
+        /* 官方原题图片版：完整展示整道题目，杜绝文本层抽取的代码/注释断裂 */
+        bodyHtml += '<div class="prompt-imgs">' + q.promptImgs.map(function (u) {
+          return '<img class="prompt-img" loading="lazy" alt="官方原题图片" src="' + u + '">';
+        }).join('') + '</div>';
+        bodyHtml += '<details class="prompt-alt"><summary>文字版题面（自动抽取，仅供检索/复制）</summary>' +
+          '<div class="prompt-alt-body">' + formatBody(q.prompt || q.stem || '') + '</div></details>';
+      } else {
+        bodyHtml += formatBody(q.prompt || q.stem || '');
+      }
     } else {
       bodyHtml += formatBody(q.stem || '');
       if (q.stemImg) bodyHtml += '<div class="figbox"><img src="' + q.stemImg + '" alt="题干图"></div>';

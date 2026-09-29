@@ -175,7 +175,11 @@
 
       /* 题干 / 提示 */
       var bodyText = q.type === 'FRQ' ? (q.prompt || q.stem || '') : (q.stem || '');
-      pushSegments(bodyText);
+      if (q.type === 'FRQ' && q.promptImgs && q.promptImgs.length) {
+        kids.push(new P({ spacing: { after: 40 }, indent: { left: 280 }, children: [new T({ text: '（本题题面为官方图片版，共 ' + q.promptImgs.length + ' 张，请访问网页版查看完整题目）', size: 18, color: '6B7280', font: CN_FONT })] }));
+      } else {
+        pushSegments(bodyText);
+      }
 
       /* 选项 */
       if (q.options && q.options.length) {
@@ -433,7 +437,12 @@
       html += '<div class="qhead"><span class="qno">' + (i + 1) + '.</span><div class="tags">' +
         (cfg.showTopic && q.topic ? '<span class="chip">Topic ' + q.topic + '</span>' : '') +
         (cfg.includeSource ? '<span class="chip">' + QB.esc(q.label || '') + '</span>' : '') + '</div></div>';
-      html += '<div class="qbody">' + QB.formatBody(q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem);
+      var bodyInner = q.type === 'FRQ' && q.promptImgs && q.promptImgs.length
+        ? '<div class="prompt-imgs">' + q.promptImgs.map(function (u) {
+            return '<img style="max-width:100%;border:1px solid #ddd;border-radius:6px;margin:8px 0" alt="官方原题图片" src="' + u + '">';
+          }).join('') + '</div>'
+        : QB.formatBody(q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem);
+      html += '<div class="qbody">' + bodyInner;
       if (q.stemImg) html += '<div class="figbox"><img src="' + q.stemImg + '" alt="题干图"></div>';
       if (q.options && q.options.length) {
         html += '<div class="opts">' + q.options.map(function (o) {
@@ -485,7 +494,11 @@
     var cfg = cfgFromUI();
     var md = '# ' + cfg.title + '\n\n';
     qs.forEach(function (q, i) {
-      md += '**' + (i + 1) + '.** ' + ((q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem) || '').replace(/\n/g, '  \n') + '\n\n';
+      if (q.type === 'FRQ' && q.promptImgs && q.promptImgs.length) {
+        md += '**' + (i + 1) + '.** （官方原题图片版，共 ' + q.promptImgs.length + ' 张，见网页版）\n\n';
+      } else {
+        md += '**' + (i + 1) + '.** ' + ((q.type === 'FRQ' ? (q.prompt || q.stem) : q.stem) || '').replace(/\n/g, '  \n') + '\n\n';
+      }
       (q.options || []).forEach(function (o) {
         if (o.image) { md += '- (' + o.label + ') （图片选项，见网站）\n'; }
         else if (QB.optIsCode(o.text)) { md += '- (' + o.label + ')\n\n  ```java\n' + o.text.replace(/^/gm, '  ') + '\n  ```\n'; }

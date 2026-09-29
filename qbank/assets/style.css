@@ -224,6 +224,16 @@ pre.code {
 .expl { font-size: 13.8px; color: var(--ink-2); white-space: pre-wrap; word-break: break-word; }
 .expl .sol-img { display: block; max-width: min(560px, 100%); width: auto; margin: 6px 0;
   border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+/* FRQ 官方原题图片版 */
+.prompt-imgs { margin: 4px 0 2px; }
+.prompt-img { display: block; max-width: min(720px, 100%); width: auto; margin: 10px 0;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .06); }
+.prompt-alt { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+.prompt-alt summary { cursor: pointer; user-select: none; }
+.prompt-alt summary:hover { color: var(--ink-2); }
+.prompt-alt[open] summary { margin-bottom: 8px; }
+.prompt-alt-body { border-left: 3px solid var(--line); padding-left: 10px; }
 .expl-label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; margin-bottom: 4px; }
 .expl-label.expl-en-label { margin-top: 10px; display: flex; align-items: baseline; gap: 6px; }
 .expl-en-hint { font-weight: 500; letter-spacing: 0; color: var(--muted); }
